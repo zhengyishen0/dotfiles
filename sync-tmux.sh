@@ -1,8 +1,9 @@
 #!/bin/bash
 # Bidirectional sync script for tmux config
 # Usage:
-#   ./sync-tmux.sh push   - Push local changes to git
-#   ./sync-tmux.sh pull   - Pull from git and apply
+#   ./sync-tmux.sh push         - Push local changes to git
+#   ./sync-tmux.sh pull         - Pull from git and reload (keeps sessions)
+#   ./sync-tmux.sh pull --reset - Pull and restart tmux server (clean slate)
 
 set -e
 
@@ -61,16 +62,32 @@ elif [[ "$1" == "pull" ]]; then
 
     # Reload tmux if running
     if tmux info &>/dev/null; then
-        tmux source-file "$TMUX_CONF"
-        echo "✓ Reloaded tmux config"
+        if [[ "$2" == "--reset" ]]; then
+            echo "⚠️  Killing tmux server for clean restart..."
+            echo "   (All sessions will be closed)"
+            read -p "Continue? [y/N] " confirm
+            if [[ "$confirm" =~ ^[Yy]$ ]]; then
+                tmux kill-server
+                echo "✓ Tmux server killed. Run 'tmux' to start fresh."
+            else
+                echo "Aborted. Using source-file instead..."
+                tmux source-file "$TMUX_CONF"
+                echo "✓ Reloaded tmux config (may have stale bindings)"
+            fi
+        else
+            tmux source-file "$TMUX_CONF"
+            echo "✓ Reloaded tmux config (may have stale bindings)"
+            echo "   Tip: Use --reset flag for clean restart"
+        fi
     fi
 
     echo "✓ Pulled from GitHub and applied"
 
 else
-    echo "Usage: $0 {push|pull}"
+    echo "Usage: $0 {push|pull [--reset]}"
     echo ""
-    echo "  push - Commit and push local tmux config to GitHub"
-    echo "  pull - Pull from GitHub and apply to local tmux"
+    echo "  push              - Commit and push local tmux config to GitHub"
+    echo "  pull              - Pull from GitHub and reload config (keeps sessions)"
+    echo "  pull --reset      - Pull and kill tmux server for clean restart (loses sessions)"
     exit 1
 fi
