@@ -60,11 +60,15 @@ elif [[ "$1" == "pull" ]]; then
     # Restow (safe even if already stowed)
     stow -R tmux
 
-    # Install/update TPM plugins
-    if [[ -f ~/.tmux/plugins/tpm/bin/install_plugins ]]; then
-        echo "Installing/updating tmux plugins..."
-        ~/.tmux/plugins/tpm/bin/install_plugins
+    # Install TPM if not present
+    if [[ ! -d ~/.tmux/plugins/tpm ]]; then
+        echo "Installing TPM (Tmux Plugin Manager)..."
+        git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
     fi
+
+    # Install/update TPM plugins
+    echo "Installing/updating tmux plugins..."
+    ~/.tmux/plugins/tpm/bin/install_plugins
 
     # Reload tmux if running
     if tmux info &>/dev/null; then
