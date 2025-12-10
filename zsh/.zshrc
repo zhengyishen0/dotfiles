@@ -15,4 +15,7 @@ proxy_off() {
 export PATH="$PATH:$HOME/.local/bin"
 
 # Claude Code alias
-alias claude-danger="claude --dangerously-skip-permissions"
+alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
+
+# claude-tools alias - auto-generated
+alias claude-tools='/Users/zhengyishen/Codes/claude-code/claude-tools/run.sh'
