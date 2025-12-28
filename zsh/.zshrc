@@ -7,7 +7,7 @@ export PATH="$PATH:$HOME/.local/bin"
 export CONTEXT7_API_KEY='ctx7sk-ab0ddc96-7d9f-4a62-8c0f-0fd3f7d1adcb'
 
 # Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"
+export PATH="$PATH:$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
 
@@ -19,7 +19,7 @@ alias claude-ps='pgrep -fl "^claude"'
 alias claude-kill='pkill -9 "^claude"'
 
 # claude-tools alias - auto-generated
-alias claude-tools='/Users/zhengyishen/Codes/claude-code/claude-tools/run.sh'
+alias claude-tools="$HOME/Codes/claude-code/claude-tools/run.sh"
 
 # Claude Code CLI
 alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
@@ -44,6 +44,6 @@ proxy_off() {
 }
 
 # Claude Code Proxy Auto-Enable
-if [ -f "/Users/zhengyishen/Codes/claude-code/claude-tools/proxy/init.sh" ]; then
-    source "/Users/zhengyishen/Codes/claude-code/claude-tools/proxy/init.sh"
+if [ -f "$HOME/Codes/claude-code/claude-tools/proxy/init.sh" ]; then
+    source "$HOME/Codes/claude-code/claude-tools/proxy/init.sh"
 fi
