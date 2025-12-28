@@ -1,5 +1,37 @@
+################################################################################
+# Environment Variables
+################################################################################
+export PATH="$PATH:$HOME/.local/bin"
 
-# 代理开关
+# Context7 API key
+export CONTEXT7_API_KEY='ctx7sk-ab0ddc96-7d9f-4a62-8c0f-0fd3f7d1adcb'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"
+# End of LM Studio CLI section
+
+
+################################################################################
+# Claude Code
+################################################################################
+# Process management
+alias claude-ps='pgrep -fl "^claude"'
+alias claude-kill='pkill -9 "^claude"'
+
+# claude-tools alias - auto-generated
+alias claude-tools='/Users/zhengyishen/Codes/claude-code/claude-tools/run.sh'
+
+# Claude Code CLI
+alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
+
+# Usage tracking
+alias claude-usage="~/.config/opencode/usage.sh"
+
+
+################################################################################
+# Proxy Configuration
+################################################################################
+# Manual proxy toggle functions (or use: claude-tools proxy enable/disable)
 proxy_on() {
   export https_proxy=http://127.0.0.1:33210
   export http_proxy=http://127.0.0.1:33210
@@ -11,11 +43,7 @@ proxy_off() {
   echo "代理已关闭"
 }
 
-
-export PATH="$PATH:$HOME/.local/bin"
-
-# Claude Code alias
-alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
-
-# claude-tools alias - auto-generated
-alias claude-tools='/Users/zhengyishen/Codes/claude-code/claude-tools/run.sh'
+# Claude Code Proxy Auto-Enable
+if [ -f "/Users/zhengyishen/Codes/claude-code/claude-tools/proxy/init.sh" ]; then
+    source "/Users/zhengyishen/Codes/claude-code/claude-tools/proxy/init.sh"
+fi
