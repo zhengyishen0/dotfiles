@@ -14,12 +14,15 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 ################################################################################
 # Claude Code
 ################################################################################
+# claude-tools directory
+CLAUDE_TOOLS_DIR="$HOME/Codes/claude-code/claude-tools"
+
 # Process management
 alias claude-ps='pgrep -fl "^claude"'
 alias claude-kill='pkill -9 "^claude"'
 
 # claude-tools alias - auto-generated
-alias claude-tools="$HOME/Codes/claude-code/claude-tools/run.sh"
+alias claude-tools="$CLAUDE_TOOLS_DIR/run.sh"
 
 # Claude Code CLI
 alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
@@ -44,6 +47,6 @@ proxy_off() {
 }
 
 # Claude Code Proxy Auto-Enable
-if [ -f "$HOME/Codes/claude-code/claude-tools/proxy/init.sh" ]; then
-    source "$HOME/Codes/claude-code/claude-tools/proxy/init.sh"
+if [ -f "$CLAUDE_TOOLS_DIR/proxy/init.sh" ]; then
+    source "$CLAUDE_TOOLS_DIR/proxy/init.sh"
 fi
