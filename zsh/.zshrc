@@ -26,7 +26,7 @@ alias claude-tools="$CLAUDE_TOOLS_DIR/run.sh"
 
 # Claude Code CLI
 alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
-alias claude-fast="COLUMNS=200 $HOME/.local/bin/claude-fast --dangerously-skip-permissions"
+alias claude-fast="COLUMNS=200 $HOME/.local/bin/claude-fast --dangerously-skip-permissions --model haiku"
 
 # Usage tracking
 alias claude-usage="~/.config/opencode/usage.sh"
