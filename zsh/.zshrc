@@ -169,14 +169,3 @@ setup() {
     echo "Run: source ~/.zshrc"
 }
 
-# Update boringNotch from GitHub
-update_boringnotch() {
-    echo "Updating boringNotch..."
-    curl -L "https://github.com/TheBoredTeam/boring.notch/releases/latest/download/boringNotch.dmg" -o /tmp/boringNotch.dmg
-    hdiutil attach /tmp/boringNotch.dmg -quiet
-    rm -rf "/Applications/boringNotch.app"
-    cp -R "/Volumes/boringNotch/boringNotch.app" /Applications/
-    hdiutil detach "/Volumes/boringNotch" -quiet
-    rm /tmp/boringNotch.dmg
-    echo "boringNotch updated!"
-}
