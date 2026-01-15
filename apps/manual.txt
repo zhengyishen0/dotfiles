@@ -7,8 +7,3 @@ Grab2Text|Mac App Store
 rcmd|Mac App Store
 Hex|Manual
 Frost|Manual
-FreeGecko|Manual
-Handy|Manual
-Countdown|Manual
-Monocle|Manual
-Affinity|Manual

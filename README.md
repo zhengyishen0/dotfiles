@@ -2,112 +2,102 @@
 
 Personal macOS configuration managed with GNU Stow.
 
-## Quick Start (New Machine)
+## Quick Start
 
 ```bash
 git clone https://github.com/zhengyishen0/dotfiles.git ~/dotfiles && source ~/dotfiles/zsh/.zshrc && setup
 ```
-
-This single command will:
-1. Install Homebrew (if not present)
-2. Install all packages from Brewfile (50+ formulae, 20+ casks)
-3. Prompt to install GitHub apps (boringNotch, etc.)
-4. Stow all dotfiles (zsh, git, tmux)
-5. Show manual install reminders
 
 ## Structure
 
 ```
 dotfiles/
 ├── apps/
-│   ├── github.txt            # GitHub apps (DMG install)
-│   └── manual.txt            # Manual install reminders
+│   ├── github.txt           # GitHub apps (DMG install)
+│   └── manual.txt           # Manual install reminders
 ├── brew/
-│   └── Brewfile              # Homebrew packages & casks
+│   └── Brewfile             # Homebrew packages & casks
+├── scripts/
+│   ├── setup.sh             # System setup script
+│   └── sync-tmux.sh         # Tmux config sync
 ├── vimium/
-│   ├── search-engines.txt    # Vimium C search engines
-│   └── custom-keys.txt       # Vimium C key mappings
+│   ├── search-engines.txt   # Vimium C search engines
+│   └── custom-keys.txt      # Vimium C key mappings
 ├── zsh/
-│   └── .zshrc                # Zsh config + setup function
+│   └── .zshrc               # Shell config
 ├── git/
-│   └── .gitconfig
+│   └── .gitconfig           # Git config
 ├── tmux/
-│   └── .tmux.conf
+│   └── .tmux.conf           # Tmux config
 └── README.md
 ```
 
-## Adding New Apps
+## Adding Apps
 
-### Homebrew Apps
-Edit `brew/Brewfile`:
-```ruby
-brew "package-name"
-cask "app-name"
+| Type | File |
+|------|------|
+| Homebrew | `brew/Brewfile` |
+| GitHub DMG | `apps/github.txt` |
+| Manual | `apps/manual.txt` |
+
+### Format Examples
+
+**apps/github.txt:**
+```
+# name|app_path|dmg_url|volume_name
+AppName|/Applications/AppName.app|https://github.com/.../App.dmg|AppName
 ```
 
-### GitHub Apps (DMG)
-Edit `apps/github.txt`:
+**apps/manual.txt:**
 ```
-# Format: name|app_path|dmg_url|volume_name
-AppName|/Applications/AppName.app|https://github.com/.../AppName.dmg|AppName
-```
-
-### Manual Apps
-Edit `apps/manual.txt`:
-```
-# Format: name|source
+# name|source
 AppName|Mac App Store
 AnotherApp|Manual
 ```
 
-## Manual Steps After Setup
+## Commands
 
-### Vimium C
-1. Open Vimium C settings
-2. Copy `~/dotfiles/vimium/search-engines.txt` → Custom search engines
-3. Copy `~/dotfiles/vimium/custom-keys.txt` → Custom key mappings
+| Command | Description |
+|---------|-------------|
+| `setup` | Full system setup |
+| `sync-tmux push` | Push tmux config to git |
+| `sync-tmux pull` | Pull and reload tmux config |
 
-### Mac App Store
-- Grab2Text
-- rcmd
+## Tmux Keybindings
 
-### Other
-- Hex, Frost, FreeGecko, Handy, Countdown, Monocle, Affinity
+**Prefix:** `Ctrl+Space`
 
-## Tools & Aliases
+| Category | Keys | Action |
+|----------|------|--------|
+| **Navigation** | | |
+| | `Ctrl+←/→` | Switch pane |
+| | `Ctrl+Option+←/→` | Switch window |
+| | `Ctrl+Option+↑/↓` | Switch session |
+| **Pane** | | |
+| | `Ctrl+\` | Split horizontal |
+| | `Ctrl+-` | Split vertical |
+| | `Ctrl+Shift+←/→/↑/↓` | Resize pane |
+| | `prefix Space` | Zoom toggle |
+| **Window** | | |
+| | `prefix n` | New window |
+| | `prefix x` | Kill window |
+| | `prefix r` | Rename window |
+| **Copy Mode** | | |
+| | `Opt+←/→` | Word move |
+| | `Ctrl+←/→` | Line start/end |
+| | `Opt+Shift+←/→` | Select word |
+| | `Ctrl+Shift+←/→` | Select to line |
+| | Drag | Select & copy |
+| | `y` | Copy |
+| | Right-click | Paste |
 
-### Shell Init (auto-configured)
-| Tool | Purpose |
-|------|---------|
-| zoxide | Smart cd (`z` command) |
-| fzf | Fuzzy finder |
-| yazi | File manager (`y` command, cd on exit) |
+## Shell Aliases
 
-### Modern CLI Aliases
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `ls` | `eza` | Better ls |
-| `cat` | `bat` | Syntax highlighting |
-| `du` | `dust` | Visual disk usage |
-| `df` | `duf` | Better df |
-| `ps` | `procs` | Better ps |
-
-### Tmux Copy Mode
-| Action | Effect |
-|--------|--------|
-| Scroll | Enter copy-mode, auto-exit at bottom |
-| Drag | Select and copy to clipboard |
-| `Opt + ←/→` | Word navigation |
-| `Ctrl + ←/→` | Line start/end |
-| `Opt+Shift + ←/→` | Select word (hold to extend) |
-| `Ctrl+Shift + ←/→` | Select to line start/end |
-| `y` | Copy to clipboard |
-| `Escape` | Exit copy-mode |
-| Right-click | Paste |
-
-## Updating
-
-```bash
-cd ~/dotfiles
-git add -A && git commit -m "Update" && git push
-```
+| Alias | Command |
+|-------|---------|
+| `ls` | `eza` |
+| `cat` | `bat` |
+| `du` | `dust` |
+| `df` | `duf` |
+| `ps` | `procs` |
+| `y` | `yazi` (cd on exit) |
