@@ -1,0 +1,14 @@
+# Manual Apps - Require manual installation
+# Format: name|source
+#
+# Sources: "Mac App Store", "Manual", or a URL
+
+Grab2Text|Mac App Store
+rcmd|Mac App Store
+Hex|Manual
+Frost|Manual
+FreeGecko|Manual
+Handy|Manual
+Countdown|Manual
+Monocle|Manual
+Affinity|Manual

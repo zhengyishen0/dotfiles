@@ -19,6 +19,9 @@ This single command will:
 
 ```
 dotfiles/
+├── apps/
+│   ├── github.txt            # GitHub apps (DMG install)
+│   └── manual.txt            # Manual install reminders
 ├── brew/
 │   └── Brewfile              # Homebrew packages & casks
 ├── vimium/
@@ -43,22 +46,18 @@ cask "app-name"
 ```
 
 ### GitHub Apps (DMG)
-Edit `GITHUB_APPS` array in `zsh/.zshrc`:
-```bash
-GITHUB_APPS=(
-    "boringNotch|/Applications/boringNotch.app|https://github.com/.../boringNotch.dmg|boringNotch"
-    "NewApp|/Applications/NewApp.app|https://github.com/.../NewApp.dmg|NewApp"
-)
+Edit `apps/github.txt`:
+```
+# Format: name|app_path|dmg_url|volume_name
+AppName|/Applications/AppName.app|https://github.com/.../AppName.dmg|AppName
 ```
 
 ### Manual Apps
-Edit `MANUAL_APPS` array in `zsh/.zshrc`:
-```bash
-MANUAL_APPS=(
-    "Grab2Text|Mac App Store"
-    "rcmd|Mac App Store"
-    "SomeApp|Manual"
-)
+Edit `apps/manual.txt`:
+```
+# Format: name|source
+AppName|Mac App Store
+AnotherApp|Manual
 ```
 
 ## Manual Steps After Setup

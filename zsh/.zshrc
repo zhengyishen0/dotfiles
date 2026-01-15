@@ -105,33 +105,10 @@ command -v procs &>/dev/null && alias ps='procs'
 
 
 ################################################################################
-# Setup Configuration
-################################################################################
-
-# GitHub Apps - Format: "name|app_path|dmg_url|volume_name"
-GITHUB_APPS=(
-    "boringNotch|/Applications/boringNotch.app|https://github.com/TheBoredTeam/boring.notch/releases/latest/download/boringNotch.dmg|boringNotch"
-    # Add more: "AppName|/Applications/AppName.app|https://github.com/.../AppName.dmg|VolumeName"
-)
-
-# Manual Apps - Format: "name|source"
-MANUAL_APPS=(
-    "Grab2Text|Mac App Store"
-    "rcmd|Mac App Store"
-    "Hex|Manual"
-    "Frost|Manual"
-    "FreeGecko|Manual"
-    "Handy|Manual"
-    "Countdown|Manual"
-    "Monocle|Manual"
-    "Affinity|Manual"
-    # Add more: "AppName|Source"
-)
-
-################################################################################
 # Setup Function
 ################################################################################
 setup() {
+    local DOTFILES=~/dotfiles
     echo "=== System Setup ==="
     echo ""
 
@@ -153,78 +130,80 @@ setup() {
 
     # 2. Install Homebrew packages
     echo "[2/5] Installing Homebrew packages..."
-    if [[ -f ~/dotfiles/brew/Brewfile ]]; then
-        brew bundle install --file=~/dotfiles/brew/Brewfile
+    if [[ -f $DOTFILES/brew/Brewfile ]]; then
+        brew bundle install --file=$DOTFILES/brew/Brewfile
     else
-        echo "Error: ~/dotfiles/brew/Brewfile not found"
+        echo "Error: $DOTFILES/brew/Brewfile not found"
         return 1
     fi
     echo ""
 
-    # 3. GitHub Apps (interactive)
+    # 3. GitHub Apps (interactive) - read from apps/github.txt
     echo "[3/5] GitHub Apps..."
-    for app in "${GITHUB_APPS[@]}"; do
-        IFS='|' read -r name app_path dmg_url volume_name <<< "$app"
-        if [[ ! -e "$app_path" ]]; then
-            read -p "Install $name from GitHub? [y/N] " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                echo "Downloading $name..."
-                curl -L "$dmg_url" -o "/tmp/$name.dmg"
-                hdiutil attach "/tmp/$name.dmg" -quiet
-                cp -R "/Volumes/$volume_name/$name.app" /Applications/
-                hdiutil detach "/Volumes/$volume_name" -quiet
-                rm "/tmp/$name.dmg"
-                echo "$name installed!"
+    if [[ -f $DOTFILES/apps/github.txt ]]; then
+        while IFS='|' read -r name app_path dmg_url volume_name; do
+            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue  # skip comments and empty lines
+            if [[ ! -e "$app_path" ]]; then
+                read -p "Install $name from GitHub? [y/N] " -n 1 -r
+                echo ""
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    echo "Downloading $name..."
+                    curl -L "$dmg_url" -o "/tmp/$name.dmg"
+                    hdiutil attach "/tmp/$name.dmg" -quiet
+                    cp -R "/Volumes/$volume_name/$name.app" /Applications/
+                    hdiutil detach "/Volumes/$volume_name" -quiet
+                    rm "/tmp/$name.dmg"
+                    echo "$name installed!"
+                fi
+            else
+                echo "$name already installed, skipping."
             fi
-        else
-            echo "$name already installed, skipping."
-        fi
-    done
+        done < $DOTFILES/apps/github.txt
+    fi
     echo ""
 
     # 4. Stow dotfiles
     echo "[4/5] Stowing dotfiles..."
-    cd ~/dotfiles
+    cd $DOTFILES
     stow -v zsh git tmux 2>&1 | grep -v "BUG"
     cd - > /dev/null
     echo ""
 
-    # 5. Manual install reminders
+    # 5. Manual install reminders - read from apps/manual.txt
     echo "[5/5] Manual Install Required:"
     echo ""
+    if [[ -f $DOTFILES/apps/manual.txt ]]; then
+        local mas_apps=()
+        local other_apps=()
+        while IFS='|' read -r name source; do
+            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+            if [[ "$source" == "Mac App Store" ]]; then
+                mas_apps+=("$name")
+            else
+                other_apps+=("$name")
+            fi
+        done < $DOTFILES/apps/manual.txt
 
-    # Group by source
-    local mas_apps=()
-    local other_apps=()
-    for app in "${MANUAL_APPS[@]}"; do
-        IFS='|' read -r name source <<< "$app"
-        if [[ "$source" == "Mac App Store" ]]; then
-            mas_apps+=("$name")
-        else
-            other_apps+=("$name")
+        if [[ ${#mas_apps[@]} -gt 0 ]]; then
+            echo "  Mac App Store:"
+            for app in "${mas_apps[@]}"; do
+                echo "    - $app"
+            done
+            echo ""
         fi
-    done
 
-    if [[ ${#mas_apps[@]} -gt 0 ]]; then
-        echo "  Mac App Store:"
-        for app in "${mas_apps[@]}"; do
-            echo "    - $app"
-        done
-        echo ""
-    fi
-
-    if [[ ${#other_apps[@]} -gt 0 ]]; then
-        echo "  Other:"
-        for app in "${other_apps[@]}"; do
-            echo "    - $app"
-        done
-        echo ""
+        if [[ ${#other_apps[@]} -gt 0 ]]; then
+            echo "  Other:"
+            for app in "${other_apps[@]}"; do
+                echo "    - $app"
+            done
+            echo ""
+        fi
     fi
 
     echo "  Vimium C:"
-    echo "    - Import search engines from: ~/dotfiles/vimium/search-engines.txt"
-    echo "    - Import custom keys from:    ~/dotfiles/vimium/custom-keys.txt"
+    echo "    - Import search engines from: $DOTFILES/vimium/search-engines.txt"
+    echo "    - Import custom keys from:    $DOTFILES/vimium/custom-keys.txt"
     echo ""
 
     echo "=== Setup Complete ==="

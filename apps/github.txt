@@ -1,0 +1,7 @@
+# GitHub Apps - Downloaded and installed from GitHub Releases
+# Format: name|app_path|dmg_url|volume_name
+#
+# Example:
+# AppName|/Applications/AppName.app|https://github.com/user/repo/releases/latest/download/AppName.dmg|AppName
+
+boringNotch|/Applications/boringNotch.app|https://github.com/TheBoredTeam/boring.notch/releases/latest/download/boringNotch.dmg|boringNotch
