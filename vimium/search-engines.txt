@@ -1,0 +1,163 @@
+# Vimium C Search Engines
+# Copy this to Vimium C Options > Custom search engines
+
+# ==============================================================================
+# Search Engines
+# ==============================================================================
+x|twitter: https://x.com/search?q=%s X
+
+bi|bing: https://www.bing.com/search?q=%s \
+  blank=https://www.bing.com/ Bing
+b|ba|baidu: https://www.baidu.com/s?ie=utf-8&wd=%s \
+  blank=https://www.baidu.com/ 百度
+g|go|gg|google: https://www.google.com/search?q=%s \
+  www.google.com re=/^(?:\.[a-z]{2,4})?\/search\b.*?[#&?]q=([^#&]*)/i \
+  blank=https://www.google.com/ Google
+sg|sogou: https://www.sogou.com/web?ie=UTF-8&query=$s 搜狗
+360|360so: https://www.so.com/s?ie=UTF-8&q=$s 360 搜索
+br|brave: https://search.brave.com/search?q=%s Brave
+d|dd|ddg|duckduckgo: https://duckduckgo.com/?q=%s DuckDuckGo
+ec|ecosia: https://www.ecosia.org/search?q=%s Ecosia
+qw|qwant: https://www.qwant.com/?q=%s Qwant
+ya|yd|yandex: https://yandex.com/search/?text=%s Yandex
+yh|yahoo: https://search.yahoo.com/search?p=%s Yahoo
+maru|mailru: https://go.mail.ru/search?q=%s Mail.ru
+
+# ==============================================================================
+# Maps
+# ==============================================================================
+g.m|gm|gmap: https://www.google.com/maps?q=%s \
+  blank=https://www.google.com/maps Google Maps
+b.m|bm|bmap: \
+  https://api.map.baidu.com/geocoder?output=html&address=%s&src=vimium-c \
+  blank=https://map.baidu.com/ 百度地图
+
+# ==============================================================================
+# Video & Media
+# ==============================================================================
+y|yt|youtube: https://www.youtube.com/results?search_query=%s \
+  blank=https://www.youtube.com/ YouTube
+yout: https://www.youtube.com/results?search_query=%s YouTube
+wh: https://www.youtube.com/feed/history YouTube History
+wl: https://www.youtube.com/playlist?list=WL YouTube Watch Later
+music: https://music.youtube.com/search?q=%s YouTube Music
+bili|bilibili: https://search.bilibili.com/all?keyword=%s Bilibili
+spot|spotify: https://open.spotify.com/search/%s Spotify
+
+# ==============================================================================
+# Knowledge & Reference
+# ==============================================================================
+w|wiki: https://www.wikipedia.org/w/index.php?search=%s Wikipedia
+g.s|gs|gscholar: https://scholar.google.com/scholar?q=$s \
+  scholar.google.com re=/^(?:\.[a-z]{2,4})?\/scholar\b.*?[#&?]q=([^#&]*)/i \
+  blank=https://scholar.google.com/ Google Scholar
+wolf: https://www.wolframalpha.com/input?i=%s Wolfram Alpha
+dict: https://www.dictionary.com/browse/%s Dictionary
+
+# ==============================================================================
+# Shopping
+# ==============================================================================
+a|ae|ali|aliexp: https://www.aliexpress.com/wholesale?SearchText=%s \
+  blank=https://www.aliexpress.com/ AliExpress
+j|jd|joy|joybuy: https://www.joybuy.com/search?keywords=%s \
+  blank=https://www.joybuy.com/ Joybuy
+az|amazon|amaz: https://www.amazon.com/s?k=%s \
+  blank=https://www.amazon.com/ Amazon
+ebay: https://www.ebay.com/sch/i.html?_nkw=%s eBay
+jd|jingdong: https://search.jd.com/Search?keyword=%s 京东
+
+# ==============================================================================
+# Development
+# ==============================================================================
+gh|github|git: https://github.com/search?q=$s \
+  blank=https://github.com/ GitHub
+rep: https://github.com/%s?tab=repositories GitHub Repos
+ge|gitee: https://search.gitee.com/?type=repository&q=$s \
+  blank=https://gitee.com/ Gitee
+pub: https://pub.dev/packages?q=%s Pub Dev
+flut|flutterflow: https://docs.flutterflow.io/search?q=%s FlutterFlow
+firebase: https://console.firebase.google.com/ Firebase
+
+# ==============================================================================
+# AI & Chat
+# ==============================================================================
+gpt|chatgpt: https://chat.openai.com/?q=%s ChatGPT
+claude: https://claude.ai/new?q=%s Claude
+gemini|bard|@gemini: https://gemini.google.com/app?q=%s Gemini
+@aimode: https://www.google.com/search?udm=50&q=%s Google AI Mode
+
+# ==============================================================================
+# Social
+# ==============================================================================
+xpro: https://pro.x.com/ X Pro
+inst|instagram: https://www.instagram.com/explore/tags/%s Instagram
+link|linkedin: https://www.linkedin.com/search/results/all/?keywords=%s LinkedIn
+medi|medium: https://medium.com/search?q=%s Medium
+hn: https://hn.algolia.com/?q=%s Hacker News
+hunt: https://www.producthunt.com/search?q=%s Product Hunt
+
+# ==============================================================================
+# Google Services
+# ==============================================================================
+gmail: https://mail.google.com/mail/u/0/#search/%s Gmail
+calen|calendar: https://calendar.google.com/ Google Calendar
+drive: https://drive.google.com/drive/search?q=%s Google Drive
+keep: https://keep.google.com/#search/text=%s Google Keep
+photo|photos: https://photos.google.com/search/%s Google Photos
+tran|translate: https://translate.google.com/?sl=auto&tl=zh-CN&text=%s Google Translate
+book|gbooks: https://play.google.com/books Google Play Books
+analytics: https://analytics.google.com/ Google Analytics
+find: https://www.google.com/android/find Find My Device
+
+# ==============================================================================
+# Communication
+# ==============================================================================
+fm: https://www.messenger.com/ Facebook Messenger
+what|whatsapp: https://web.whatsapp.com/ WhatsApp
+tele|telegram: https://t.me/ Telegram
+mes|messages: https://messages.google.com/ Google Messages
+slack: https://slack.com/ Slack
+
+# ==============================================================================
+# Chinese Sites
+# ==============================================================================
+xb|xiaobao: https://xbyy.app/index.php/vod/search.html?wd=%s 小宝
+xiao|xhs: https://www.xiaohongshu.com/search_result?keyword=%s 小红书
+iyf: https://www.iyf.tv/search?kw=%s 爱壹帆
+nunu: https://www.nunuyy.com/so/%s NuNu
+movie: https://app.movie/search?q=%s App Movie
+
+# ==============================================================================
+# Books & Archives
+# ==============================================================================
+zlib: https://z-lib.io/s?q=%s Z-Library
+anna: https://annas-archive.org/search?q=%s Anna's Archive
+liber|liber3: https://liber3.eth.limo/search?q=%s Liber3
+pirate: https://thepiratebay.org/search.php?q=%s Pirate Bay
+
+# ==============================================================================
+# Tools & Misc
+# ==============================================================================
+airbnb: https://www.airbnb.com/s/all?query=%s Airbnb
+craig: https://boston.craigslist.org/search?query=%s Craigslist
+deep|deepl: https://www.deepl.com/translator#auto/zh/%s DeepL
+calc: https://www.wolframalpha.com/input?i=%s Calculator
+store: https://chrome.google.com/webstore/search/%s Chrome Webstore
+figma: https://www.figma.com/files/search?q=%s Figma
+office: https://www.office.com/ Office 365
+drum|drumeo: https://www.drumeo.com/search?q=%s Drumeo
+hash: https://hashtagify.me/hashtag/%s Hashtagify
+hype|hypefury: https://hypefury.com/ Hypefury
+unroll: https://unroll.me/ Unroll.Me
+time: https://timeline.google.com/ Timeline
+boat: https://www.community-boating.org/ Community Boating
+task: https://taskboard.app/ TaskBoard
+ghost: https://ghost.org/ Ghost
+
+# ==============================================================================
+# Vimium Utilities
+# ==============================================================================
+\:i: vimium://sed/s/^//,lower\ $S re= Lower case
+v.m|math: vimium://math\ $S re= Calculate
+v.p: vimium://parse\ $S re= Redo Search
+js\:|Js: javascript:\ $S; JavaScript

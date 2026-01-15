@@ -1,0 +1,99 @@
+# Vimium C Custom Key Mappings
+# Copy this to Vimium C Options > Custom key mappings
+
+unmapAll
+
+# ==============================================================================
+# Basic Navigation
+# ==============================================================================
+map f LinkHints.activate
+map F LinkHints.activateWithQueue
+
+# ==============================================================================
+# Element Focus
+# ==============================================================================
+map i focusInput
+map d LinkHints.activateEdit
+map s LinkHints.activateSelect caret
+map g LinkHints.activateFocus
+
+# ==============================================================================
+# Vomnibar Search
+# ==============================================================================
+map o Vomnibar.activateInNewTab
+map a Vomnibar.activateTabs
+
+# ==============================================================================
+# Page Navigation
+# ==============================================================================
+map k scrollPageUp
+map j scrollPageDown
+map J scrollToBottom
+map K scrollToTop
+
+map w goBack
+map e goForward
+
+map ]] goNext
+map [[ goPrevious
+
+# ==============================================================================
+# Copy Elements
+# ==============================================================================
+map ci LinkHints.activateCopyImage
+map cl LinkHints.activateCopyLinkUrl
+map ct LinkHints.activateCopyLinkText
+
+# ==============================================================================
+# Tab Navigation
+# ==============================================================================
+map h previousTab
+map l nextTab
+map H firstTab
+map L lastTab
+map u visitPreviousTab
+
+map << moveTabLeft
+map >> moveTabRight
+
+# ==============================================================================
+# Tab Management
+# ==============================================================================
+map P togglePinTab
+map M toggleMuteTab
+map W moveTabToNextWindow
+
+# ==============================================================================
+# Misc
+# ==============================================================================
+map ? showHelp
+
+# ==============================================================================
+# Insert Mode
+# ==============================================================================
+map ` enterInsertMode
+map I enterInsertMode
+
+# ==============================================================================
+# Find Mode
+# ==============================================================================
+map / enterFindMode
+map n performFind
+map N performBackwardsFind
+
+# ==============================================================================
+# Visual Mode
+# ==============================================================================
+map v enterVisualMode
+map V enterVisualLineMode
+
+# ==============================================================================
+# macOS-like Keybindings for Visual Mode
+# ==============================================================================
+# Move by Word (Option + Arrows)
+mapKey <a-left> b
+mapKey <a-right> w
+
+# Move to Start/End of line (Cmd + Arrows)
+mapKey <m-left> 0
+mapKey <m-right> $

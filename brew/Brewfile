@@ -1,0 +1,152 @@
+# Brewfile - Personal Development Environment
+# Install: brew bundle install --file=~/dotfiles/brew/Brewfile
+# Check:   brew bundle check --file=~/dotfiles/brew/Brewfile
+
+# ==============================================================================
+# Taps
+# ==============================================================================
+tap "anthropics/claude"
+
+# ==============================================================================
+# Core Tools
+# ==============================================================================
+brew "git"
+brew "git-lfs"
+brew "stow"               # Dotfile management
+brew "tmux"               # Terminal multiplexer
+
+# ==============================================================================
+# Modern CLI Replacements
+# ==============================================================================
+# File Navigation & Search
+brew "fd"                 # Better find
+brew "fzf"                # Fuzzy finder (needs: source <(fzf --zsh))
+brew "eza"                # Better ls
+brew "zoxide"             # Smart cd (needs: eval "$(zoxide init zsh)")
+brew "yazi"               # Terminal file manager
+
+# Text & Viewing
+brew "bat"                # Better cat
+brew "jaq"                # jq alternative in Rust
+brew "yq"                 # YAML processor
+brew "sd"                 # Better sed
+brew "hexyl"              # Hex viewer
+
+# System Monitoring
+brew "btop"               # Better top
+brew "procs"              # Better ps
+brew "duf"                # Better df
+brew "dust"               # Better du
+
+# ==============================================================================
+# Development Tools
+# ==============================================================================
+brew "gh"                 # GitHub CLI
+brew "git-delta"          # Better git diff
+brew "git-graph"          # Git graph visualization
+brew "lazygit"            # Git TUI
+brew "just"               # Command runner
+brew "tokei"              # Code line counter
+brew "entr"               # Run on file change
+brew "watchexec"          # Run on file change (alternative)
+
+# ==============================================================================
+# Network & HTTP
+# ==============================================================================
+brew "httpie"             # User-friendly curl
+brew "xh"                 # Fast httpie alternative
+brew "gping"              # Ping with graph
+brew "privoxy"            # HTTP proxy
+brew "shadowsocks-libev"  # Proxy
+
+# ==============================================================================
+# Language Runtimes
+# ==============================================================================
+brew "node@18"            # Node.js LTS
+brew "openjdk"            # Java (latest)
+brew "openjdk@17"         # Java 17
+brew "openjdk@21"         # Java 21
+brew "pipx"               # Python app installer
+brew "uv"                 # Fast Python package manager
+
+# ==============================================================================
+# Media & Misc
+# ==============================================================================
+brew "ffmpeg"             # Media processing
+brew "sox"                # Audio processing
+brew "whisperkit-cli"     # Speech recognition
+brew "cmake"              # Build system
+brew "create-dmg"         # Create DMG files
+brew "sevenzip"           # 7z compression
+
+# ==============================================================================
+# Utilities
+# ==============================================================================
+brew "tree"               # Directory tree
+brew "cheat"              # Cheatsheets
+brew "tealdeer"           # tldr pages
+brew "lnav"               # Log navigator
+brew "xsv"                # CSV toolkit
+brew "choose"             # cut/awk alternative
+brew "superfile"          # File manager TUI
+brew "zellij"             # Terminal workspace
+
+# ==============================================================================
+# Casks - Development
+# ==============================================================================
+cask "visual-studio-code"
+cask "ghostty"            # Terminal
+cask "chromium"           # Browser for automation
+cask "google-chrome@canary"
+
+# ==============================================================================
+# Casks - AI & Productivity
+# ==============================================================================
+cask "claude-code"        # Claude CLI
+cask "claude"             # Claude desktop
+cask "lm-studio"          # Local LLMs
+
+# ==============================================================================
+# Casks - System Utilities
+# ==============================================================================
+cask "bettertouchtool"    # Input customization
+cask "maccy"              # Clipboard manager
+cask "jordanbaird-ice"    # Menu bar management
+cask "dockdoor"           # Dock previews
+cask "blurred"            # Blur inactive windows
+cask "homerow"            # Keyboard navigation
+cask "swish"              # Trackpad gestures
+cask "spacelauncher"      # Space key launcher
+cask "clop"               # Image/video optimizer
+cask "music-decoy"        # Prevent Music.app auto-launch
+cask "pronotes"           # Notes
+
+# ==============================================================================
+# Casks - Communication
+# ==============================================================================
+cask "lark"               # Feishu
+cask "wechat"
+
+# ==============================================================================
+# Casks - Media
+# ==============================================================================
+cask "4k-video-downloader+"
+
+# ==============================================================================
+# Casks - Proxy/VPN
+# ==============================================================================
+cask "shadowsocksx-ng"
+cask "v2rayu"
+
+# ==============================================================================
+# Manual Install Required (No Cask Available)
+# ==============================================================================
+# GitHub Releases:
+#   - boringNotch: https://github.com/TheBoredTeam/boring.notch/releases
+#
+# Mac App Store:
+#   - Grab2Text
+#   - rcmd
+#
+# Other:
+#   - Hex, Frost, FreeGecko, Handy, Countdown, Monocle, Affinity
