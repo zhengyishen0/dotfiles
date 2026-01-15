@@ -34,7 +34,9 @@ command -v procs &>/dev/null && alias ps='procs'
 setup() { source ~/dotfiles/scripts/setup.sh; }
 sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 
-# Local (do not edit above this line)
+# ---- do not edit above this line ----
+
+# Local
 
 # LM Studio
 export PATH="$PATH:$HOME/.lmstudio/bin"
