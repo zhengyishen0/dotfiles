@@ -1,6 +1,19 @@
 # Dotfiles
 
-Personal configuration files managed with GNU Stow.
+Personal macOS configuration managed with GNU Stow.
+
+## Quick Start (New Machine)
+
+```bash
+git clone https://github.com/zhengyishen0/dotfiles.git ~/dotfiles && source ~/dotfiles/zsh/.zshrc && setup
+```
+
+This single command will:
+1. Install Homebrew (if not present)
+2. Install all packages from Brewfile (50+ formulae, 20+ casks)
+3. Prompt to install GitHub apps (boringNotch, etc.)
+4. Stow all dotfiles (zsh, git, tmux)
+5. Show manual install reminders
 
 ## Structure
 
@@ -12,104 +25,90 @@ dotfiles/
 │   ├── search-engines.txt    # Vimium C search engines
 │   └── custom-keys.txt       # Vimium C key mappings
 ├── zsh/
-│   └── .zshrc                # Zsh configuration
+│   └── .zshrc                # Zsh config + setup function
 ├── git/
-│   └── .gitconfig            # Git configuration
+│   └── .gitconfig
 ├── tmux/
-│   └── .tmux.conf            # Tmux configuration
+│   └── .tmux.conf
 └── README.md
 ```
 
-## Quick Setup
+## Adding New Apps
 
-```bash
-# Clone and run setup
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
-source ~/dotfiles/zsh/.zshrc
-setup
+### Homebrew Apps
+Edit `brew/Brewfile`:
+```ruby
+brew "package-name"
+cask "app-name"
 ```
 
-The `setup` function will:
-1. Install all Homebrew packages from Brewfile
-2. Prompt to install GitHub apps (boringNotch)
-3. Stow all dotfiles (creates symlinks)
-4. Show reminders for manual installs
-
-## Manual Setup
-
-### 1. Install Homebrew Packages
-
+### GitHub Apps (DMG)
+Edit `GITHUB_APPS` array in `zsh/.zshrc`:
 ```bash
-brew bundle install --file=~/dotfiles/brew/Brewfile
+GITHUB_APPS=(
+    "boringNotch|/Applications/boringNotch.app|https://github.com/.../boringNotch.dmg|boringNotch"
+    "NewApp|/Applications/NewApp.app|https://github.com/.../NewApp.dmg|NewApp"
+)
 ```
 
-### 2. Stow Dotfiles
-
+### Manual Apps
+Edit `MANUAL_APPS` array in `zsh/.zshrc`:
 ```bash
-cd ~/dotfiles
-stow zsh git tmux
+MANUAL_APPS=(
+    "Grab2Text|Mac App Store"
+    "rcmd|Mac App Store"
+    "SomeApp|Manual"
+)
 ```
 
-### 3. Vimium C
+## Manual Steps After Setup
 
-Import configurations manually in Vimium C settings:
-- **Search engines**: Copy from `vimium/search-engines.txt`
-- **Key mappings**: Copy from `vimium/custom-keys.txt`
+### Vimium C
+1. Open Vimium C settings
+2. Copy `~/dotfiles/vimium/search-engines.txt` → Custom search engines
+3. Copy `~/dotfiles/vimium/custom-keys.txt` → Custom key mappings
 
-### 4. Manual Installs
-
-**Mac App Store:**
+### Mac App Store
 - Grab2Text
 - rcmd
 
-**GitHub Releases:**
-- [boringNotch](https://github.com/TheBoredTeam/boring.notch/releases)
-
-**Other:**
+### Other
 - Hex, Frost, FreeGecko, Handy, Countdown, Monocle, Affinity
 
-## Updating
+## Tools & Aliases
 
-### Sync dotfiles changes
+### Shell Init (auto-configured)
+| Tool | Purpose |
+|------|---------|
+| zoxide | Smart cd (`z` command) |
+| fzf | Fuzzy finder |
+| yazi | File manager (`y` command, cd on exit) |
 
-```bash
-cd ~/dotfiles
-git add -A
-git commit -m "Update configs"
-git push
-```
-
-### Update boringNotch
-
-```bash
-update_boringnotch
-```
-
-### Update Homebrew packages
-
-```bash
-brew bundle install --file=~/dotfiles/brew/Brewfile
-```
-
-## Tools Requiring Shell Init
-
-These are automatically configured in `.zshrc`:
-
-| Tool | Init Command | Purpose |
-|------|--------------|---------|
-| zoxide | `eval "$(zoxide init zsh)"` | Smart cd |
-| fzf | `source <(fzf --zsh)` | Fuzzy finder |
-| yazi | `y` function | File manager with cd-on-exit |
-
-## Modern CLI Aliases
-
-When installed, these aliases are activated:
-
+### Modern CLI Aliases
 | Alias | Command | Description |
 |-------|---------|-------------|
-| `ls` | `eza` | Better ls with git integration |
+| `ls` | `eza` | Better ls |
 | `cat` | `bat` | Syntax highlighting |
 | `du` | `dust` | Visual disk usage |
 | `df` | `duf` | Better df |
 | `ps` | `procs` | Better ps |
-| `y` | `yazi` | File manager (cd on exit) |
+
+### Tmux Copy Mode
+| Action | Effect |
+|--------|--------|
+| Scroll | Enter copy-mode, auto-exit at bottom |
+| Drag | Select and copy to clipboard |
+| `Opt + ←/→` | Word navigation |
+| `Ctrl + ←/→` | Line start/end |
+| `Opt+Shift + ←/→` | Select word (hold to extend) |
+| `Ctrl+Shift + ←/→` | Select to line start/end |
+| `y` | Copy to clipboard |
+| `Escape` | Exit copy-mode |
+| Right-click | Paste |
+
+## Updating
+
+```bash
+cd ~/dotfiles
+git add -A && git commit -m "Update" && git push
+```

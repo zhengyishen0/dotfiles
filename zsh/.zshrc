@@ -105,6 +105,30 @@ command -v procs &>/dev/null && alias ps='procs'
 
 
 ################################################################################
+# Setup Configuration
+################################################################################
+
+# GitHub Apps - Format: "name|app_path|dmg_url|volume_name"
+GITHUB_APPS=(
+    "boringNotch|/Applications/boringNotch.app|https://github.com/TheBoredTeam/boring.notch/releases/latest/download/boringNotch.dmg|boringNotch"
+    # Add more: "AppName|/Applications/AppName.app|https://github.com/.../AppName.dmg|VolumeName"
+)
+
+# Manual Apps - Format: "name|source"
+MANUAL_APPS=(
+    "Grab2Text|Mac App Store"
+    "rcmd|Mac App Store"
+    "Hex|Manual"
+    "Frost|Manual"
+    "FreeGecko|Manual"
+    "Handy|Manual"
+    "Countdown|Manual"
+    "Monocle|Manual"
+    "Affinity|Manual"
+    # Add more: "AppName|Source"
+)
+
+################################################################################
 # Setup Function
 ################################################################################
 setup() {
@@ -113,7 +137,7 @@ setup() {
 
     # 1. Install Homebrew if not present
     if ! command -v brew &>/dev/null; then
-        echo "[0/4] Installing Homebrew..."
+        echo "[1/5] Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
         # Add Homebrew to PATH for this session
@@ -123,10 +147,12 @@ setup() {
             eval "$(/usr/local/bin/brew shellenv)"
         fi
         echo ""
+    else
+        echo "[1/5] Homebrew already installed."
     fi
 
     # 2. Install Homebrew packages
-    echo "[1/4] Installing Homebrew packages..."
+    echo "[2/5] Installing Homebrew packages..."
     if [[ -f ~/dotfiles/brew/Brewfile ]]; then
         brew bundle install --file=~/dotfiles/brew/Brewfile
     else
@@ -135,45 +161,67 @@ setup() {
     fi
     echo ""
 
-    # 2. GitHub Apps (interactive)
-    echo "[2/4] GitHub Apps..."
-    echo ""
-
-    # boringNotch
-    if [[ ! -d "/Applications/boringNotch.app" ]]; then
-        read -p "Install boringNotch from GitHub? [y/N] " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Downloading boringNotch..."
-            curl -L "https://github.com/TheBoredTeam/boring.notch/releases/latest/download/boringNotch.dmg" -o /tmp/boringNotch.dmg
-            hdiutil attach /tmp/boringNotch.dmg -quiet
-            cp -R "/Volumes/boringNotch/boringNotch.app" /Applications/
-            hdiutil detach "/Volumes/boringNotch" -quiet
-            rm /tmp/boringNotch.dmg
-            echo "boringNotch installed!"
+    # 3. GitHub Apps (interactive)
+    echo "[3/5] GitHub Apps..."
+    for app in "${GITHUB_APPS[@]}"; do
+        IFS='|' read -r name app_path dmg_url volume_name <<< "$app"
+        if [[ ! -e "$app_path" ]]; then
+            read -p "Install $name from GitHub? [y/N] " -n 1 -r
+            echo ""
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                echo "Downloading $name..."
+                curl -L "$dmg_url" -o "/tmp/$name.dmg"
+                hdiutil attach "/tmp/$name.dmg" -quiet
+                cp -R "/Volumes/$volume_name/$name.app" /Applications/
+                hdiutil detach "/Volumes/$volume_name" -quiet
+                rm "/tmp/$name.dmg"
+                echo "$name installed!"
+            fi
+        else
+            echo "$name already installed, skipping."
         fi
-    else
-        echo "boringNotch already installed, skipping."
-    fi
+    done
     echo ""
 
-    # 3. Stow dotfiles
-    echo "[3/4] Stowing dotfiles..."
+    # 4. Stow dotfiles
+    echo "[4/5] Stowing dotfiles..."
     cd ~/dotfiles
     stow -v zsh git tmux 2>&1 | grep -v "BUG"
     cd - > /dev/null
     echo ""
 
-    # 4. Manual install reminders
-    echo "[4/4] Manual Install Required:"
+    # 5. Manual install reminders
+    echo "[5/5] Manual Install Required:"
     echo ""
-    echo "  Mac App Store:"
-    echo "    - Grab2Text"
-    echo "    - rcmd"
-    echo ""
-    echo "  Other:"
-    echo "    - Hex, Frost, FreeGecko, Handy, Countdown, Monocle, Affinity"
-    echo ""
+
+    # Group by source
+    local mas_apps=()
+    local other_apps=()
+    for app in "${MANUAL_APPS[@]}"; do
+        IFS='|' read -r name source <<< "$app"
+        if [[ "$source" == "Mac App Store" ]]; then
+            mas_apps+=("$name")
+        else
+            other_apps+=("$name")
+        fi
+    done
+
+    if [[ ${#mas_apps[@]} -gt 0 ]]; then
+        echo "  Mac App Store:"
+        for app in "${mas_apps[@]}"; do
+            echo "    - $app"
+        done
+        echo ""
+    fi
+
+    if [[ ${#other_apps[@]} -gt 0 ]]; then
+        echo "  Other:"
+        for app in "${other_apps[@]}"; do
+            echo "    - $app"
+        done
+        echo ""
+    fi
+
     echo "  Vimium C:"
     echo "    - Import search engines from: ~/dotfiles/vimium/search-engines.txt"
     echo "    - Import custom keys from:    ~/dotfiles/vimium/custom-keys.txt"
