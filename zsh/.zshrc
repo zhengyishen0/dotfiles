@@ -111,7 +111,21 @@ setup() {
     echo "=== System Setup ==="
     echo ""
 
-    # 1. Install Homebrew packages
+    # 1. Install Homebrew if not present
+    if ! command -v brew &>/dev/null; then
+        echo "[0/4] Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        # Add Homebrew to PATH for this session
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -f /usr/local/bin/brew ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        echo ""
+    fi
+
+    # 2. Install Homebrew packages
     echo "[1/4] Installing Homebrew packages..."
     if [[ -f ~/dotfiles/brew/Brewfile ]]; then
         brew bundle install --file=~/dotfiles/brew/Brewfile
