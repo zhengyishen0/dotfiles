@@ -110,7 +110,7 @@ cask "lm-studio"          # Local LLMs
 # ==============================================================================
 # Casks - System Utilities
 # ==============================================================================
-cask "bettertouchtool"    # Input customization
+cask "jitouch"            # Trackpad gestures (free, open-source)
 cask "maccy"              # Clipboard manager
 cask "jordanbaird-ice"    # Menu bar management
 cask "dockdoor"           # Dock previews

@@ -60,7 +60,7 @@ echo ""
 # 4. Stow dotfiles
 echo "[4/5] Stowing dotfiles..."
 cd $DOTFILES
-stow -v zsh git tmux 2>&1 | grep -v "BUG"
+stow -v zsh git tmux ghostty 2>&1 | grep -v "BUG"
 cd - > /dev/null
 echo ""
 
