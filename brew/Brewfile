@@ -49,6 +49,7 @@ brew "just"               # Command runner
 brew "tokei"              # Code line counter
 brew "entr"               # Run on file change
 brew "watchexec"          # Run on file change (alternative)
+brew "fswatch"            # File system watcher (for world daemon)
 
 # ==============================================================================
 # Network & HTTP

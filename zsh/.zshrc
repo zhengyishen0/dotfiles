@@ -41,30 +41,5 @@ sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 # LM Studio
 export PATH="$PATH:$HOME/.lmstudio/bin"
 
-# Proxy
-proxy_on() {
-    export https_proxy=http://127.0.0.1:33210
-    export http_proxy=http://127.0.0.1:33210
-    echo "Proxy enabled"
-}
-proxy_off() {
-    unset https_proxy http_proxy
-    echo "Proxy disabled"
-}
-
-# Claude Code
-CLAUDE_CODE_DIR="$HOME/Codes/claude-code"
-
-alias claude-ps='pgrep -fl "^claude"'
-alias claude-kill='pkill -9 "^claude"'
-alias cc="COLUMNS=200 claude --dangerously-skip-permissions"
-alias claude-usage="~/.config/opencode/usage.sh"
-
-alias browser="$CLAUDE_CODE_DIR/browser/run.sh"
-alias browser-js="node $CLAUDE_CODE_DIR/browser/cli.js"
-alias memory="$CLAUDE_CODE_DIR/memory/run.sh"
-alias world="$CLAUDE_CODE_DIR/world/run.sh"
-alias screenshot="$CLAUDE_CODE_DIR/tools/screenshot/run.sh"
-alias proxy="$CLAUDE_CODE_DIR/tools/proxy/run.sh"
-
-[[ -f "$CLAUDE_CODE_DIR/tools/proxy/init.sh" ]] && source "$CLAUDE_CODE_DIR/tools/proxy/init.sh"
+# Claude Code (tools, aliases, proxy)
+source "$HOME/Codes/claude-code/env.sh"
