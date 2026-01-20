@@ -60,8 +60,17 @@ echo ""
 # 4. Stow dotfiles
 echo "[4/5] Stowing dotfiles..."
 cd $DOTFILES
-stow -v zsh git tmux ghostty 2>&1 | grep -v "BUG"
+# Auto-detect stow packages (folders containing dotfiles)
+for dir in */; do
+    if ls "$dir"/.* 1>/dev/null 2>&1; then
+        stow -v "${dir%/}" 2>&1 | grep -v "BUG"
+    fi
+done
 cd - > /dev/null
+
+# Manual symlinks (non-stow structure)
+mkdir -p ~/.config
+ln -sf $DOTFILES/ghostty ~/.config/ghostty
 echo ""
 
 # 5. Manual install reminders - read from apps/manual.txt

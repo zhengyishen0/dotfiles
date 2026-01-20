@@ -29,6 +29,8 @@ dotfiles/
 │   └── .gitconfig           # Git config
 ├── tmux/
 │   └── .tmux.conf           # Tmux config
+├── ghostty/
+│   └── config               # Ghostty terminal config
 └── README.md
 ```
 
