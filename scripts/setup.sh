@@ -9,7 +9,7 @@ echo ""
 
 # 1. Install Homebrew if not present
 if ! command -v brew &>/dev/null; then
-    echo "[1/5] Installing Homebrew..."
+    echo "[1/6] Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
     # Add Homebrew to PATH for this session
@@ -20,11 +20,11 @@ if ! command -v brew &>/dev/null; then
     fi
     echo ""
 else
-    echo "[1/5] Homebrew already installed."
+    echo "[1/6] Homebrew already installed."
 fi
 
 # 2. Install Homebrew packages
-echo "[2/5] Installing Homebrew packages..."
+echo "[2/6] Installing Homebrew packages..."
 if [[ -f $DOTFILES/brew/Brewfile ]]; then
     brew bundle install --file=$DOTFILES/brew/Brewfile
 else
@@ -33,8 +33,19 @@ else
 fi
 echo ""
 
-# 3. GitHub Apps (interactive) - read from apps/github.txt
-echo "[3/5] GitHub Apps..."
+# 3. Java 17 system symlink
+echo "[3/6] Configuring Java 17..."
+if [[ -d /opt/homebrew/opt/openjdk@17 ]]; then
+    sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk \
+        /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+    echo "Java 17 symlink created."
+else
+    echo "Warning: openjdk@17 not found, skipping symlink."
+fi
+echo ""
+
+# 4. GitHub Apps (interactive) - read from apps/github.txt
+echo "[4/6] GitHub Apps..."
 if [[ -f $DOTFILES/apps/github.txt ]]; then
     while IFS='|' read -r name app_path dmg_url volume_name; do
         [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
@@ -57,8 +68,8 @@ if [[ -f $DOTFILES/apps/github.txt ]]; then
 fi
 echo ""
 
-# 4. Stow dotfiles
-echo "[4/5] Stowing dotfiles..."
+# 5. Stow dotfiles
+echo "[5/6] Stowing dotfiles..."
 cd $DOTFILES
 # Auto-detect stow packages (folders containing dotfiles)
 for dir in */; do
@@ -73,8 +84,8 @@ mkdir -p ~/.config
 ln -sf $DOTFILES/ghostty ~/.config/ghostty
 echo ""
 
-# 5. Manual install reminders - read from apps/manual.txt
-echo "[5/5] Manual Install Required:"
+# 6. Manual install reminders - read from apps/manual.txt
+echo "[6/6] Manual Install Required:"
 echo ""
 if [[ -f $DOTFILES/apps/manual.txt ]]; then
     mas_apps=()

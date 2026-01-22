@@ -64,9 +64,7 @@ brew "shadowsocks-libev"  # Proxy
 # Language Runtimes
 # ==============================================================================
 brew "node@18"            # Node.js LTS
-brew "openjdk"            # Java (latest)
-brew "openjdk@17"         # Java 17
-brew "openjdk@21"         # Java 21
+brew "openjdk@17"         # Java 17 LTS (universal default)
 brew "pipx"               # Python app installer
 brew "uv"                 # Fast Python package manager
 
