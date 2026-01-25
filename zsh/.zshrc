@@ -42,4 +42,4 @@ sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Claude Code (tools, aliases, proxy)
-source "$HOME/Codes/claude-code/config/env.sh"
+source "$HOME/Codes/claude-code/env.sh"
