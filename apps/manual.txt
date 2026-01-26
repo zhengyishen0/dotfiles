@@ -8,3 +8,4 @@ Monocle|Manual
 Countdown|Manual
 Handy|Manual
 FreeGecko|Manual
+Grab2Text|Mac App Store

@@ -109,6 +109,7 @@ cask "lm-studio"          # Local LLMs
 # Casks - System Utilities
 # ==============================================================================
 cask "maccy"              # Clipboard manager
+cask "shottr"             # Screenshot tool
 cask "jordanbaird-ice"    # Menu bar management
 cask "dockdoor"           # Dock previews
 cask "blurred"            # Blur inactive windows
