@@ -34,6 +34,5 @@ command -v procs &>/dev/null && alias ps='procs'
 setup() { source ~/dotfiles/scripts/setup.sh; }
 sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 
-
 # Device-specific settings (not tracked)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
