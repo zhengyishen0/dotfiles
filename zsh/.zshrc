@@ -43,3 +43,6 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Claude Code (tools, aliases, proxy)
 source "$HOME/Codes/claude-code/env.sh"
+
+# Device-specific settings (not tracked)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
