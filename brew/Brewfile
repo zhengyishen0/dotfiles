@@ -142,10 +142,10 @@ cask "v2rayu"
 # GitHub Releases:
 #   - boringNotch: https://github.com/TheBoredTeam/boring.notch/releases
 #   - jitouch: https://www.jitouch.com/
+#   - rcmd: gh release download apps --pattern "rcmd.zip" --repo zhengyishen0/dotfiles
 #
 # Mac App Store:
 #   - Grab2Text
-#   - rcmd
 #
 # Other:
 #   - Hex, Frost, FreeGecko, Handy, Countdown, Monocle, Affinity
