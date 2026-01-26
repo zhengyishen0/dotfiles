@@ -108,7 +108,6 @@ cask "lm-studio"          # Local LLMs
 # ==============================================================================
 # Casks - System Utilities
 # ==============================================================================
-cask "jitouch"            # Trackpad gestures (free, open-source)
 cask "maccy"              # Clipboard manager
 cask "jordanbaird-ice"    # Menu bar management
 cask "dockdoor"           # Dock previews
@@ -142,6 +141,7 @@ cask "v2rayu"
 # ==============================================================================
 # GitHub Releases:
 #   - boringNotch: https://github.com/TheBoredTeam/boring.notch/releases
+#   - jitouch: https://www.jitouch.com/
 #
 # Mac App Store:
 #   - Grab2Text
