@@ -1,9 +1,10 @@
 # Manual Apps - Require manual installation
 # Format: name|source
-#
-# Sources: "Mac App Store", "Manual", or a URL
 
-Grab2Text|Mac App Store
-rcmd|Mac App Store
 Hex|Manual
-Frost|Manual
+jitouch|https://www.jitouch.com/
+Affinity|Manual
+Monocle|Manual
+Countdown|Manual
+Handy|Manual
+FreeGecko|Manual

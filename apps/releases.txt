@@ -1,0 +1,6 @@
+# GitHub Releases (always latest) - Uses: gh release download
+# Format: name|app_path|repo|pattern
+
+boringNotch|/Applications/boringNotch.app|TheBoredTeam/boring.notch|*.dmg
+Frost|/Applications/Frost.app|zhengyishen0/frost-app|*.dmg
+Voca|/Applications/Voca.app|zhengyishen0/voca-app|*.dmg

@@ -137,15 +137,8 @@ cask "shadowsocksx-ng"
 cask "v2rayu"
 
 # ==============================================================================
-# Manual Install Required (No Cask Available)
+# Non-Brew Apps - See apps/ folder
 # ==============================================================================
-# GitHub Releases:
-#   - boringNotch: https://github.com/TheBoredTeam/boring.notch/releases
-#   - jitouch: https://www.jitouch.com/
-#   - rcmd: gh release download apps --pattern "rcmd.zip" --repo zhengyishen0/dotfiles
-#
-# Mac App Store:
-#   - Grab2Text
-#
-# Other:
-#   - Hex, Frost, FreeGecko, Handy, Countdown, Monocle, Affinity
+# apps/releases.txt  - GitHub releases (boringNotch, Frost, Voca)
+# apps/backup.txt    - Backed up apps (rcmd, Grab2Text)
+# apps/manual.txt    - Manual install (Hex, jitouch, etc.)

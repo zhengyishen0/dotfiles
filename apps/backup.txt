@@ -1,0 +1,5 @@
+# Backed up apps (from dotfiles releases) - Uses: gh release download apps
+# Format: name|pattern
+
+rcmd|rcmd.zip
+Grab2Text|Grab2Text.zip
