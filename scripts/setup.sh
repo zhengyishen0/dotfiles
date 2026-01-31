@@ -96,6 +96,21 @@ cd - > /dev/null
 
 mkdir -p ~/.config
 ln -sf $DOTFILES/ghostty ~/.config/ghostty
+
+# Karabiner config
+if [[ -f $DOTFILES/karabiner/karabiner.json ]]; then
+    mkdir -p ~/.config/karabiner/assets/complex_modifications
+    if [[ -f ~/.config/karabiner/karabiner.json && ! -L ~/.config/karabiner/karabiner.json ]]; then
+        echo "Karabiner config exists, backing up..."
+        cp ~/.config/karabiner/karabiner.json ~/.config/karabiner/karabiner.json.bak
+    fi
+    ln -sf $DOTFILES/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
+    # Complex modifications presets
+    for f in $DOTFILES/karabiner/assets/complex_modifications/*.json; do
+        ln -sf "$f" ~/.config/karabiner/assets/complex_modifications/
+    done
+    echo "Karabiner config linked."
+fi
 echo ""
 
 # 6. Manual install reminders

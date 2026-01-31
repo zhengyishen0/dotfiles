@@ -115,6 +115,7 @@ cask "dockdoor"           # Dock previews
 cask "blurred"            # Blur inactive windows
 cask "homerow"            # Keyboard navigation
 cask "swish"              # Trackpad gestures
+cask "karabiner-elements" # Keyboard customization
 cask "spacelauncher"      # Space key launcher
 cask "clop"               # Image/video optimizer
 cask "music-decoy"        # Prevent Music.app auto-launch

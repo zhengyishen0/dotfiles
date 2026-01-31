@@ -34,6 +34,9 @@ dotfiles/
 │   └── .vimrc               # Vim config
 ├── nano/
 │   └── .nanorc              # Nano config
+├── karabiner/
+│   ├── karabiner.json       # Main config (symlinked)
+│   └── README.md             # Setup instructions
 ├── ghostty/
 │   └── config               # Ghostty terminal config
 └── README.md
