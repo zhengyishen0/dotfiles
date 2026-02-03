@@ -1,0 +1,35 @@
+#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+
+[user]
+name = "Zhengyi Shen"
+email = "zhengyishen1@gmail.com"
+
+[templates]
+log = 'builtin_log_compact'
+
+[template-aliases]
+'format_short_signature(signature)' = 'signature.name()'
+'format_timestamp(timestamp)' = 'timestamp.local().format("%Y-%m-%d %H:%M")'
+
+# Custom log_compact: change_id|commit_id bookmark workspace timestamp
+'builtin_log_compact' = '''
+if(root,
+  format_root_commit(self),
+  label(if(current_working_copy, "working_copy"),
+    concat(
+      change_id.shortest(),
+      "|",
+      commit_id.shortest(),
+      " ",
+      surround("", " ", bookmarks),
+      surround("", " ", working_copies),
+      format_timestamp(committer.timestamp()),
+      if(empty, label("empty", " (empty)")),
+      if(conflict, label("conflict", " conflict")),
+      "\n",
+      if(description, description.first_line(), "(no description)"),
+      "\n",
+    )
+  )
+)
+'''
