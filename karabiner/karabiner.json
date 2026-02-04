@@ -1,5 +1,7 @@
 {
-    "global": { "show_in_menu_bar": false },
+    "global": {
+        "show_in_menu_bar": false
+    },
     "profiles": [
         {
             "complex_modifications": {
@@ -10,13 +12,21 @@
                             {
                                 "from": {
                                     "key_code": "spacebar",
-                                    "modifiers": { "optional": ["any"] }
+                                    "modifiers": {
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
                                 },
                                 "parameters": {
                                     "basic.to_if_alone_timeout_milliseconds": 150,
                                     "basic.to_if_held_down_threshold_milliseconds": 150
                                 },
-                                "to_if_alone": [{ "key_code": "spacebar" }],
+                                "to_if_alone": [
+                                    {
+                                        "key_code": "spacebar"
+                                    }
+                                ],
                                 "to_if_held_down": [
                                     {
                                         "key_code": "left_option",
@@ -33,16 +43,26 @@
                             {
                                 "from": {
                                     "key_code": "caps_lock",
-                                    "modifiers": { "optional": ["any"] }
+                                    "modifiers": {
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
                                 },
-                                "parameters": { "basic.to_if_alone_timeout_milliseconds": 200 },
+                                "parameters": {
+                                    "basic.to_if_alone_timeout_milliseconds": 200
+                                },
                                 "to": [
                                     {
                                         "key_code": "left_control",
                                         "lazy": true
                                     }
                                 ],
-                                "to_if_alone": [{ "key_code": "escape" }],
+                                "to_if_alone": [
+                                    {
+                                        "key_code": "escape"
+                                    }
+                                ],
                                 "type": "basic"
                             }
                         ]
@@ -64,12 +84,18 @@
                                 ],
                                 "from": {
                                     "key_code": "escape",
-                                    "modifiers": { "mandatory": ["shift"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "shift"
+                                        ]
+                                    }
                                 },
                                 "to": [
                                     {
                                         "key_code": "grave_accent_and_tilde",
-                                        "modifiers": ["shift"]
+                                        "modifiers": [
+                                            "shift"
+                                        ]
                                     }
                                 ],
                                 "type": "basic"
@@ -88,9 +114,17 @@
                                 ],
                                 "from": {
                                     "key_code": "escape",
-                                    "modifiers": { "mandatory": ["control"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "control"
+                                        ]
+                                    }
                                 },
-                                "to": [{ "key_code": "grave_accent_and_tilde" }],
+                                "to": [
+                                    {
+                                        "key_code": "grave_accent_and_tilde"
+                                    }
+                                ],
                                 "type": "basic"
                             }
                         ]
@@ -112,9 +146,17 @@
                                 ],
                                 "from": {
                                     "key_code": "w",
-                                    "modifiers": { "mandatory": ["right_option"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_option"
+                                        ]
+                                    }
                                 },
-                                "to": [{ "shell_command": "open -a 'WeChat'" }],
+                                "to": [
+                                    {
+                                        "shell_command": "open -a 'WeChat'"
+                                    }
+                                ],
                                 "type": "basic"
                             },
                             {
@@ -131,9 +173,17 @@
                                 ],
                                 "from": {
                                     "key_code": "v",
-                                    "modifiers": { "mandatory": ["right_option"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_option"
+                                        ]
+                                    }
                                 },
-                                "to": [{ "shell_command": "open -a 'Visual Studio Code'" }],
+                                "to": [
+                                    {
+                                        "shell_command": "open -a 'Visual Studio Code'"
+                                    }
+                                ],
                                 "type": "basic"
                             },
                             {
@@ -150,9 +200,17 @@
                                 ],
                                 "from": {
                                     "key_code": "c",
-                                    "modifiers": { "mandatory": ["right_option"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_option"
+                                        ]
+                                    }
                                 },
-                                "to": [{ "shell_command": "open -a 'Google Chrome'" }],
+                                "to": [
+                                    {
+                                        "shell_command": "open -a 'Google Chrome'"
+                                    }
+                                ],
                                 "type": "basic"
                             },
                             {
@@ -169,9 +227,17 @@
                                 ],
                                 "from": {
                                     "key_code": "g",
-                                    "modifiers": { "mandatory": ["right_option"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_option"
+                                        ]
+                                    }
                                 },
-                                "to": [{ "shell_command": "open -a 'Ghostty'" }],
+                                "to": [
+                                    {
+                                        "shell_command": "open -a 'Ghostty'"
+                                    }
+                                ],
                                 "type": "basic"
                             },
                             {
@@ -188,9 +254,17 @@
                                 ],
                                 "from": {
                                     "key_code": "f",
-                                    "modifiers": { "mandatory": ["right_option"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_option"
+                                        ]
+                                    }
                                 },
-                                "to": [{ "shell_command": "open -a 'Lark'" }],
+                                "to": [
+                                    {
+                                        "shell_command": "open -a 'Lark'"
+                                    }
+                                ],
                                 "type": "basic"
                             }
                         ]
@@ -201,12 +275,20 @@
                             {
                                 "from": {
                                     "key_code": "k",
-                                    "modifiers": { "mandatory": ["command", "shift"] }
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "command",
+                                            "shift"
+                                        ]
+                                    }
                                 },
                                 "to": [
                                     {
                                         "key_code": "j",
-                                        "modifiers": ["command", "shift"]
+                                        "modifiers": [
+                                            "command",
+                                            "shift"
+                                        ]
                                     }
                                 ],
                                 "type": "basic"
@@ -224,27 +306,53 @@
                     },
                     "simple_modifications": [
                         {
-                            "from": { "apple_vendor_top_case_key_code": "keyboard_fn" },
-                            "to": [{ "key_code": "left_control" }]
+                            "from": {
+                                "apple_vendor_top_case_key_code": "keyboard_fn"
+                            },
+                            "to": [
+                                {
+                                    "key_code": "left_control"
+                                }
+                            ]
                         },
                         {
-                            "from": { "key_code": "grave_accent_and_tilde" },
-                            "to": [{ "key_code": "escape" }]
+                            "from": {
+                                "key_code": "grave_accent_and_tilde"
+                            },
+                            "to": [
+                                {
+                                    "key_code": "escape"
+                                }
+                            ]
                         },
                         {
-                            "from": { "key_code": "left_command" },
-                            "to": [{ "key_code": "left_option" }]
+                            "from": {
+                                "key_code": "left_command"
+                            },
+                            "to": [
+                                {
+                                    "key_code": "left_option"
+                                }
+                            ]
                         },
                         {
-                            "from": { "key_code": "left_option" },
-                            "to": [{ "key_code": "left_command" }]
+                            "from": {
+                                "key_code": "left_option"
+                            },
+                            "to": [
+                                {
+                                    "key_code": "left_command"
+                                }
+                            ]
                         }
                     ]
                 }
             ],
             "name": "Default profile",
             "selected": true,
-            "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
+            "virtual_hid_keyboard": {
+                "keyboard_type_v2": "ansi"
+            }
         }
     ]
 }
