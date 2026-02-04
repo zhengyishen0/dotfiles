@@ -77,83 +77,13 @@ map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
 -- Floating terminal windows
 -- =============================================================================
 
-local big_float = {
-  width = 0.75,
-  height = 0.75,
-  row = 0.1,
-  col = 0.125,
-  border = "rounded",
-}
-
-local float_ids = { "floatTerm" }
-
--- Close all visible floats, optionally kill a specific terminal buffer
-local function toggle_float(id, cmd_fn)
-  local terms = vim.g.nvchad_terms or {}
-  local was_visible = false
-
-  -- Check if target is currently visible, close all visible floats
-  for _, entry in pairs(terms) do
-    if vim.tbl_contains(float_ids, entry.id)
-      and vim.api.nvim_buf_is_valid(entry.buf)
-      and vim.fn.bufwinid(entry.buf) ~= -1 then
-      if entry.id == id then was_visible = true end
-      vim.api.nvim_win_close(entry.win, true)
-    end
-  end
-
-  -- Toggle off: target was visible, we just closed it
-  if was_visible then return end
-
-  -- For cmd-based floats, kill old buffer so it starts fresh in current dir
-  if cmd_fn then
-    terms = vim.g.nvchad_terms or {}
-    for key, entry in pairs(terms) do
-      if entry.id == id and vim.api.nvim_buf_is_valid(entry.buf) then
-        vim.api.nvim_buf_delete(entry.buf, { force = true })
-        terms[key] = nil
-        vim.g.nvchad_terms = terms
-        break
-      end
-    end
-  end
-
-  local opts = { pos = "float", id = id, float_opts = big_float }
-  if cmd_fn then opts.cmd = cmd_fn() end
-  require("nvchad.term").toggle(opts)
-end
-
--- Space-i: floating terminal (persists across toggles)
-map({ "n", "t" }, "<leader>i", function()
-  toggle_float("floatTerm")
-end, { desc = "Toggle floating terminal" })
-
--- Space-o: yazi file manager (via yazi.nvim, closes other floats first)
+-- Space-o: yazi file manager (via yazi.nvim)
 map("n", "<leader>o", function()
-  -- Close any visible nvchad.term floats
-  local terms = vim.g.nvchad_terms or {}
-  for _, entry in pairs(terms) do
-    if vim.tbl_contains(float_ids, entry.id)
-      and vim.api.nvim_buf_is_valid(entry.buf)
-      and vim.fn.bufwinid(entry.buf) ~= -1 then
-      vim.api.nvim_win_close(entry.win, true)
-    end
-  end
   vim.cmd("Yazi")
 end, { desc = "Toggle yazi file manager" })
 
 -- Space-j: floating lazyjj (auto-closes when lazyjj exits)
 map({ "n", "t" }, "<leader>j", function()
-  -- Close any visible nvchad.term floats
-  local terms = vim.g.nvchad_terms or {}
-  for _, entry in pairs(terms) do
-    if vim.tbl_contains(float_ids, entry.id)
-      and vim.api.nvim_buf_is_valid(entry.buf)
-      and vim.fn.bufwinid(entry.buf) ~= -1 then
-      vim.api.nvim_win_close(entry.win, true)
-    end
-  end
-
   local dir = vim.fn.expand("%:p:h")
   local buf = vim.api.nvim_create_buf(false, true)
   local width = math.floor(vim.o.columns * 0.75)
