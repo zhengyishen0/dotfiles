@@ -29,7 +29,6 @@ command -v bat &>/dev/null && alias cat='bat --paging=never'
 command -v dust &>/dev/null && alias du='dust'
 command -v duf &>/dev/null && alias df='duf'
 command -v procs &>/dev/null && alias ps='procs'
-
 # Dotfiles
 setup() { source ~/dotfiles/scripts/setup.sh; }
 sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }

@@ -88,14 +88,21 @@ echo ""
 echo "[5/6] Stowing dotfiles..."
 cd $DOTFILES
 for dir in */; do
+    pkg="${dir%/}"
+    # nvim needs special stow target, handled below
+    [[ "$pkg" == "nvim" ]] && continue
     if ls "$dir"/.* 1>/dev/null 2>&1; then
-        stow -v "${dir%/}" 2>&1 | grep -v "BUG"
+        stow -v "$pkg" 2>&1 | grep -v "BUG"
     fi
 done
 cd - > /dev/null
 
 mkdir -p ~/.config
 ln -sf $DOTFILES/ghostty ~/.config/ghostty
+
+# Neovim config (stow to ~/.config/nvim, not ~)
+mkdir -p ~/.config/nvim
+stow -v -t ~/.config/nvim nvim 2>&1 | grep -v "BUG"
 
 # Karabiner config
 if [[ -f $DOTFILES/karabiner/karabiner.json ]]; then
