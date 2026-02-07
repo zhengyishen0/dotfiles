@@ -120,8 +120,20 @@ if [[ -f $DOTFILES/karabiner/karabiner.json ]]; then
 fi
 echo ""
 
-# 6. Manual install reminders
-echo "[6/6] Manual Install Required:"
+# 6. macOS app CLIs (wrapper scripts needed due to bundle restrictions)
+echo "[6/7] Setting up macOS app CLIs..."
+mkdir -p ~/.local/bin
+if [[ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]]; then
+    printf '#!/bin/bash\n/Applications/Tailscale.app/Contents/MacOS/Tailscale "$@"\n' > ~/.local/bin/tailscale
+    chmod +x ~/.local/bin/tailscale
+    echo "Tailscale CLI wrapper created."
+else
+    echo "Tailscale not installed, skipping."
+fi
+echo ""
+
+# 7. Manual install reminders
+echo "[7/7] Manual Install Required:"
 echo ""
 if [[ -f $DOTFILES/apps/manual.txt ]]; then
     while IFS='|' read -r name source; do

@@ -1,6 +1,13 @@
 # Path
 export PATH="$PATH:$HOME/.local/bin"
 
+# macOS app CLIs (wrapper scripts in ~/.local/bin, created by setup script)
+if [[ ! -x ~/.local/bin/tailscale ]] && [[ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]]; then
+    mkdir -p ~/.local/bin
+    printf '#!/bin/bash\n/Applications/Tailscale.app/Contents/MacOS/Tailscale "$@"\n' > ~/.local/bin/tailscale
+    chmod +x ~/.local/bin/tailscale
+fi
+
 # Completions
 if type brew &>/dev/null; then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
