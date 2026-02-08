@@ -18,50 +18,38 @@ config.window_decorations = 'RESIZE'  -- Remove title bar, keep resize
 config.window_background_opacity = 0.95
 config.macos_window_background_blur = 30
 config.window_padding = {
-  left = 10,
-  right = 10,
-  top = 20,  -- more top padding
+  left = 0,
+  right = 0,
+  top = 0,
   bottom = 0,
 }
 
 -- Tab bar
 config.hide_tab_bar_if_only_one_tab = false
 config.tab_bar_at_bottom = false
-config.use_fancy_tab_bar = false
+config.use_fancy_tab_bar = true
+config.show_new_tab_button_in_tab_bar = false
 config.tab_max_width = 32
 
--- Tab bar colors
+-- Tokyo Night colors
 local bg = '#1a1b26'
 local primary = '#7aa2f7'
+local fg = '#c0caf5'
+local grey = '#565f89'
+local dark_grey = '#24283b'
 
 config.colors = {
   tab_bar = {
     background = bg,
-    -- Active tab: primary bg, dark text
-    active_tab = {
-      bg_color = primary,
-      fg_color = bg,
-    },
-    -- Inactive tab: dark bg, primary text
-    inactive_tab = {
-      bg_color = bg,
-      fg_color = primary,
-    },
-    -- Hover: grey bg, primary text
-    inactive_tab_hover = {
-      bg_color = '#24283b',
-      fg_color = primary,
-    },
-    -- New tab button
-    new_tab = {
-      bg_color = bg,
-      fg_color = primary,
-    },
-    new_tab_hover = {
-      bg_color = '#24283b',
-      fg_color = primary,
-    },
   },
+}
+
+-- Fancy tab bar frame
+config.window_frame = {
+  font = wezterm.font('JetBrains Mono', { weight = 'Medium' }),
+  font_size = 12.0,
+  active_titlebar_bg = bg,
+  inactive_titlebar_bg = bg,
 }
 
 -- Cursor
@@ -310,16 +298,67 @@ wezterm.on('update-right-status', function(window, pane)
     { Foreground = { Color = '#f7768e' } },
     { Text = zoom },
     { Foreground = { Color = '#7aa2f7' } },
-    { Text = '[' .. workspace .. ']  ' },
+    { Attribute = { Underline = 'Single' } },
+    { Text = '[' .. workspace .. ']' },
+    { Attribute = { Underline = 'None' } },
+    { Text = '  ' },
     { Foreground = { Color = '#565f89' } },
     { Text = date .. ' ' },
   })
 end)
 
--- Tab title (no index, just title with padding)
-wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
-  local title = tab.active_pane.title
-  return '   ' .. title .. '   '
+
+-- Tab title with powerline style (Tokyo Night)
+wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
+  local LEFT_END = utf8.char(0xE0B6)   --
+  local RIGHT_END = utf8.char(0xE0B4)  --
+
+  -- Colors
+  local bg = '#1a1b26'
+  local primary = '#7aa2f7'
+  local grey = '#565f89'
+
+  -- Icons
+  local icon_active = wezterm.nerdfonts.md_ghost
+  local icon_inactive = wezterm.nerdfonts.md_ghost_off_outline
+
+  -- Get title (remove any icons from pane title)
+  local title = tab.tab_title
+  if not title or #title == 0 then
+    title = tab.active_pane.title
+  end
+  -- Remove common icons/prefixes from title
+  title = title:gsub('^[%s]*[^\x00-\x7F]+[%s]*', '')
+  title = wezterm.truncate_right(title, max_width - 6)
+
+  -- Minimum width padding
+  local min_width = 6
+  if #title < min_width then
+    title = title .. string.rep(' ', min_width - #title)
+  end
+
+  local tab_bg, tab_fg, icon
+  if tab.is_active then
+    tab_bg = primary
+    tab_fg = bg
+    icon = icon_active
+  else
+    tab_bg = bg
+    tab_fg = grey
+    icon = icon_inactive
+  end
+
+  return {
+    { Background = { Color = bg } },
+    { Foreground = { Color = tab_bg } },
+    { Text = LEFT_END },
+    { Background = { Color = tab_bg } },
+    { Foreground = { Color = tab_fg } },
+    { Text = ' ' .. icon .. ' ' .. title .. ' ' },
+    { Background = { Color = bg } },
+    { Foreground = { Color = tab_bg } },
+    { Text = RIGHT_END },
+  }
 end)
 
 return config
