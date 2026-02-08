@@ -20,6 +20,7 @@ zmodload zsh/complist
 # Tools
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 command -v fzf &>/dev/null && source <(fzf --zsh)
+command -v starship &>/dev/null && eval "$(starship init zsh)"
 
 function y() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
