@@ -154,6 +154,9 @@ config.keys = {
   -- Leader + ] / [ = next/prev tab
   { key = ']', mods = 'LEADER', action = act.ActivateTabRelative(1) },
   { key = '[', mods = 'LEADER', action = act.ActivateTabRelative(-1) },
+  -- Cmd+( / Cmd+) = move tab left/right
+  { key = '9', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
+  { key = '0', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
   -- Cmd+1-9 = go to tab
   { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
   { key = '2', mods = 'CMD', action = act.ActivateTab(1) },
