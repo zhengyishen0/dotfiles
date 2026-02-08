@@ -20,25 +20,24 @@ config.macos_window_background_blur = 30
 config.window_padding = {
   left = 10,
   right = 10,
-  top = 10,
+  top = 20,  -- more top padding
   bottom = 0,
 }
 
 -- Tab bar
 config.hide_tab_bar_if_only_one_tab = false
-config.tab_bar_at_bottom = true
+config.tab_bar_at_bottom = false
 config.use_fancy_tab_bar = false
 config.tab_max_width = 32
 
 -- Tab bar colors
 local bg = '#1a1b26'
 local primary = '#7aa2f7'
-local light = '#c0caf5'
 
 config.colors = {
   tab_bar = {
     background = bg,
-    -- Active tab: primary bg, dark text (not bold)
+    -- Active tab: primary bg, dark text
     active_tab = {
       bg_color = primary,
       fg_color = bg,
@@ -48,12 +47,12 @@ config.colors = {
       bg_color = bg,
       fg_color = primary,
     },
-    -- Hover: grey bg
+    -- Hover: grey bg, primary text
     inactive_tab_hover = {
       bg_color = '#24283b',
       fg_color = primary,
     },
-    -- New tab button (same pattern)
+    -- New tab button
     new_tab = {
       bg_color = bg,
       fg_color = primary,
@@ -283,8 +282,13 @@ config.keys = {
 }
 
 -- =============================================================================
--- STATUS BAR (optional - shows workspace/time)
+-- STATUS BAR
 -- =============================================================================
+
+-- Clear left status (remove session name from front)
+wezterm.on('update-left-status', function(window, pane)
+  window:set_left_status('')
+end)
 
 wezterm.on('update-right-status', function(window, pane)
   local date = wezterm.strftime '%H:%M'
@@ -306,13 +310,13 @@ wezterm.on('update-right-status', function(window, pane)
     { Foreground = { Color = '#f7768e' } },
     { Text = zoom },
     { Foreground = { Color = '#7aa2f7' } },
-    { Text = workspace .. '  ' },
+    { Text = '[' .. workspace .. ']  ' },
     { Foreground = { Color = '#565f89' } },
     { Text = date .. ' ' },
   })
 end)
 
--- Tab title with padding
+-- Tab title (no index, just title with padding)
 wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
   local title = tab.active_pane.title
   return '   ' .. title .. '   '
