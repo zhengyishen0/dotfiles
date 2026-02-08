@@ -205,16 +205,10 @@ config.keys = {
   { key = 'f', mods = 'OPT', action = act.QuickSelect },  -- Opt+F
 
   -- =====================
-  -- WINDOWS
+  -- WINDOWS & SESSIONS
   -- =====================
-  -- Cmd+N = new window
-  { key = 'n', mods = 'CMD', action = act.SpawnWindow },
-
-  -- =====================
-  -- WORKSPACES (sessions)
-  -- =====================
-  -- Cmd+Shift+T = new session (prompts for name)
-  { key = 't', mods = 'CMD|SHIFT', action = act.PromptInputLine {
+  -- Cmd+n = new session (prompts for name)
+  { key = 'n', mods = 'CMD', action = act.PromptInputLine {
     description = 'Enter new session name:',
     action = wezterm.action_callback(function(window, pane, line)
       if line then
@@ -222,6 +216,8 @@ config.keys = {
       end
     end),
   }},
+  -- Cmd+Shift+N = new window
+  { key = 'n', mods = 'CMD|SHIFT', action = act.SpawnWindow },
   -- Opt+Tab / Opt+Shift+Tab = switch session next/prev
   { key = 'Tab', mods = 'OPT', action = act.SwitchWorkspaceRelative(1) },
   { key = 'Tab', mods = 'OPT|SHIFT', action = act.SwitchWorkspaceRelative(-1) },
