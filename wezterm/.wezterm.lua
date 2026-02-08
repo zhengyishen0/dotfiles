@@ -312,25 +312,9 @@ wezterm.on('update-right-status', function(window, pane)
   })
 end)
 
--- Tab title with padding and min width
+-- Tab title with padding
 wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
   local title = tab.active_pane.title
-  local min_width = 6
-  local padding = 6  -- 3 spaces on each side
-
-  -- Truncate based on max_width (account for padding)
-  local available = max_width - padding - 2  -- 2 for '..'
-  if #title > available then
-    title = title:sub(1, available) .. '..'
-  end
-
-  -- Pad to minimum width
-  local padding_needed = min_width - #title
-  if padding_needed > 0 then
-    title = title .. string.rep(' ', padding_needed)
-  end
-
-  -- Add spacing around tab
   return '   ' .. title .. '   '
 end)
 
