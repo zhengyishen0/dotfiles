@@ -77,6 +77,20 @@ config.unix_domains = {
 config.default_gui_startup_args = { 'connect', 'unix' }
 
 -- =============================================================================
+-- SSH DOMAINS (Remote connections)
+-- =============================================================================
+
+-- WSL via Tailscale SSH (uses ~/.ssh/config ProxyCommand)
+config.ssh_domains = {
+  {
+    name = 'wsl',
+    remote_address = 'asus-wsl-ubuntu',
+    username = 'ubuntu',
+    multiplexing = 'WezTerm',  -- runs wezterm mux server on remote
+  },
+}
+
+-- =============================================================================
 -- LEADER KEY (like tmux prefix)
 -- =============================================================================
 
