@@ -31,6 +31,13 @@ function y() {
     rm -f -- "$tmp"
 }
 
+# Zsh plugins
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
 # Aliases
 command -v eza &>/dev/null && alias ls='eza'
 command -v bat &>/dev/null && alias cat='bat --paging=never'
