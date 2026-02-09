@@ -65,8 +65,7 @@ config.command_palette_fg_color = '#c0caf5'
 config.scrollback_lines = 10000
 config.enable_scroll_bar = false
 config.adjust_window_size_when_changing_font_size = false
-config.max_fps = 120
-config.animation_fps = 120
+config.window_close_confirmation = 'NeverPrompt'
 
 -- =============================================================================
 -- MUX SERVER (Persistence)
