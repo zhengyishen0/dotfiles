@@ -8,6 +8,15 @@
 tap "anthropics/claude"
 
 # ==============================================================================
+# Zsh Enhancements
+# ==============================================================================
+brew "starship"                      # Prompt
+brew "zsh-autosuggestions"           # Fish-like suggestions
+brew "zsh-autopair"                  # Auto-close brackets/quotes
+brew "zsh-history-substring-search"  # History search with up/down
+brew "zsh-syntax-highlighting"       # Command highlighting
+
+# ==============================================================================
 # Core Tools
 # ==============================================================================
 brew "git"
@@ -95,6 +104,8 @@ brew "zellij"             # Terminal workspace
 # ==============================================================================
 cask "visual-studio-code"
 cask "ghostty"            # Terminal
+cask "wezterm"            # Terminal
+cask "google-chrome"      # Browser
 cask "chromium"           # Browser for automation
 cask "google-chrome@canary"
 
@@ -102,8 +113,6 @@ cask "google-chrome@canary"
 # Casks - AI & Productivity
 # ==============================================================================
 cask "claude-code"        # Claude CLI
-cask "claude"             # Claude desktop
-cask "lm-studio"          # Local LLMs
 
 # ==============================================================================
 # Casks - System Utilities
@@ -111,12 +120,9 @@ cask "lm-studio"          # Local LLMs
 cask "maccy"              # Clipboard manager
 cask "shottr"             # Screenshot tool
 cask "jordanbaird-ice"    # Menu bar management
-cask "dockdoor"           # Dock previews
-cask "blurred"            # Blur inactive windows
 cask "homerow"            # Keyboard navigation
 cask "swish"              # Trackpad gestures
 cask "karabiner-elements" # Keyboard customization
-cask "spacelauncher"      # Space key launcher
 cask "clop"               # Image/video optimizer
 cask "music-decoy"        # Prevent Music.app auto-launch
 cask "pronotes"           # Notes
@@ -127,16 +133,6 @@ cask "pronotes"           # Notes
 cask "lark"               # Feishu
 cask "wechat"
 
-# ==============================================================================
-# Casks - Media
-# ==============================================================================
-cask "4k-video-downloader+"
-
-# ==============================================================================
-# Casks - Proxy/VPN
-# ==============================================================================
-cask "shadowsocksx-ng"
-cask "v2rayu"
 
 # ==============================================================================
 # Non-Brew Apps - See apps/ folder
