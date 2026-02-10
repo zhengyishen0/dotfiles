@@ -1,5 +1,20 @@
 font-family = JetBrainsMono Nerd Font
 macos-option-as-alt = true
+
+# Tokyo Night theme with transparency
+theme = TokyoNight
+background-opacity = 0.95
+background-blur-radius = 30
+
+# Window
+macos-titlebar-style = transparent
+macos-titlebar-proxy-icon = hidden
+confirm-close-surface = false
+
+# Session restore
+window-save-state = always
+undo-timeout = 168h
+
 keybind = shift+enter=text:\x1b\r
 
 # macOS-style navigation (Cmd+arrow → terminal keys)
@@ -26,3 +41,4 @@ keybind = alt+shift+w=text:\x1bW
 keybind = alt+shift+r=text:\x1bR
 keybind = alt+shift+comma=text:\x1b<
 keybind = alt+shift+period=text:\x1b>
+
