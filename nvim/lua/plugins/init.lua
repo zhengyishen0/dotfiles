@@ -13,18 +13,38 @@ return {
     end,
   },
 
+  {
+    "mason-org/mason.nvim",
+    opts = {
+      ensure_installed = {
+        -- LSP
+        "basedpyright",
+        "typescript-language-server",
+        "json-lsp",
+        "bash-language-server",
+        -- Formatters
+        "prettier",
+        "ruff",
+        "stylua",
+      },
+    },
+  },
+
   -- test new blink
   -- { import = "nvchad.blink.lazyspec" },
 
-  -- {
-  -- 	"nvim-treesitter/nvim-treesitter",
-  -- 	opts = {
-  -- 		ensure_installed = {
-  -- 			"vim", "lua", "vimdoc",
-  --      "html", "css"
-  -- 		},
-  -- 	},
-  -- },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      ensure_installed = {
+        "vim", "lua", "vimdoc",
+        "html", "css",
+        "python",
+        "javascript", "typescript", "tsx",
+        "json", "jsonc",
+      },
+    },
+  },
 
   {
     "nvim-tree/nvim-tree.lua",
