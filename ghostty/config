@@ -38,6 +38,9 @@ keybind = alt+right=text:\x1b[1;3C
 keybind = alt+up=text:\x1b[1;3A
 keybind = alt+down=text:\x1b[1;3B
 
+# Rename tab/split
+keybind = super+shift+r=prompt_surface_title
+
 # Fix Opt+Shift combos (macos-option-as-alt doesn't cover shifted keys)
 keybind = alt+shift+d=text:\x1bD
 keybind = alt+shift+w=text:\x1bW
