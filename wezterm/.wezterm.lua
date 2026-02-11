@@ -3,34 +3,153 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- =============================================================================
+-- RESURRECT PLUGIN (layout persistence)
+-- =============================================================================
+
+local resurrect = wezterm.plugin.require 'https://github.com/MLFlexer/resurrect.wezterm'
+
+-- zmx path for restore
+local zmx_path = '/opt/homebrew/bin/zmx'
+
+-- Find best matching zmx session for a given cwd
+local function find_zmx_session_for_cwd(target_cwd)
+  local handle = io.popen(zmx_path .. ' list 2>/dev/null')
+  if not handle then return nil end
+  local output = handle:read('*a')
+  handle:close()
+
+  local best_session = nil
+  local best_time = 0
+
+  for line in output:gmatch('[^\n]+') do
+    local session = line:match('session_name=([^%s]+)')
+    local clients = line:match('clients=(%d+)')
+    local started_in = line:match('started_in=([^%s]+)')
+
+    -- Only consider detached sessions (clients=0) that match our cwd
+    if session and clients == '0' and session:match('^wez%-') then
+      if started_in and (started_in == target_cwd or target_cwd:match(started_in)) then
+        -- Extract timestamp to get most recent
+        local num1, num2 = session:match('wez%-(%d+)%-(%d+)')
+        local ts = 0
+        if num1 and num2 then
+          num1, num2 = tonumber(num1), tonumber(num2)
+          if num1 and num1 > 1700000000 then ts = num1
+          elseif num2 and num2 > 1700000000 then ts = num2
+          end
+        end
+        if ts > best_time then
+          best_time = ts
+          best_session = session
+        end
+      end
+    end
+  end
+
+  -- If no match by cwd, just get the most recent detached session
+  if not best_session then
+    for line in output:gmatch('[^\n]+') do
+      local session = line:match('session_name=([^%s]+)')
+      local clients = line:match('clients=(%d+)')
+      if session and clients == '0' and session:match('^wez%-') then
+        local num1, num2 = session:match('wez%-(%d+)%-(%d+)')
+        local ts = 0
+        if num1 and num2 then
+          num1, num2 = tonumber(num1), tonumber(num2)
+          if num1 and num1 > 1700000000 then ts = num1
+          elseif num2 and num2 > 1700000000 then ts = num2
+          end
+        end
+        if ts > best_time then
+          best_time = ts
+          best_session = session
+        end
+      end
+    end
+  end
+
+  return best_session
+end
+
+-- Custom pane restore that reconnects to zmx sessions
+local function zmx_on_pane_restore(pane, pane_state)
+  local cwd = pane_state.cwd or wezterm.home_dir
+  local session = find_zmx_session_for_cwd(cwd)
+
+  if session then
+    -- Reconnect to existing zmx session
+    pane:send_text(zmx_path .. ' attach ' .. session .. '\n')
+  else
+    -- No matching session, start a new zmx session
+    local new_session = 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
+    pane:send_text(zmx_path .. ' attach ' .. new_session .. '\n')
+  end
+end
+
+-- Enable periodic save (every 1 minute) for ALL workspaces
+resurrect.state_manager.periodic_save {
+  interval_seconds = 60,
+  save_workspaces = true,
+  save_windows = true,
+  save_tabs = true,
+}
+
+-- Auto-restore on startup with zmx integration
+wezterm.on('gui-startup', function(cmd)
+  -- Get all saved workspace states
+  local state = resurrect.state_manager.load_state('default', 'workspace')
+  if state then
+    resurrect.workspace_state.restore_workspace(state, {
+      relative = true,
+      restore_text = true,
+      on_pane_restore = zmx_on_pane_restore,
+    })
+  else
+    -- No saved state, just spawn normally with zmx
+    local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
+    local new_session = 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
+    pane:send_text(zmx_path .. ' attach ' .. new_session .. '\n')
+  end
+end)
+
+-- =============================================================================
 -- ZMX SESSION HELPERS
 -- =============================================================================
 
-local zmx_path = '/opt/homebrew/bin/zmx'
 local zmx_data_dir = wezterm.home_dir .. '/.local/share/zmx-wezterm'
 local zmx_sessions_file = zmx_data_dir .. '/sessions.txt'
+local zmx_pane_map_file = zmx_data_dir .. '/pane_map.txt'
 
 -- Ensure data directory exists
 os.execute('mkdir -p ' .. zmx_data_dir)
 
--- Save session → tab_id mapping
-local function zmx_save_session(session, tab_id)
+-- Track pane_id → session (in-memory for current WezTerm instance)
+local zmx_pane_sessions = {}
+
+-- Save session → tab_id → cwd → title mapping
+local function zmx_save_session(session, tab_id, cwd, title)
   local f = io.open(zmx_sessions_file, 'a')
   if f then
-    f:write(session .. '\t' .. tostring(tab_id) .. '\n')
+    cwd = cwd or ''
+    title = title or ''
+    f:write(session .. '\t' .. tostring(tab_id) .. '\t' .. cwd .. '\t' .. title .. '\n')
     f:close()
   end
 end
 
--- Load session → tab_id mapping
+-- Load session → {tab_id, cwd, title} mapping
 local function zmx_load_sessions()
   local sessions = {}
   local f = io.open(zmx_sessions_file, 'r')
   if f then
     for line in f:lines() do
-      local session, tab_id = line:match('([^\t]+)\t(%d+)')
+      local session, tab_id, cwd, title = line:match('([^\t]+)\t(%d+)\t?([^\t]*)\t?(.*)')
       if session and tab_id then
-        sessions[session] = tonumber(tab_id)
+        sessions[session] = {
+          tab_id = tonumber(tab_id),
+          cwd = cwd or '',
+          title = title or '',
+        }
       end
     end
     f:close()
@@ -51,29 +170,90 @@ local function zmx_spawn_tab(window, pane, session)
   }, pane)
 end
 
+-- Get pane info for session metadata
+local function zmx_get_pane_info(pane)
+  local cwd = ''
+  local cwd_uri = pane:get_current_working_dir()
+  if cwd_uri then
+    cwd = cwd_uri.file_path or cwd_uri.path or ''
+    -- Shorten home directory
+    cwd = cwd:gsub('^' .. wezterm.home_dir, '~')
+  end
+  local title = pane:get_title() or ''
+  return cwd, title
+end
+
+-- Track pending session for next spawned pane
+local zmx_pending_session = nil
+
 -- Spawn split with zmx session
 local function zmx_split_horizontal(window, pane, session)
   session = session or zmx_new_session_name()
   local tab_id = window:active_tab():tab_id()
+  local cwd, title = zmx_get_pane_info(pane)
+  zmx_pending_session = session
   window:perform_action(act.SplitHorizontal {
     args = { zmx_path, 'attach', session },
   }, pane)
-  zmx_save_session(session, tab_id)
+  zmx_save_session(session, tab_id, cwd, title)
 end
 
 local function zmx_split_vertical(window, pane, session)
   session = session or zmx_new_session_name()
   local tab_id = window:active_tab():tab_id()
+  local cwd, title = zmx_get_pane_info(pane)
+  zmx_pending_session = session
   window:perform_action(act.SplitVertical {
     args = { zmx_path, 'attach', session },
   }, pane)
-  zmx_save_session(session, tab_id)
+  zmx_save_session(session, tab_id, cwd, title)
+end
+
+-- Get zmx session from pane's process (via ps command)
+local function zmx_get_pane_session(pane)
+  local fg_pid = pane:get_foreground_process_info()
+  if not fg_pid then return nil end
+
+  local pid = fg_pid.pid
+  if not pid then return nil end
+
+  -- Get command line from ps
+  local handle = io.popen('ps -p ' .. pid .. ' -o args= 2>/dev/null')
+  if not handle then return nil end
+  local cmdline = handle:read('*a')
+  handle:close()
+
+  -- Parse session name from "zmx attach session-name"
+  local session = cmdline:match('zmx%s+attach%s+(wez%-[^%s]+)')
+  return session
+end
+
+-- Close pane with session update
+local function zmx_close_pane(window, pane)
+  local pane_id = pane:pane_id()
+
+  -- Try tracked session first, then detect from process
+  local session = zmx_pane_sessions[pane_id]
+  if not session then
+    session = zmx_get_pane_session(pane)
+  end
+
+  if session then
+    -- Update session with final cwd/title before closing
+    local tab_id = window:active_tab():tab_id()
+    local cwd, title = zmx_get_pane_info(pane)
+    zmx_save_session(session, tab_id, cwd, title)
+    zmx_pane_sessions[pane_id] = nil
+  end
+
+  window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
 end
 
 -- Restore session in original tab if exists, otherwise new tab
 local function zmx_restore_session(window, pane, session)
   local sessions = zmx_load_sessions()
-  local original_tab_id = sessions[session]
+  local session_data = sessions[session]
+  local original_tab_id = session_data and session_data.tab_id
 
   -- Check if original tab still exists
   local found_tab = nil
@@ -282,8 +462,8 @@ config.keys = {
   { key = 'Space', mods = 'LEADER', action = act.TogglePaneZoomState },
   -- Leader + x = close pane
   { key = 'x', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } },
-  -- Cmd+W = close pane (no confirm for speed)
-  { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
+  -- Cmd+W = close pane (updates zmx session metadata first)
+  { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(w, p) zmx_close_pane(w, p) end) },
 
   -- =====================
   -- ZMX: Session Restore
@@ -296,38 +476,6 @@ config.keys = {
     else
       wezterm.log_info('No closed session to restore')
     end
-  end) },
-
-  -- Cmd+Shift+Z = session picker (all detached sessions)
-  { key = 'z', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
-    local handle = io.popen(zmx_path .. ' list 2>/dev/null')
-    local output = handle:read('*a')
-    handle:close()
-
-    local choices = {}
-    for line in output:gmatch('[^\n]+') do
-      local session = line:match('session_name=([^%s]+)')
-      local clients = line:match('clients=(%d+)')
-
-      if session and clients == '0' and session:match('^wez%-') then
-        table.insert(choices, { id = session, label = session .. ' (detached)' })
-      end
-    end
-
-    if #choices == 0 then
-      wezterm.log_info('No detached sessions')
-      return
-    end
-
-    window:perform_action(act.InputSelector {
-      title = 'Restore Session',
-      choices = choices,
-      action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
-        if id then
-          zmx_restore_session(inner_window, inner_pane, id)
-        end
-      end),
-    }, pane)
   end) },
 
   -- =====================
@@ -455,6 +603,37 @@ config.keys = {
 
   -- Command palette (launcher style)
   { key = 'p', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|COMMANDS' } },
+
+  -- =====================
+  -- RESURRECT (layout save/restore)
+  -- =====================
+  -- Cmd+Shift+S = save state
+  { key = 's', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(win, pane)
+    resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
+  end) },
+  -- Cmd+Shift+L = load/restore state (fuzzy finder)
+  { key = 'l', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(win, pane)
+    resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
+      local type = string.match(id, '^([^/]+)')
+      id = string.match(id, '([^/]+)$')
+      id = string.match(id, '(.+)%..+$')
+      local opts = {
+        relative = true,
+        restore_text = true,
+        on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+      }
+      if type == 'workspace' then
+        local state = resurrect.state_manager.load_state(id, 'workspace')
+        resurrect.workspace_state.restore_workspace(state, opts)
+      elseif type == 'window' then
+        local state = resurrect.state_manager.load_state(id, 'window')
+        resurrect.window_state.restore_window(win, state, opts)
+      elseif type == 'tab' then
+        local state = resurrect.state_manager.load_state(id, 'tab')
+        resurrect.tab_state.restore_tab(pane:tab(), state, opts)
+      end
+    end)
+  end) },
 }
 
 -- =============================================================================

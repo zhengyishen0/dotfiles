@@ -26,6 +26,8 @@ map("i", "<M-Left>", "<C-o>b", { desc = "Word back" })
 map("i", "<M-Right>", "<C-o>w", { desc = "Word forward" })
 map("c", "<M-Left>", "<S-Left>", { desc = "Word back" })
 map("c", "<M-Right>", "<S-Right>", { desc = "Word forward" })
+map("t", "<M-Left>", "<Esc>b", { desc = "Word back" })
+map("t", "<M-Right>", "<Esc>f", { desc = "Word forward" })
 
 -- Line navigation (Cmd+arrow via Ghostty Home/End remap)
 map({ "n", "v" }, "<Home>", "0", { desc = "Line start" })
@@ -77,8 +79,8 @@ map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
 -- Floating terminal windows
 -- =============================================================================
 
--- Space-o: yazi file manager (via yazi.nvim)
-map("n", "<leader>o", function()
+-- Space-y: yazi file manager (via yazi.nvim)
+map("n", "<leader>y", function()
   vim.cmd("Yazi")
 end, { desc = "Toggle yazi file manager" })
 

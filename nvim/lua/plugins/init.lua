@@ -39,4 +39,15 @@ return {
       })
     end,
   },
+
+  {
+    "hedyhli/outline.nvim",
+    cmd = "Outline",
+    keys = { { "<leader>o", "<cmd>Outline<cr>", desc = "Toggle Outline" } },
+    opts = {
+      outline_window = {
+        position = "right",
+      },
+    },
+  },
 }
