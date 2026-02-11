@@ -29,6 +29,17 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     lazy = false,
+    opts = {
+      on_attach = function(bufnr)
+        local api = require("nvim-tree.api")
+        api.config.mappings.default_on_attach(bufnr)
+        vim.keymap.set("n", "h", api.tree.change_root_to_parent, { buffer = bufnr, desc = "cd to parent" })
+        vim.keymap.set("n", "l", function()
+          api.tree.change_root_to_node()
+          vim.defer_fn(function() vim.cmd("normal! gg") end, 10)
+        end, { buffer = bufnr, desc = "cd into directory" })
+      end,
+    },
     init = function()
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
