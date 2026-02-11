@@ -35,13 +35,21 @@ return {
         api.config.mappings.default_on_attach(bufnr)
         vim.keymap.set("n", "h", function()
           local node = api.tree.get_node_under_cursor()
-          if node.parent and node.parent.name ~= ".." then
+          -- If expanded folder, collapse it first
+          if node.type == "directory" and node.open then
+            api.node.open.edit()
+          -- If has parent in tree, go to parent
+          elseif node.parent and node.parent.name ~= ".." then
             api.node.navigate.parent_close()
+          -- At root, cd to parent directory and focus on previous root
           else
+            local prev_root_path = api.tree.get_nodes().absolute_path
             api.tree.change_root_to_parent()
-            vim.defer_fn(function() vim.cmd("normal! gg") end, 10)
+            vim.defer_fn(function()
+              api.tree.find_file(prev_root_path)
+            end, 10)
           end
-        end, { buffer = bufnr, desc = "Go to parent or cd up" })
+        end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
         vim.keymap.set("n", "l", api.node.open.edit, { buffer = bufnr, desc = "Open/expand" })
         -- Enter: cd into folder (+ jump to top) or open file
@@ -65,6 +73,18 @@ return {
         end,
       })
     end,
+  },
+
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote flash" },
+      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter search" },
+    },
   },
 
   {

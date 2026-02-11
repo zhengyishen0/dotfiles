@@ -112,3 +112,34 @@ map({ "n", "t" }, "<leader>j", function()
 end, { desc = "Floating lazyjj" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
+
+-- =============================================================================
+-- Disable dangerous single-letter commands (use alternatives below)
+-- =============================================================================
+local nop = "<Nop>"
+map("n", "x", nop, { desc = "Disabled: use dl" })
+map("n", "X", nop, { desc = "Disabled: use dh" })
+map("n", "r", nop, { desc = "Disabled: use cl<char><Esc>" })
+map("n", "R", nop, { desc = "Disabled: use insert mode" })
+map("n", "D", nop, { desc = "Disabled: use d$" })
+map("n", "C", nop, { desc = "Disabled: use c$" })
+map("n", "J", nop, { desc = "Disabled: use :join" })
+map("n", "d", nop, { desc = "Disabled: use visual select + delete" })
+map("n", "c", nop, { desc = "Disabled: use visual select + delete + type" })
+-- s/S already remapped by flash.nvim
+
+-- =============================================================================
+-- Alternatives cheatsheet (safe editing):
+-- =============================================================================
+-- x  (del char)      → delete key in insert mode
+-- X  (del char back) → backspace in insert mode
+-- d  (del + motion)  → visual select + delete key
+-- c  (change)        → visual select + delete + type
+-- s  (subst char)    → cl       (now: flash jump)
+-- S  (subst line)    → cc       (now: flash treesitter)
+-- r  (replace char)  → cl<char><Esc>  or  visual + r
+-- R  (replace mode)  → i (insert) or visual select + paste
+-- D  (del to EOL)    → d$
+-- C  (change to EOL) → c$
+-- J  (join lines)    → :join<CR>
+-- ~  (toggle case)   → kept enabled
