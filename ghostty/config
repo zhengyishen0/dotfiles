@@ -1,4 +1,6 @@
-font-family = JetBrainsMono Nerd Font
+font-family = JetBrains Mono
+font-style = Medium
+font-size = 14
 macos-option-as-alt = true
 
 # Tokyo Night theme with transparency
@@ -16,6 +18,7 @@ window-save-state = always
 undo-timeout = 168h
 
 keybind = shift+enter=text:\x1b\r
+keybind = super+q=toggle_visibility
 
 # macOS-style navigation (Cmd+arrow → terminal keys)
 keybind = super+left=text:\x1b[H
