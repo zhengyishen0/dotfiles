@@ -79,10 +79,6 @@ map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
 -- Floating terminal windows
 -- =============================================================================
 
--- Space-y: yazi file manager (via yazi.nvim)
-map("n", "<leader>y", function()
-  vim.cmd("Yazi")
-end, { desc = "Toggle yazi file manager" })
 
 -- Space-j: floating lazyjj (auto-closes when lazyjj exits)
 map({ "n", "t" }, "<leader>j", function()

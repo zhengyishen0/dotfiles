@@ -33,11 +33,27 @@ return {
       on_attach = function(bufnr)
         local api = require("nvim-tree.api")
         api.config.mappings.default_on_attach(bufnr)
-        vim.keymap.set("n", "h", api.tree.change_root_to_parent, { buffer = bufnr, desc = "cd to parent" })
-        vim.keymap.set("n", "l", function()
-          api.tree.change_root_to_node()
-          vim.defer_fn(function() vim.cmd("normal! gg") end, 10)
-        end, { buffer = bufnr, desc = "cd into directory" })
+        vim.keymap.set("n", "h", function()
+          local node = api.tree.get_node_under_cursor()
+          if node.parent and node.parent.name ~= ".." then
+            api.node.navigate.parent_close()
+          else
+            api.tree.change_root_to_parent()
+            vim.defer_fn(function() vim.cmd("normal! gg") end, 10)
+          end
+        end, { buffer = bufnr, desc = "Go to parent or cd up" })
+        vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
+        vim.keymap.set("n", "l", api.node.open.edit, { buffer = bufnr, desc = "Open/expand" })
+        -- Enter: cd into folder (+ jump to top) or open file
+        vim.keymap.set("n", "<CR>", function()
+          local node = api.tree.get_node_under_cursor()
+          if node.type == "directory" then
+            api.tree.change_root_to_node()
+            vim.defer_fn(function() vim.cmd("normal! gg") end, 10)
+          else
+            api.node.open.edit()
+          end
+        end, { buffer = bufnr, desc = "cd into directory or open file" })
       end,
     },
     init = function()
