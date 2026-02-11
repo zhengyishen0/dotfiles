@@ -15,7 +15,7 @@ confirm-close-surface = false
 
 # Session restore
 window-save-state = always
-undo-timeout = 168h
+undo-timeout = 1h
 
 keybind = shift+enter=text:\x1b\r
 keybind = super+q=toggle_visibility
