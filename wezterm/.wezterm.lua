@@ -7,13 +7,43 @@ local config = wezterm.config_builder()
 -- =============================================================================
 
 local zmx_path = '/opt/homebrew/bin/zmx'
+local zmx_data_dir = wezterm.home_dir .. '/.local/share/zmx-wezterm'
+local zmx_sessions_file = zmx_data_dir .. '/sessions.txt'
+
+-- Ensure data directory exists
+os.execute('mkdir -p ' .. zmx_data_dir)
+
+-- Save session → tab_id mapping
+local function zmx_save_session(session, tab_id)
+  local f = io.open(zmx_sessions_file, 'a')
+  if f then
+    f:write(session .. '\t' .. tostring(tab_id) .. '\n')
+    f:close()
+  end
+end
+
+-- Load session → tab_id mapping
+local function zmx_load_sessions()
+  local sessions = {}
+  local f = io.open(zmx_sessions_file, 'r')
+  if f then
+    for line in f:lines() do
+      local session, tab_id = line:match('([^\t]+)\t(%d+)')
+      if session and tab_id then
+        sessions[session] = tonumber(tab_id)
+      end
+    end
+    f:close()
+  end
+  return sessions
+end
 
 -- Generate unique session name
 local function zmx_new_session_name()
   return 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
 end
 
--- Spawn new tab with zmx session
+-- Spawn new tab with zmx session (tab_id saved via event handler below)
 local function zmx_spawn_tab(window, pane, session)
   session = session or zmx_new_session_name()
   window:perform_action(act.SpawnCommandInNewTab {
@@ -24,20 +54,56 @@ end
 -- Spawn split with zmx session
 local function zmx_split_horizontal(window, pane, session)
   session = session or zmx_new_session_name()
+  local tab_id = window:active_tab():tab_id()
   window:perform_action(act.SplitHorizontal {
     args = { zmx_path, 'attach', session },
   }, pane)
+  zmx_save_session(session, tab_id)
 end
 
 local function zmx_split_vertical(window, pane, session)
   session = session or zmx_new_session_name()
+  local tab_id = window:active_tab():tab_id()
   window:perform_action(act.SplitVertical {
     args = { zmx_path, 'attach', session },
   }, pane)
+  zmx_save_session(session, tab_id)
+end
+
+-- Restore session in original tab if exists, otherwise new tab
+local function zmx_restore_session(window, pane, session)
+  local sessions = zmx_load_sessions()
+  local original_tab_id = sessions[session]
+
+  -- Check if original tab still exists
+  local found_tab = nil
+  if original_tab_id then
+    for _, w in ipairs(wezterm.mux.all_windows()) do
+      for _, tab in ipairs(w:tabs()) do
+        if tab:tab_id() == original_tab_id then
+          found_tab = tab
+          break
+        end
+      end
+    end
+  end
+
+  if found_tab then
+    -- Restore as split in original tab
+    local active_pane = found_tab:active_pane()
+    window:perform_action(act.SplitHorizontal {
+      args = { zmx_path, 'attach', session },
+    }, active_pane)
+  else
+    -- Create new tab
+    window:perform_action(act.SpawnCommandInNewTab {
+      args = { zmx_path, 'attach', session },
+    }, pane)
+  end
 end
 
 -- Get last closed session (detached, clients=0)
-local function zmx_last_closed(tab_id)
+local function zmx_last_closed()
   local handle = io.popen(zmx_path .. ' list 2>/dev/null')
   local output = handle:read('*a')
   handle:close()
@@ -50,8 +116,8 @@ local function zmx_last_closed(tab_id)
     local clients = line:match('clients=(%d+)')
 
     if session and clients == '0' and session:match('^wez%-') then
-      -- Extract timestamp from session name (wez-TIMESTAMP-RANDOM or wez-PID-TIMESTAMP)
-      local ts = session:match('wez%-(%d+)%-') or session:match('wez%-[^-]+%-(%d+)')
+      -- Extract timestamp from session name (wez-TIMESTAMP-RANDOM)
+      local ts = session:match('wez%-(%d+)%-')
       ts = tonumber(ts) or 0
       if ts > best_time then
         best_time = ts
@@ -222,11 +288,11 @@ config.keys = {
   -- =====================
   -- ZMX: Session Restore
   -- =====================
-  -- Cmd+Z = restore last closed session
+  -- Cmd+Z = restore last closed session (in original tab if exists)
   { key = 'z', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
     local session = zmx_last_closed()
     if session ~= '' then
-      zmx_spawn_tab(window, pane, session)
+      zmx_restore_session(window, pane, session)
     else
       wezterm.log_info('No closed session to restore')
     end
@@ -258,7 +324,7 @@ config.keys = {
       choices = choices,
       action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
         if id then
-          zmx_spawn_tab(inner_window, inner_pane, id)
+          zmx_restore_session(inner_window, inner_pane, id)
         end
       end),
     }, pane)
