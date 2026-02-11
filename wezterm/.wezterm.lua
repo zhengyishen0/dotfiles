@@ -3,14 +3,79 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- =============================================================================
+-- ZMX SESSION HELPERS
+-- =============================================================================
+
+local zmx_path = '/opt/homebrew/bin/zmx'
+
+-- Generate unique session name
+local function zmx_new_session_name()
+  return 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
+end
+
+-- Spawn new tab with zmx session
+local function zmx_spawn_tab(window, pane, session)
+  session = session or zmx_new_session_name()
+  window:perform_action(act.SpawnCommandInNewTab {
+    args = { zmx_path, 'attach', session },
+  }, pane)
+end
+
+-- Spawn split with zmx session
+local function zmx_split_horizontal(window, pane, session)
+  session = session or zmx_new_session_name()
+  window:perform_action(act.SplitHorizontal {
+    args = { zmx_path, 'attach', session },
+  }, pane)
+end
+
+local function zmx_split_vertical(window, pane, session)
+  session = session or zmx_new_session_name()
+  window:perform_action(act.SplitVertical {
+    args = { zmx_path, 'attach', session },
+  }, pane)
+end
+
+-- Get last closed session (detached, clients=0)
+local function zmx_last_closed(tab_id)
+  local handle = io.popen(zmx_path .. ' list 2>/dev/null')
+  local output = handle:read('*a')
+  handle:close()
+
+  local best_session = nil
+  local best_time = 0
+
+  for line in output:gmatch('[^\n]+') do
+    local session = line:match('session_name=([^%s]+)')
+    local clients = line:match('clients=(%d+)')
+
+    if session and clients == '0' and session:match('^wez%-') then
+      -- Extract timestamp from session name (wez-TIMESTAMP-RANDOM or wez-PID-TIMESTAMP)
+      local ts = session:match('wez%-(%d+)%-') or session:match('wez%-[^-]+%-(%d+)')
+      ts = tonumber(ts) or 0
+      if ts > best_time then
+        best_time = ts
+        best_session = session
+      end
+    end
+  end
+
+  return best_session or ''
+end
+
+-- =============================================================================
 -- APPEARANCE
 -- =============================================================================
 
 -- Color scheme (popular options: "Tokyo Night", "Catppuccin Mocha", "Dracula", "rose-pine")
 config.color_scheme = 'Tokyo Night'
 
--- Font
-config.font = wezterm.font('JetBrains Mono', { weight = 'Medium' })
+-- Font (with CJK fallback)
+config.font = wezterm.font_with_fallback({
+  { family = 'JetBrains Mono', weight = 'Medium' },
+  'Hiragino Sans GB',      -- macOS Chinese
+  'Noto Sans CJK SC',      -- Linux/cross-platform
+})
 config.font_size = 14.0
 
 -- Window
@@ -68,13 +133,13 @@ config.adjust_window_size_when_changing_font_size = false
 config.window_close_confirmation = 'NeverPrompt'
 
 -- =============================================================================
--- MUX SERVER (Persistence)
+-- MUX SERVER (Persistence) - DISABLED, using zmx instead
 -- =============================================================================
 
-config.unix_domains = {
-  { name = 'unix' },
-}
-config.default_gui_startup_args = { 'connect', 'unix' }
+-- config.unix_domains = {
+--   { name = 'unix' },
+-- }
+-- config.default_gui_startup_args = { 'connect', 'unix' }
 
 -- =============================================================================
 -- SSH DOMAINS (Remote connections)
@@ -103,17 +168,17 @@ config.leader = { key = 'Space', mods = 'CTRL', timeout_milliseconds = 1000 }
 
 config.keys = {
   -- =====================
-  -- PANE: Split
+  -- PANE: Split (with zmx session)
   -- =====================
   -- Leader + | or \ = split right
-  { key = '|', mods = 'LEADER|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-  { key = '\\', mods = 'LEADER', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = '|', mods = 'LEADER|SHIFT', action = wezterm.action_callback(function(w, p) zmx_split_horizontal(w, p) end) },
+  { key = '\\', mods = 'LEADER', action = wezterm.action_callback(function(w, p) zmx_split_horizontal(w, p) end) },
   -- Leader + - = split down
-  { key = '-', mods = 'LEADER', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = '-', mods = 'LEADER', action = wezterm.action_callback(function(w, p) zmx_split_vertical(w, p) end) },
 
   -- Cmd+D / Cmd+Shift+D (iTerm2 style)
-  { key = 'd', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-  { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = 'd', mods = 'CMD', action = wezterm.action_callback(function(w, p) zmx_split_horizontal(w, p) end) },
+  { key = 'd', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(w, p) zmx_split_vertical(w, p) end) },
 
   -- =====================
   -- PANE: Navigate
@@ -155,12 +220,57 @@ config.keys = {
   { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
 
   -- =====================
-  -- TAB: Management
+  -- ZMX: Session Restore
+  -- =====================
+  -- Cmd+Z = restore last closed session
+  { key = 'z', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
+    local session = zmx_last_closed()
+    if session ~= '' then
+      zmx_spawn_tab(window, pane, session)
+    else
+      wezterm.log_info('No closed session to restore')
+    end
+  end) },
+
+  -- Cmd+Shift+Z = session picker (all detached sessions)
+  { key = 'z', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
+    local handle = io.popen(zmx_path .. ' list 2>/dev/null')
+    local output = handle:read('*a')
+    handle:close()
+
+    local choices = {}
+    for line in output:gmatch('[^\n]+') do
+      local session = line:match('session_name=([^%s]+)')
+      local clients = line:match('clients=(%d+)')
+
+      if session and clients == '0' and session:match('^wez%-') then
+        table.insert(choices, { id = session, label = session .. ' (detached)' })
+      end
+    end
+
+    if #choices == 0 then
+      wezterm.log_info('No detached sessions')
+      return
+    end
+
+    window:perform_action(act.InputSelector {
+      title = 'Restore Session',
+      choices = choices,
+      action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
+        if id then
+          zmx_spawn_tab(inner_window, inner_pane, id)
+        end
+      end),
+    }, pane)
+  end) },
+
+  -- =====================
+  -- TAB: Management (with zmx session)
   -- =====================
   -- Cmd+T = new tab
-  { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
+  { key = 't', mods = 'CMD', action = wezterm.action_callback(function(w, p) zmx_spawn_tab(w, p) end) },
   -- Leader + c = new tab (tmux style)
-  { key = 'c', mods = 'LEADER', action = act.SpawnTab 'CurrentPaneDomain' },
+  { key = 'c', mods = 'LEADER', action = wezterm.action_callback(function(w, p) zmx_spawn_tab(w, p) end) },
   -- Cmd+Shift+[ / ] = switch tabs
   { key = '{', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(-1) },
   { key = '}', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(1) },

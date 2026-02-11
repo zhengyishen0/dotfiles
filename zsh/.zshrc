@@ -48,5 +48,20 @@ command -v procs &>/dev/null && alias ps='procs'
 # Dotfiles
 sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 
+# Ghostty
+alias ghostty='~/dotfiles/scripts/ghostty.sh'
+
+ghostty-kill() {
+    local current=$(tty | sed 's|/dev/||')
+    if [[ -n "$1" ]]; then
+        pkill -t "$1"  # kill specific: ghostty-kill ttys031
+    else
+        # kill all except current
+        ghostty-sessions | grep -v "$current" | xargs -I{} pkill -t {}
+    fi
+}
+
+# WezTerm + zmx: session managed by WezTerm config, not shell
+
 # Device-specific settings (not tracked)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
