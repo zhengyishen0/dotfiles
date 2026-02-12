@@ -50,3 +50,9 @@ sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 
 # Device-specific settings (not tracked)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# Opt+Arrow word navigation (CSI sequences from Ghostty)
+bindkey '\e[1;3D' backward-word  # Opt+Left
+bindkey '\e[1;3C' forward-word   # Opt+Right
+bindkey '\e[H' beginning-of-line  # Cmd+Left (Home)
+bindkey '\e[F' end-of-line        # Cmd+Right (End)
