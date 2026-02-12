@@ -76,38 +76,52 @@ map("v", "<CR>", "y", { desc = "Copy selection" })
 map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
 
 -- =============================================================================
--- Bottom terminal lazyjj (simple open/close toggle)
+-- Bottom terminal lazyjj (simple toggle)
 -- =============================================================================
 
-local lazyjj_win = nil
+local lazyjj_state = { buf = nil, win = nil }
 
 local function toggle_lazyjj()
-  -- If open, close it
-  if lazyjj_win and vim.api.nvim_win_is_valid(lazyjj_win) then
-    vim.api.nvim_win_close(lazyjj_win, true)
-    lazyjj_win = nil
+  -- If window visible, hide it
+  if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
+    vim.api.nvim_win_hide(lazyjj_state.win)
     return
   end
 
-  -- Open new
+  -- If buffer exists but hidden, show it
+  if lazyjj_state.buf and vim.api.nvim_buf_is_valid(lazyjj_state.buf) then
+    vim.cmd("botright sbuffer " .. lazyjj_state.buf)
+    vim.cmd("resize 20")
+    lazyjj_state.win = vim.api.nvim_get_current_win()
+    vim.cmd("startinsert")
+    return
+  end
+
+  -- Start fresh
   vim.cmd("botright new")
   vim.cmd("resize 20")
-  lazyjj_win = vim.api.nvim_get_current_win()
+  lazyjj_state.win = vim.api.nvim_get_current_win()
+  lazyjj_state.buf = vim.api.nvim_get_current_buf()
+  vim.bo[lazyjj_state.buf].buflisted = false
 
   vim.fn.termopen("lazyjj", {
     on_exit = function()
       vim.schedule(function()
-        if lazyjj_win and vim.api.nvim_win_is_valid(lazyjj_win) then
-          vim.api.nvim_win_close(lazyjj_win, true)
+        if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
+          vim.api.nvim_win_close(lazyjj_state.win, true)
         end
-        lazyjj_win = nil
+        if lazyjj_state.buf and vim.api.nvim_buf_is_valid(lazyjj_state.buf) then
+          vim.api.nvim_buf_delete(lazyjj_state.buf, { force = true })
+        end
+        lazyjj_state.win = nil
+        lazyjj_state.buf = nil
       end)
     end,
   })
   vim.cmd("startinsert")
 end
 
-map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj" })
+map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj (bottom)" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 

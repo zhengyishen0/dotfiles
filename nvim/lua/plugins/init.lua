@@ -22,6 +22,8 @@ return {
         "typescript-language-server",
         "json-lsp",
         "bash-language-server",
+        "marksman",
+        "yaml-language-server",
         -- Formatters
         "prettier",
         "ruff",
@@ -119,6 +121,7 @@ return {
   {
     "hedyhli/outline.nvim",
     cmd = "Outline",
+    event = "LspAttach",
     keys = { { "<leader>o", "<cmd>Outline<cr>", desc = "Toggle Outline" } },
     opts = {
       outline_window = {
@@ -127,5 +130,24 @@ return {
         auto_resize = false,
       },
     },
+    config = function(_, opts)
+      local outline = require("outline")
+      outline.setup(opts)
+
+      local function try_open_outline()
+        vim.defer_fn(function()
+          if not outline.is_open() then
+            pcall(outline.open, { focus_outline = false })
+          end
+        end, 300)
+      end
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function() try_open_outline() end,
+      })
+
+      -- Handle the initial LspAttach that triggered plugin load
+      try_open_outline()
+    end,
   },
 }
