@@ -64,7 +64,9 @@ return {
           -- At root, cd to parent directory and focus on previous root
           else
             local prev_root_path = api.tree.get_nodes().absolute_path
+            local parent_path = vim.fn.fnamemodify(prev_root_path, ":h")
             api.tree.change_root_to_parent()
+            vim.cmd.cd(parent_path)
             vim.defer_fn(function()
               api.tree.find_file(prev_root_path)
             end, 10)
@@ -77,7 +79,12 @@ return {
           local node = api.tree.get_node_under_cursor()
           if node.type == "directory" then
             api.tree.change_root_to_node()
-            vim.defer_fn(function() vim.cmd("normal! gg") end, 10)
+            vim.cmd.cd(node.absolute_path)
+            vim.defer_fn(function()
+              if vim.bo.filetype == "NvimTree" then
+                vim.cmd("normal! gg")
+              end
+            end, 10)
           else
             api.node.open.edit()
           end
@@ -114,6 +121,8 @@ return {
     opts = {
       outline_window = {
         position = "right",
+        width = 25,
+        auto_resize = false,
       },
     },
   },
