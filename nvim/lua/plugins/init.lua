@@ -50,6 +50,8 @@ return {
     "nvim-tree/nvim-tree.lua",
     lazy = false,
     opts = {
+      view = { width = 35 },
+      filters = { dotfiles = true },
       on_attach = function(bufnr)
         local api = require("nvim-tree.api")
         api.config.mappings.default_on_attach(bufnr)
@@ -64,9 +66,7 @@ return {
           -- At root, cd to parent directory and focus on previous root
           else
             local prev_root_path = api.tree.get_nodes().absolute_path
-            local parent_path = vim.fn.fnamemodify(prev_root_path, ":h")
             api.tree.change_root_to_parent()
-            vim.cmd.cd(parent_path)
             vim.defer_fn(function()
               api.tree.find_file(prev_root_path)
             end, 10)
@@ -74,12 +74,14 @@ return {
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
         vim.keymap.set("n", "l", api.node.open.edit, { buffer = bufnr, desc = "Open/expand" })
+        vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
+        vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
+        vim.keymap.set("n", ",", api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle gitignore" })
         -- Enter: cd into folder (+ jump to top) or open file
         vim.keymap.set("n", "<CR>", function()
           local node = api.tree.get_node_under_cursor()
           if node.type == "directory" then
             api.tree.change_root_to_node()
-            vim.cmd.cd(node.absolute_path)
             vim.defer_fn(function()
               if vim.bo.filetype == "NvimTree" then
                 vim.cmd("normal! gg")
@@ -121,7 +123,7 @@ return {
     opts = {
       outline_window = {
         position = "right",
-        width = 25,
+        width = 20,
         auto_resize = false,
       },
     },
