@@ -12,6 +12,7 @@ background-blur-radius = 30
 macos-titlebar-style = transparent
 macos-titlebar-proxy-icon = hidden
 confirm-close-surface = false
+copy-on-select = true
 
 # Session restore
 window-save-state = always
