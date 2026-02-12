@@ -53,6 +53,7 @@ return {
     lazy = false,
     opts = {
       view = { width = 35 },
+      filesystem_watchers = { enable = true },
       filters = { dotfiles = true },
       on_attach = function(bufnr)
         local api = require("nvim-tree.api")
@@ -76,6 +77,7 @@ return {
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
         vim.keymap.set("n", "l", api.node.open.edit, { buffer = bufnr, desc = "Open/expand" })
+        vim.keymap.set("n", "R", api.tree.reload, { buffer = bufnr, desc = "Refresh" })
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
         vim.keymap.set("n", ",", api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle gitignore" })
@@ -128,6 +130,7 @@ return {
         position = "right",
         width = 20,
         auto_resize = false,
+        auto_jump = true,
       },
     },
     config = function(_, opts)

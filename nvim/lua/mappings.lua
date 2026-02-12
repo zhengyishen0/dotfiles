@@ -81,23 +81,26 @@ map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
 
 local lazyjj_state = { buf = nil, win = nil }
 
-local function toggle_lazyjj()
-  -- If window visible, hide it
+local function lazyjj_cleanup()
   if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
-    vim.api.nvim_win_hide(lazyjj_state.win)
-    return
+    vim.api.nvim_win_close(lazyjj_state.win, true)
   end
-
-  -- If buffer exists but hidden, show it
   if lazyjj_state.buf and vim.api.nvim_buf_is_valid(lazyjj_state.buf) then
-    vim.cmd("botright sbuffer " .. lazyjj_state.buf)
-    vim.cmd("resize 20")
-    lazyjj_state.win = vim.api.nvim_get_current_win()
-    vim.cmd("startinsert")
+    vim.api.nvim_buf_delete(lazyjj_state.buf, { force = true })
+  end
+  lazyjj_state.win = nil
+  lazyjj_state.buf = nil
+end
+
+local function toggle_lazyjj()
+  -- If open, close it
+  if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
+    lazyjj_cleanup()
     return
   end
 
-  -- Start fresh
+  -- Always start fresh so lazyjj picks up latest repo state
+  lazyjj_cleanup()
   vim.cmd("botright new")
   vim.cmd("resize 20")
   lazyjj_state.win = vim.api.nvim_get_current_win()
@@ -106,19 +109,20 @@ local function toggle_lazyjj()
 
   vim.fn.termopen("lazyjj", {
     on_exit = function()
-      vim.schedule(function()
-        if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
-          vim.api.nvim_win_close(lazyjj_state.win, true)
-        end
-        if lazyjj_state.buf and vim.api.nvim_buf_is_valid(lazyjj_state.buf) then
-          vim.api.nvim_buf_delete(lazyjj_state.buf, { force = true })
-        end
-        lazyjj_state.win = nil
-        lazyjj_state.buf = nil
-      end)
+      vim.schedule(lazyjj_cleanup)
     end,
   })
   vim.cmd("startinsert")
+
+  -- Auto-enter insert mode when clicking into the lazyjj buffer
+  vim.api.nvim_create_autocmd("BufEnter", {
+    buffer = lazyjj_state.buf,
+    callback = function()
+      if lazyjj_state.buf and vim.api.nvim_buf_is_valid(lazyjj_state.buf) then
+        vim.cmd("startinsert")
+      end
+    end,
+  })
 end
 
 map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj (bottom)" })
