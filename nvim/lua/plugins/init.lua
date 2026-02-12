@@ -134,20 +134,21 @@ return {
       local outline = require("outline")
       outline.setup(opts)
 
-      local function try_open_outline()
+      local function open_outline()
         vim.defer_fn(function()
-          if not outline.is_open() then
-            pcall(outline.open, { focus_outline = false })
+          if outline.is_open() then
+            pcall(outline.close)
           end
-        end, 300)
+          pcall(outline.open, { focus_outline = false })
+        end, 200)
       end
 
       vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function() try_open_outline() end,
+        callback = function() open_outline() end,
       })
 
       -- Handle the initial LspAttach that triggered plugin load
-      try_open_outline()
+      open_outline()
     end,
   },
 }
