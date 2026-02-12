@@ -139,10 +139,25 @@ return {
 
       local function open_outline()
         vim.defer_fn(function()
+          -- Check if lazyjj is open
+          local lazyjj_was_open = _G.lazyjj_state.buf
+            and vim.api.nvim_buf_is_valid(_G.lazyjj_state.buf)
+
+          -- Reopen outline
           if outline.is_open() then
             pcall(outline.close)
           end
           pcall(outline.open, { focus_outline = false })
+
+          -- Close and restart lazyjj after outline is back
+          if lazyjj_was_open then
+            _G.toggle_lazyjj()
+            vim.defer_fn(function()
+              _G.toggle_lazyjj()
+              vim.cmd("stopinsert")
+              vim.cmd("wincmd p")
+            end, 50)
+          end
         end, 200)
       end
 

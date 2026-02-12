@@ -3,10 +3,10 @@ require "nvchad.mappings"
 local map = vim.keymap.set
 
 -- Override NvChad C-h/j/k/l with tmux-aware navigation
-map("n", "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
-map("n", "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
-map("n", "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
-map("n", "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
+map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
+map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
+map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
@@ -79,7 +79,8 @@ map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
 -- Bottom terminal lazyjj (simple toggle)
 -- =============================================================================
 
-local lazyjj_state = { buf = nil, win = nil }
+_G.lazyjj_state = { buf = nil, win = nil }
+local lazyjj_state = _G.lazyjj_state
 
 local function lazyjj_cleanup()
   if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
@@ -92,6 +93,7 @@ local function lazyjj_cleanup()
   lazyjj_state.buf = nil
 end
 
+_G.toggle_lazyjj = function() end -- forward declare
 local function toggle_lazyjj()
   -- If open, close it
   if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
@@ -123,8 +125,22 @@ local function toggle_lazyjj()
       end
     end,
   })
+
+  -- Ctrl+k from lazyjj goes to editor (first non-special window)
+  vim.keymap.set("t", "<C-k>", function()
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local buf = vim.api.nvim_win_get_buf(win)
+      local ft = vim.bo[buf].filetype
+      if ft ~= "Outline" and ft ~= "NvimTree" and ft ~= "" then
+        vim.api.nvim_set_current_win(win)
+        return
+      end
+    end
+    vim.cmd("wincmd k")
+  end, { buffer = lazyjj_state.buf, desc = "Jump to editor" })
 end
 
+_G.toggle_lazyjj = toggle_lazyjj
 map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj (bottom)" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
