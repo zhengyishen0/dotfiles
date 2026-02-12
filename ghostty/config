@@ -48,3 +48,7 @@ keybind = alt+shift+r=text:\x1bR
 keybind = alt+shift+comma=text:\x1b<
 keybind = alt+shift+period=text:\x1b>
 
+# Move tabs with Cmd+( and Cmd+)
+keybind = super+shift+nine=move_tab:-1
+keybind = super+shift+zero=move_tab:1
+
