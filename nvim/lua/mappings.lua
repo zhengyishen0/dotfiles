@@ -108,7 +108,48 @@ map("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })
 _G.lazyjj_state = { buf = nil, win = nil }
 local lazyjj_state = _G.lazyjj_state
 
+-- File watcher for auto-refresh
+local jj_watcher = nil
+local debounce_timer = nil
+
+local function start_jj_watch()
+  if jj_watcher then return end
+  local jj_path = vim.fn.getcwd() .. "/.jj"
+  if vim.fn.isdirectory(jj_path) == 0 then return end
+
+  jj_watcher = vim.uv.new_fs_event()
+  jj_watcher:start(jj_path, { recursive = true }, function()
+    vim.schedule(function()
+      -- Debounce: cancel pending refresh, schedule new one
+      if debounce_timer then
+        debounce_timer:stop()
+      end
+      debounce_timer = vim.defer_fn(function()
+        if lazyjj_state.buf and vim.api.nvim_buf_is_valid(lazyjj_state.buf) then
+          local chan = vim.bo[lazyjj_state.buf].channel
+          if chan and chan > 0 then
+            vim.api.nvim_chan_send(chan, "R")
+          end
+        end
+        debounce_timer = nil
+      end, 500)
+    end)
+  end)
+end
+
+local function stop_jj_watch()
+  if debounce_timer then
+    debounce_timer:stop()
+    debounce_timer = nil
+  end
+  if jj_watcher then
+    jj_watcher:stop()
+    jj_watcher = nil
+  end
+end
+
 local function lazyjj_cleanup()
+  stop_jj_watch()
   if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
     vim.api.nvim_win_close(lazyjj_state.win, true)
   end
@@ -140,6 +181,7 @@ local function toggle_lazyjj()
       vim.schedule(lazyjj_cleanup)
     end,
   })
+  start_jj_watch()
   vim.cmd("startinsert")
 
   -- Auto-enter insert mode when clicking into the lazyjj buffer
