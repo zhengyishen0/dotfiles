@@ -81,6 +81,10 @@ map("i", "<D-z>", "<C-o>u", { desc = "Undo" })
 map({ "n", "v" }, "<D-S-z>", "<C-r>", { desc = "Redo" })
 map("i", "<D-S-z>", "<C-o><C-r>", { desc = "Redo" })
 
+-- Cmd+C/X (copy/cut with system clipboard)
+map("v", "<D-c>", '"+y', { desc = "Copy to clipboard" })
+map("v", "<D-x>", '"+d', { desc = "Cut to clipboard" })
+
 -- Cmd+S (save)
 map({ "n", "i", "v", "s" }, "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
 
