@@ -87,10 +87,16 @@ map({ "n", "i", "v", "s" }, "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
 -- Cmd+Q (quit all)
 map({ "n", "i", "v", "s" }, "<D-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
 
--- Cmd+E/O/J (NvimTree, Outline, lazyjj)
+-- Cmd+E/O/J (NvimTree, Find files, lazyjj)
 map({ "n", "i", "v", "s" }, "<D-e>", "<Cmd>NvimTreeFocus<CR>", { desc = "NvimTree" })
-map({ "n", "i", "v", "s" }, "<D-o>", "<Cmd>Outline<CR>", { desc = "Outline" })
+map({ "n", "i", "v", "s" }, "<D-o>", "<Cmd>Telescope find_files<CR>", { desc = "Find files" })
 map({ "n", "i", "v", "s", "t" }, "<D-j>", function() _G.toggle_lazyjj() end, { desc = "Toggle lazyjj" })
+
+-- Cmd+F (live grep)
+map({ "n", "i", "v", "s" }, "<D-f>", "<Cmd>Telescope live_grep<CR>", { desc = "Live grep" })
+
+-- Cmd+P (command history via Telescope - easier to close than q:)
+map({ "n", "i", "v", "s" }, "<D-p>", "<Cmd>Telescope command_history<CR>", { desc = "Command history" })
 
 -- Opt+Backspace = delete word backward
 map("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })
@@ -172,7 +178,7 @@ local nop = "<Nop>"
 -- Delete/change commands
 map("n", "x", nop, { desc = "Disabled" })
 map("n", "X", nop, { desc = "Disabled" })
-map("n", "d", nop, { desc = "Disabled" })
+map("n", "d", "<C-d>", { desc = "Half page down" })
 map("n", "D", nop, { desc = "Disabled" })
 map("n", "c", nop, { desc = "Disabled" })
 map("n", "C", nop, { desc = "Disabled" })
@@ -193,7 +199,7 @@ map("n", "O", nop, { desc = "Disabled: use Enter at EOL" })
 map("n", "p", nop, { desc = "Disabled: use Cmd+V" })
 map("n", "P", nop, { desc = "Disabled: use Cmd+V" })
 map("n", "y", nop, { desc = "Disabled: use Cmd+C" })
-map("n", "u", nop, { desc = "Disabled: use Cmd+Z" })
+map("n", "u", "<C-u>", { desc = "Half page up" })
 map("n", "U", nop, { desc = "Disabled" })
 
 -- Other modifying commands
@@ -209,3 +215,10 @@ map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
 
 -- Re-enable 'i' for entering insert mode (only explicit way in)
 map("n", "i", "i", { desc = "Enter insert mode" })
+
+-- Close command history window (q:) with Esc
+vim.api.nvim_create_autocmd("CmdwinEnter", {
+  callback = function()
+    vim.keymap.set("n", "<Esc>", "<Cmd>q<CR>", { buffer = true, desc = "Close cmdwin" })
+  end,
+})
