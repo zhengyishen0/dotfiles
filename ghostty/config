@@ -19,7 +19,12 @@ window-save-state = always
 undo-timeout = 1h
 
 keybind = shift+enter=text:\x1b\r
-keybind = super+q=toggle_visibility
+# Cmd keys → send to Neovim (not Ghostty actions)
+keybind = super+q=csi:113;9u
+keybind = super+s=csi:115;9u
+keybind = super+e=csi:101;9u
+keybind = super+o=csi:111;9u
+keybind = super+j=csi:106;9u
 
 # macOS-style navigation (Cmd+arrow → terminal keys)
 keybind = super+left=text:\x1b[H
@@ -36,6 +41,8 @@ keybind = super+shift+down=text:\x1b[1;6F
 # Fix Opt+arrow (macos-option-as-alt breaks CSI sequences for arrows)
 keybind = alt+left=text:\x1b[1;3D
 keybind = alt+right=text:\x1b[1;3C
+keybind = alt+shift+left=text:\x1b[1;4D
+keybind = alt+shift+right=text:\x1b[1;4C
 
 # Scroll with Opt+Up/Down
 keybind = alt+up=scroll_page_lines:-5
@@ -47,6 +54,10 @@ keybind = alt+shift+w=text:\x1bW
 keybind = alt+shift+r=text:\x1bR
 keybind = alt+shift+comma=text:\x1b<
 keybind = alt+shift+period=text:\x1b>
+
+# Cmd+Z/Shift+Z only (keep native copy/paste)
+keybind = super+z=csi:122;9u
+keybind = super+shift+z=csi:122;10u
 
 # Move tabs with Cmd+( and Cmd+)
 keybind = super+shift+nine=move_tab:-1

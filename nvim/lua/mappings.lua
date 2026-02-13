@@ -41,23 +41,23 @@ map({ "n", "v" }, "<C-End>", "G", { desc = "Bottom of file" })
 map("i", "<C-Home>", "<C-o>gg", { desc = "Top of file" })
 map("i", "<C-End>", "<C-o>G", { desc = "Bottom of file" })
 
--- Shift+arrow = visual select
-map("n", "<S-Left>", "v<Left>", { desc = "Select left" })
-map("n", "<S-Right>", "v<Right>", { desc = "Select right" })
-map("n", "<S-Up>", "v<Up>", { desc = "Select up" })
-map("n", "<S-Down>", "v<Down>", { desc = "Select down" })
-map("v", "<S-Left>", "<Left>", { desc = "Extend left" })
-map("v", "<S-Right>", "<Right>", { desc = "Extend right" })
-map("v", "<S-Up>", "<Up>", { desc = "Extend up" })
-map("v", "<S-Down>", "<Down>", { desc = "Extend down" })
+-- Shift+arrow = select (Select mode - typing replaces selection)
+map("n", "<S-Left>", "gh<Left>", { desc = "Select left" })
+map("n", "<S-Right>", "gh<Right>", { desc = "Select right" })
+map("n", "<S-Up>", "gh<Up>", { desc = "Select up" })
+map("n", "<S-Down>", "gh<Down>", { desc = "Select down" })
+map("s", "<S-Left>", "<C-o><Left>", { desc = "Extend left" })
+map("s", "<S-Right>", "<C-o><Right>", { desc = "Extend right" })
+map("s", "<S-Up>", "<C-o><Up>", { desc = "Extend up" })
+map("s", "<S-Down>", "<C-o><Down>", { desc = "Extend down" })
 
--- Shift+Opt+arrow = select by word
-map("n", "<M-S-Left>", "vb", { desc = "Select word back" })
-map("n", "<M-S-Right>", "vw", { desc = "Select word forward" })
-map("v", "<M-S-Left>", "b", { desc = "Extend word back" })
-map("v", "<M-S-Right>", "w", { desc = "Extend word forward" })
+-- Shift+Opt+arrow = select by word (explicit CSI sequences from Ghostty)
+map("n", "\x1b[1;4D", "vb<C-g>", { desc = "Select word back" })
+map("n", "\x1b[1;4C", "vw<C-g>", { desc = "Select word forward" })
+map("s", "<M-S-Left>", "<C-o>b", { desc = "Extend word back" })
+map("s", "<M-S-Right>", "<C-o>w", { desc = "Extend word forward" })
 
--- Shift+Cmd+arrow = select to line start/end (via Ghostty Shift+Home/End)
+-- Shift+Cmd+arrow = select to line start/end
 map("n", "<S-Home>", "v0", { desc = "Select to line start" })
 map("n", "<S-End>", "v$", { desc = "Select to line end" })
 map("v", "<S-Home>", "0", { desc = "Extend to line start" })
@@ -69,11 +69,31 @@ map("n", "<C-S-End>", "vG", { desc = "Select to bottom" })
 map("v", "<C-S-Home>", "gg", { desc = "Extend to top" })
 map("v", "<C-S-End>", "G", { desc = "Extend to bottom" })
 
--- Enter to copy in visual mode
-map("v", "<CR>", "y", { desc = "Copy selection" })
+-- Enter to copy in select mode
+map("s", "<CR>", "<C-o>y", { desc = "Copy selection" })
 
--- Auto-copy to clipboard on mouse select (like tmux)
-map("v", "<LeftRelease>", '"+y', { desc = "Auto-copy on mouse select" })
+-- Auto-copy to clipboard on mouse select
+map("s", "<LeftRelease>", '<C-o>"+y', { desc = "Auto-copy on mouse select" })
+
+-- Cmd+Z/Shift+Z (undo/redo)
+map("n", "<D-z>", "u", { desc = "Undo" })
+map("i", "<D-z>", "<C-o>u", { desc = "Undo" })
+map({ "n", "v" }, "<D-S-z>", "<C-r>", { desc = "Redo" })
+map("i", "<D-S-z>", "<C-o><C-r>", { desc = "Redo" })
+
+-- Cmd+S (save)
+map({ "n", "i", "v", "s" }, "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
+
+-- Cmd+Q (quit all)
+map({ "n", "i", "v", "s" }, "<D-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+
+-- Cmd+E/O/J (NvimTree, Outline, lazyjj)
+map({ "n", "i", "v", "s" }, "<D-e>", "<Cmd>NvimTreeFocus<CR>", { desc = "NvimTree" })
+map({ "n", "i", "v", "s" }, "<D-o>", "<Cmd>Outline<CR>", { desc = "Outline" })
+map({ "n", "i", "v", "s", "t" }, "<D-j>", function() _G.toggle_lazyjj() end, { desc = "Toggle lazyjj" })
+
+-- Opt+Backspace = delete word backward
+map("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })
 
 -- =============================================================================
 -- Bottom terminal lazyjj (simple toggle)
@@ -146,32 +166,46 @@ map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj (bottom)" 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 
 -- =============================================================================
--- Disable dangerous single-letter commands (use alternatives below)
+-- Disable single-letter commands (macOS-style: click to type, select + type)
 -- =============================================================================
 local nop = "<Nop>"
-map("n", "x", nop, { desc = "Disabled: use dl" })
-map("n", "X", nop, { desc = "Disabled: use dh" })
-map("n", "r", nop, { desc = "Disabled: use cl<char><Esc>" })
-map("n", "R", nop, { desc = "Disabled: use insert mode" })
-map("n", "D", nop, { desc = "Disabled: use d$" })
-map("n", "C", nop, { desc = "Disabled: use c$" })
-map("n", "J", nop, { desc = "Disabled: use :join" })
-map("n", "d", nop, { desc = "Disabled: use visual select + delete" })
-map("n", "c", nop, { desc = "Disabled: use visual select + delete + type" })
--- s/S already remapped by flash.nvim
+-- Delete/change commands
+map("n", "x", nop, { desc = "Disabled" })
+map("n", "X", nop, { desc = "Disabled" })
+map("n", "d", nop, { desc = "Disabled" })
+map("n", "D", nop, { desc = "Disabled" })
+map("n", "c", nop, { desc = "Disabled" })
+map("n", "C", nop, { desc = "Disabled" })
+map("n", "r", nop, { desc = "Disabled" })
+map("n", "R", nop, { desc = "Disabled" })
+map("n", "J", nop, { desc = "Disabled" })
+-- s/S used by flash.nvim
+
+-- Insert/append commands (use click or Enter instead)
+map("n", "i", nop, { desc = "Disabled: click or Enter" })
+map("n", "I", nop, { desc = "Disabled: click or Enter" })
+map("n", "a", nop, { desc = "Disabled: click or Enter" })
+map("n", "A", nop, { desc = "Disabled: click or Enter" })
+map("n", "o", nop, { desc = "Disabled: use Enter at EOL" })
+map("n", "O", nop, { desc = "Disabled: use Enter at EOL" })
+
+-- Paste/yank/undo (use Cmd+V/C/Z instead)
+map("n", "p", nop, { desc = "Disabled: use Cmd+V" })
+map("n", "P", nop, { desc = "Disabled: use Cmd+V" })
+map("n", "y", nop, { desc = "Disabled: use Cmd+C" })
+map("n", "u", nop, { desc = "Disabled: use Cmd+Z" })
+map("n", "U", nop, { desc = "Disabled" })
+
+-- Other modifying commands
+map("n", "~", nop, { desc = "Disabled" })
+map("n", ".", nop, { desc = "Disabled" })
 
 -- =============================================================================
--- Alternatives cheatsheet (safe editing):
+-- macOS-style editing helpers
 -- =============================================================================
--- x  (del char)      → delete key in insert mode
--- X  (del char back) → backspace in insert mode
--- d  (del + motion)  → visual select + delete key
--- c  (change)        → visual select + delete + type
--- s  (subst char)    → cl       (now: flash jump)
--- S  (subst line)    → cc       (now: flash treesitter)
--- r  (replace char)  → cl<char><Esc>  or  visual + r
--- R  (replace mode)  → i (insert) or visual select + paste
--- D  (del to EOL)    → d$
--- C  (change to EOL) → c$
--- J  (join lines)    → :join<CR>
--- ~  (toggle case)   → kept enabled
+-- Delete key deletes selection (Select mode)
+map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
+map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
+
+-- Re-enable 'i' for entering insert mode (only explicit way in)
+map("n", "i", "i", { desc = "Enter insert mode" })

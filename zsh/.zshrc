@@ -56,3 +56,11 @@ bindkey '\e[1;3D' backward-word  # Opt+Left
 bindkey '\e[1;3C' forward-word   # Opt+Right
 bindkey '\e[H' beginning-of-line  # Cmd+Left (Home)
 bindkey '\e[F' end-of-line        # Cmd+Right (End)
+
+# Cmd+Z (CSI u sequence from Ghostty)
+bindkey '\e[122;9u' undo  # Cmd+Z
+export CLOUDSDK_PYTHON=/opt/homebrew/bin/python3.14
+
+# Google Cloud SDK
+export PATH="$HOME/google-cloud-sdk/bin:$PATH"
+source "$HOME/google-cloud-sdk/completion.zsh.inc"
