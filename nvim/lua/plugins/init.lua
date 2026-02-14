@@ -101,7 +101,7 @@ return {
                 staged = "+",
                 untracked = "?",
                 deleted = "x",
-                renamed = "→",
+                renamed = ">>",
                 unmerged = "‼",
                 ignored = ".",
               },
