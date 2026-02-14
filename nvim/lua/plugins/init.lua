@@ -81,7 +81,7 @@ return {
     lazy = false,
     opts = function()
       local submodule_icon = "@"
-      local submodule_color = "#2aa198"  -- teal
+      local submodule_color = "#c678dd"  -- teal
 
       return {
         view = { width = 35 },
@@ -101,9 +101,9 @@ return {
                 staged = "+",
                 untracked = "?",
                 deleted = "x",
-                renamed = "»",
+                renamed = "→",
                 unmerged = "‼",
-                ignored = "◌",
+                ignored = ".",
               },
             },
           },
