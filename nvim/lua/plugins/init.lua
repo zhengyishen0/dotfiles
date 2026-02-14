@@ -1,5 +1,33 @@
 return {
   {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      local autopairs = require("nvim-autopairs")
+      local Rule = require("nvim-autopairs.rule")
+      local cond = require("nvim-autopairs.conds")
+
+      autopairs.setup({})
+
+      -- Markdown: ** for bold (only after space or start of line)
+      autopairs.add_rule(Rule("**", "**", "markdown")
+        :with_pair(cond.before_regex("%s"))
+        :with_move(cond.after_text("**")))
+      autopairs.add_rule(Rule("**", "**", "markdown")
+        :with_pair(cond.before_regex("^"))
+        :with_move(cond.after_text("**")))
+
+      -- Markdown: ~~ for strikethrough
+      autopairs.add_rule(Rule("~~", "~~", "markdown")
+        :with_pair(cond.before_regex("%s"))
+        :with_move(cond.after_text("~~")))
+      autopairs.add_rule(Rule("~~", "~~", "markdown")
+        :with_pair(cond.before_regex("^"))
+        :with_move(cond.after_text("~~")))
+    end,
+  },
+
+  {
     "stevearc/conform.nvim",
     -- event = 'BufWritePre', -- uncomment for format on save
     opts = require "configs.conform",
@@ -118,6 +146,22 @@ return {
       { "r", mode = "o", function() require("flash").remote() end, desc = "Remote flash" },
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter search" },
     },
+  },
+
+  {
+    "gaoDean/autolist.nvim",
+    ft = "markdown",
+    opts = {},
+    config = function(_, opts)
+      require("autolist").setup(opts)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "markdown",
+        callback = function()
+          local buf = vim.api.nvim_get_current_buf()
+          vim.keymap.set("i", "<CR>", "<CR><cmd>AutolistNewBullet<cr>", { buffer = buf })
+        end,
+      })
+    end,
   },
 
   {

@@ -9,11 +9,27 @@ map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
 map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
-map("i", "jk", "<ESC>")
 
-map({ "n", "i" }, "<leader>s", "<cmd>w<CR>", { desc = "Save file" })
+map("n", "<leader>s", "<cmd>w<CR>", { desc = "Save file" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
 map("n", "<leader>q", "<cmd>qa<CR>", { desc = "Quit all" })
+
+-- =============================================================================
+-- Markdown: toggle checkbox
+-- =============================================================================
+local function toggle_checkbox()
+  local line = vim.api.nvim_get_current_line()
+  local new_line
+  if line:match("%- %[ %]") then
+    new_line = line:gsub("%- %[ %]", "- [x]", 1)
+  elseif line:match("%- %[x%]") then
+    new_line = line:gsub("%- %[x%]", "- [ ]", 1)
+  else
+    return -- not a checkbox line
+  end
+  vim.api.nvim_set_current_line(new_line)
+end
+map("n", "<S-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
 
 -- =============================================================================
 -- macOS-style navigation
@@ -35,11 +51,11 @@ map({ "n", "v" }, "<End>", "$", { desc = "Line end" })
 map("i", "<Home>", "<Home>", { desc = "Line start" })
 map("i", "<End>", "<End>", { desc = "Line end" })
 
--- Document navigation (Cmd+Up/Down via Ghostty Ctrl+Home/End remap)
-map({ "n", "v" }, "<C-Home>", "gg", { desc = "Top of file" })
-map({ "n", "v" }, "<C-End>", "G", { desc = "Bottom of file" })
-map("i", "<C-Home>", "<C-o>gg", { desc = "Top of file" })
-map("i", "<C-End>", "<C-o>G", { desc = "Bottom of file" })
+-- Paragraph navigation (Cmd+Up/Down via Ghostty Ctrl+Home/End remap)
+map({ "n", "v" }, "<C-Home>", "{", { desc = "Paragraph up" })
+map({ "n", "v" }, "<C-End>", "}", { desc = "Paragraph down" })
+map("i", "<C-Home>", "<C-o>{", { desc = "Paragraph up" })
+map("i", "<C-End>", "<C-o>}", { desc = "Paragraph down" })
 
 -- Shift+arrow = select (Select mode - typing replaces selection)
 map("n", "<S-Left>", "gh<Left>", { desc = "Select left" })
@@ -90,6 +106,11 @@ map({ "n", "i", "v", "s" }, "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
 
 -- Cmd+Q (quit all)
 map({ "n", "i", "v", "s" }, "<D-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+
+-- Cmd+W (close buffer)
+map({ "n", "i", "v", "s" }, "<D-w>", function()
+  require("nvchad.tabufline").close_buffer()
+end, { desc = "Close buffer" })
 
 -- Cmd+E/O/J (NvimTree, Find files, lazyjj)
 map({ "n", "i", "v", "s" }, "<D-e>", "<Cmd>NvimTreeFocus<CR>", { desc = "NvimTree" })
@@ -259,8 +280,8 @@ map("n", ".", nop, { desc = "Disabled" })
 map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
 map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
 
--- Re-enable 'i' for entering insert mode (only explicit way in)
-map("n", "i", "i", { desc = "Enter insert mode" })
+-- Enter to insert mode (macOS-style: click to position, Enter to type)
+map("n", "<CR>", "i", { desc = "Enter insert mode" })
 
 -- Close command history window (q:) with Esc
 vim.api.nvim_create_autocmd("CmdwinEnter", {

@@ -18,8 +18,12 @@ copy-on-select = true
 window-save-state = always
 undo-timeout = 1h
 
-keybind = shift+enter=text:\x1b\r
+# Shift+Enter → toggle checkbox in nvim
+keybind = shift+enter=csi:13;2u
+
 # Cmd keys → send to Neovim (not Ghostty actions)
+keybind = super+w=csi:119;9u
+keybind = super+shift+w=close_surface
 keybind = super+q=csi:113;9u
 keybind = super+s=csi:115;9u
 keybind = super+e=csi:101;9u
