@@ -294,7 +294,7 @@ map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
 map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
 
 -- Enter to insert mode (macOS-style: click to position, Enter to type)
-map("n", "<CR>", "i", { desc = "Enter insert mode" })
+map("n", "<CR>", "a", { desc = "Enter insert mode (after cursor)" })
 
 -- Close command history window (q:) with Esc
 vim.api.nvim_create_autocmd("CmdwinEnter", {
