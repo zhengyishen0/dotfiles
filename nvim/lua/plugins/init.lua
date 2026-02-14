@@ -79,11 +79,36 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     lazy = false,
-    opts = {
-      view = { width = 35 },
-      filesystem_watchers = { enable = true },
-      filters = { dotfiles = true },
-      on_attach = function(bufnr)
+    opts = function()
+      local submodule_icon = "@"
+      local submodule_color = "#2aa198"  -- teal
+
+      return {
+        view = { width = 35 },
+        filesystem_watchers = { enable = true },
+        filters = { dotfiles = true },
+        renderer = {
+          highlight_git = "name",
+          decorators = {
+            "Git", "Open", "Hidden", "Modified", "Bookmark",
+            "Diagnostics", "Copied", "Cut",
+            require("nvim-tree-submodule").setup(submodule_icon, submodule_color),
+          },
+          icons = {
+            glyphs = {
+              git = {
+                unstaged = "!",
+                staged = "+",
+                untracked = "?",
+                deleted = "x",
+                renamed = "»",
+                unmerged = "‼",
+                ignored = "◌",
+              },
+            },
+          },
+        },
+        on_attach = function(bufnr)
         local api = require("nvim-tree.api")
         api.config.mappings.default_on_attach(bufnr)
         vim.keymap.set("n", "h", function()
@@ -124,7 +149,8 @@ return {
           end
         end, { buffer = bufnr, desc = "cd into directory or open file" })
       end,
-    },
+      }
+    end,
     init = function()
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()

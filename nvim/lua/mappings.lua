@@ -13,6 +13,7 @@ map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "<leader>s", "<cmd>w<CR>", { desc = "Save file" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
 map("n", "<leader>q", "<cmd>qa<CR>", { desc = "Quit all" })
+map("n", "<leader>y", "<cmd>Yazi<CR>", { desc = "Yazi file manager" })
 
 -- Terminal toggles: Opt + -/\/=
 map({ "n", "t" }, "<M-->", function()
@@ -43,6 +44,12 @@ local function toggle_checkbox()
   vim.api.nvim_set_current_line(new_line)
 end
 map("n", "<S-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
+
+-- Move line/selection up/down (Alt+j/k)
+map("n", "<M-k>", ":m .-2<CR>==", { desc = "Move line up" })
+map("n", "<M-j>", ":m .+1<CR>==", { desc = "Move line down" })
+map("v", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+map("v", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 
 -- =============================================================================
 -- macOS-style navigation
@@ -114,8 +121,9 @@ map("i", "<D-S-z>", "<C-o><C-r>", { desc = "Redo" })
 map("v", "<D-c>", '"+y', { desc = "Copy to clipboard" })
 map("v", "<D-x>", '"+d', { desc = "Cut to clipboard" })
 
--- Cmd+S (save)
-map({ "n", "i", "v", "s" }, "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
+-- Cmd+S (save and exit to normal mode)
+map("n", "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
+map({ "i", "v", "s" }, "<D-s>", "<Esc><Cmd>w<CR>", { desc = "Save" })
 
 -- Cmd+Q (quit all)
 map({ "n", "i", "v", "s" }, "<D-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
