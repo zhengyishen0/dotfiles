@@ -14,6 +14,19 @@ map("n", "<leader>s", "<cmd>w<CR>", { desc = "Save file" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
 map("n", "<leader>q", "<cmd>qa<CR>", { desc = "Quit all" })
 
+-- Terminal toggles: Opt + -/\/=
+map({ "n", "t" }, "<M-->", function()
+  require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+end, { desc = "Terminal horizontal" })
+
+map({ "n", "t" }, "<M-\\>", function()
+  require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+end, { desc = "Terminal vertical" })
+
+map({ "n", "t" }, "<M-=>", function()
+  require("nvchad.term").toggle { pos = "float", id = "floatTerm" }
+end, { desc = "Terminal float" })
+
 -- =============================================================================
 -- Markdown: toggle checkbox
 -- =============================================================================
