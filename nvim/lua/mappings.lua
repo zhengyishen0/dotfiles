@@ -104,7 +104,7 @@ local function toggle_tmux()
 end
 
 _G.toggle_tmux = toggle_tmux
-map({ "n", "t" }, "<leader>u", toggle_tmux, { desc = "Toggle tmux" })
+map("n", "<leader>u", toggle_tmux, { desc = "Toggle tmux" })
 
 -- =============================================================================
 -- Markdown: toggle checkbox
@@ -331,7 +331,7 @@ local function toggle_lazyjj()
 end
 
 _G.toggle_lazyjj = toggle_lazyjj
-map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj" })
+map("n", "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 
@@ -379,6 +379,9 @@ map({ "n", "v" }, "gU", nop, { desc = "Disabled" })
 -- Other modifying commands
 map("n", "~", nop, { desc = "Disabled" })
 map("n", ".", nop, { desc = "Disabled" })
+
+-- Restore default vim behavior
+map("n", "m", "m", { desc = "Set mark" })
 
 -- =============================================================================
 -- macOS-style editing helpers
