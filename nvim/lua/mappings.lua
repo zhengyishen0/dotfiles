@@ -13,13 +13,19 @@ map("n", "<C-c>", "<Nop>", { desc = "Disabled" })
 map("i", "<C-b>", "<Nop>", { desc = "Disabled: use Cmd+Left" })
 map("i", "<C-e>", "<Nop>", { desc = "Disabled: use Cmd+Right" })
 
--- Ctrl shortcuts (all modes)
-map({ "n", "i", "v", "s" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save" })
-map({ "n", "i", "v", "s" }, "<C-x>", function() require("nvchad.tabufline").close_buffer() end, { desc = "Close buffer" })
-map({ "n", "i", "v", "s" }, "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+-- Ctrl shortcuts (all modes including terminal)
+map({ "n", "i", "v", "s", "t" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save" })
+map({ "n", "i", "v", "s", "t" }, "<C-x>", function() require("nvchad.tabufline").close_buffer() end, { desc = "Close buffer" })
+map({ "n", "i", "v", "s", "t" }, "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+
+-- Esc to exit terminal mode
+map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- Leader shortcuts (nvim views)
-map("n", "<leader>y", "<Cmd>Yazi toggle<CR>", { desc = "Toggle Yazi" })
+-- Custom: j (lazyjj), u (tmux), y (yazi), Tab (cycle splits)
+-- Available: a, i, k, l, o, q, s, z
+-- NvChad uses: b, c, d, e, f, g, h, m, n, p, r, t, v, w, x
+map("n", "<leader>y", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
@@ -101,7 +107,7 @@ local function toggle_tmux()
 end
 
 _G.toggle_tmux = toggle_tmux
-map({ "n", "t" }, "<leader>t", toggle_tmux, { desc = "Toggle tmux" })
+map({ "n", "t" }, "<leader>u", toggle_tmux, { desc = "Toggle tmux" })
 
 -- =============================================================================
 -- Markdown: toggle checkbox
