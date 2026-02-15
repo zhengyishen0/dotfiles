@@ -16,7 +16,7 @@ map("i", "<C-e>", "<Nop>", { desc = "Disabled: use Cmd+Right" })
 -- Ctrl shortcuts (nvim views)
 map("n", "<C-e>", "<Cmd>NvimTreeFocus<CR>", { noremap = true, desc = "NvimTree" })
 map("n", "<C-o>", "<Cmd>Outline<CR>", { noremap = true, desc = "Outline" })
-map("n", "<C-y>", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
+map("n", "<C-y>", "<Cmd>Yazi toggle<CR>", { desc = "Toggle Yazi" })
 map("n", "<C-x>", function() require("nvchad.tabufline").close_buffer() end, { desc = "Close buffer" })
 map("n", "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
 
