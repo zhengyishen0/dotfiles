@@ -19,8 +19,8 @@ map({ "n", "i", "v", "s", "t" }, "<C-x>", function() require("nvchad.tabufline")
 map({ "n", "i", "v", "s", "t" }, "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
 
 -- Leader shortcuts (nvim views)
--- Custom: j (lazyjj), u (tmux), y (yazi), Tab (cycle splits)
--- Available: a, i, k, l, o, q, s, z
+-- Custom: j (lazyjj), k (smart term), u (tmux), y (yazi), Tab (cycle splits)
+-- Available: a, i, l, o, q, s, z
 -- NvChad uses: b, c, d, e, f, g, h, m, n, p, r, t, v, w, x
 map("n", "<leader>y", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
 
@@ -390,8 +390,42 @@ map("n", "m", "m", { desc = "Set mark" })
 map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
 map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
 
--- Enter to insert mode (macOS-style: click to position, Enter to type)
-map("n", "<CR>", "a", { desc = "Enter insert mode (after cursor)" })
+-- Enter to insert mode (smart: 'a' at word end, 'i' otherwise)
+map("n", "<CR>", function()
+  local col = vim.fn.col('.')
+  local line = vim.fn.getline('.')
+
+  -- At or past EOL → append
+  if col >= #line then return 'a' end
+
+  -- Next char is non-word → word end → append
+  local next = line:sub(col + 1, col + 1)
+  if next:match('[^%w_]') then return 'a' end
+
+  -- Everything else → insert
+  return 'i'
+end, { expr = true, desc = "Smart insert mode" })
+
+-- Smart terminal toggle (leader+k)
+-- lazyjj → vertical | terminal/nvimtree → float | editor → horizontal
+map({ "n", "t" }, "<leader>k", function()
+  local buf = vim.api.nvim_get_current_buf()
+
+  -- In lazyjj → toggle vertical
+  if lazyjj_state.buf and buf == lazyjj_state.buf then
+    require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+    return
+  end
+
+  -- In terminal or NvimTree → toggle float
+  if vim.bo[buf].buftype == "terminal" or vim.bo[buf].filetype == "NvimTree" then
+    require("nvchad.term").toggle { pos = "float", id = "floatTerm" }
+    return
+  end
+
+  -- In editor → toggle horizontal
+  require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+end, { desc = "Smart terminal toggle" })
 
 -- Close command history window (q:) with Esc
 vim.api.nvim_create_autocmd("CmdwinEnter", {
