@@ -51,6 +51,14 @@ map("n", "<M-j>", ":m .+1<CR>==", { desc = "Move line down" })
 map("v", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 map("v", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 
+-- Word navigation (Opt+h/l)
+map({ "n", "v" }, "<M-h>", "b", { desc = "Word back" })
+map({ "n", "v" }, "<M-l>", "w", { desc = "Word forward" })
+
+-- Line start/end (Shift+h/l)
+map({ "n", "v" }, "H", "^", { desc = "Line start" })
+map({ "n", "v" }, "L", "$", { desc = "Line end" })
+
 -- =============================================================================
 -- macOS-style navigation
 -- =============================================================================
@@ -266,13 +274,14 @@ local nop = "<Nop>"
 -- Delete/change commands
 map("n", "x", nop, { desc = "Disabled" })
 map("n", "X", nop, { desc = "Disabled" })
-map("n", "d", "<C-d>", { desc = "Half page down" })
+map("n", "d", nop, { desc = "Disabled" })
 map("n", "D", nop, { desc = "Disabled" })
 map("n", "c", nop, { desc = "Disabled" })
 map("n", "C", nop, { desc = "Disabled" })
 map("n", "r", nop, { desc = "Disabled" })
 map("n", "R", nop, { desc = "Disabled" })
-map("n", "J", nop, { desc = "Disabled" })
+map("n", "J", "}", { desc = "Next paragraph" })
+map("n", "K", "{", { desc = "Previous paragraph" })
 -- s/S used by flash.nvim
 
 -- Insert/append commands (use click or Enter instead)
@@ -287,8 +296,15 @@ map("n", "O", nop, { desc = "Disabled: use Enter at EOL" })
 map("n", "p", nop, { desc = "Disabled: use Cmd+V" })
 map("n", "P", nop, { desc = "Disabled: use Cmd+V" })
 map("n", "y", nop, { desc = "Disabled: use Cmd+C" })
-map("n", "u", "<C-u>", { desc = "Half page up" })
-map("n", "U", nop, { desc = "Disabled" })
+map("n", "u", nop, { desc = "Disabled" })
+map({ "n", "v" }, "U", "~", { desc = "Toggle case" })
+map("s", "U", "<C-g>~", { desc = "Toggle case" })
+map("n", "<", "<<", { desc = "Dedent line" })
+map("n", ">", ">>", { desc = "Indent line" })
+map("v", "<", nop, { desc = "Disabled" })
+map("v", ">", nop, { desc = "Disabled" })
+map({ "n", "v" }, "gu", nop, { desc = "Disabled" })
+map({ "n", "v" }, "gU", nop, { desc = "Disabled" })
 
 -- Other modifying commands
 map("n", "~", nop, { desc = "Disabled" })

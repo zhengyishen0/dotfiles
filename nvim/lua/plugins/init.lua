@@ -101,7 +101,7 @@ return {
                 staged = "+",
                 untracked = "?",
                 deleted = "x",
-                renamed = ">>",
+                renamed = "→",
                 unmerged = "‼",
                 ignored = ".",
               },
@@ -134,6 +134,8 @@ return {
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
         vim.keymap.set("n", ",", api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle gitignore" })
+        vim.keymap.set("n", "J", "j", { buffer = bufnr, desc = "Down" })
+        vim.keymap.set("n", "K", "k", { buffer = bufnr, desc = "Up" })
         -- Enter: cd into folder (+ jump to top) or open file
         vim.keymap.set("n", "<CR>", function()
           local node = api.tree.get_node_under_cursor()
