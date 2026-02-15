@@ -8,18 +8,18 @@ map({ "n", "i", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate 
 map({ "n", "i", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
 map({ "n", "i", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
 
--- Remove NvChad Ctrl defaults (use Cmd instead)
+-- Remove NvChad Ctrl defaults
 map("n", "<C-c>", "<Nop>", { desc = "Disabled" })
-map("n", "<C-s>", "<Nop>", { desc = "Disabled: use Cmd+S" })
 map("i", "<C-b>", "<Nop>", { desc = "Disabled: use Cmd+Left" })
 map("i", "<C-e>", "<Nop>", { desc = "Disabled: use Cmd+Right" })
 
-map("n", ";", ":", { desc = "CMD enter command mode" })
+-- Ctrl shortcuts
+map({ "n", "i" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save" })
+map("n", "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+map("n", "<C-y>", "<Cmd>Yazi toggle<CR>", { desc = "Toggle Yazi" })
 
-map("n", "<leader>s", "<cmd>w<CR>", { desc = "Save file" })
+map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
-map("n", "<leader>q", "<cmd>qa<CR>", { desc = "Quit all" })
-map("n", "<leader>y", "<cmd>Yazi toggle<CR>", { desc = "Toggle Yazi" })
 
 -- Terminal toggles: Opt + -/\/=
 map({ "n", "t" }, "<M-->", function()
@@ -98,7 +98,7 @@ local function toggle_tmux()
 end
 
 _G.toggle_tmux = toggle_tmux
-map({ "n", "t" }, "<leader>t", toggle_tmux, { desc = "Toggle tmux" })
+map({ "n", "t" }, "<C-t>", toggle_tmux, { desc = "Toggle tmux" })
 
 -- =============================================================================
 -- Markdown: toggle checkbox
@@ -325,7 +325,7 @@ local function toggle_lazyjj()
 end
 
 _G.toggle_lazyjj = toggle_lazyjj
-map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj (bottom)" })
+map({ "n", "t" }, "<C-g>", toggle_lazyjj, { desc = "Toggle lazyjj" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 
