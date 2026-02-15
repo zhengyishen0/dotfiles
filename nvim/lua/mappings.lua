@@ -18,9 +18,6 @@ map({ "n", "i", "v", "s", "t" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save" })
 map({ "n", "i", "v", "s", "t" }, "<C-x>", function() require("nvchad.tabufline").close_buffer() end, { desc = "Close buffer" })
 map({ "n", "i", "v", "s", "t" }, "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
 
--- Esc to exit terminal mode
-map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
 -- Leader shortcuts (nvim views)
 -- Custom: j (lazyjj), u (tmux), y (yazi), Tab (cycle splits)
 -- Available: a, i, k, l, o, q, s, z
@@ -124,7 +121,7 @@ local function toggle_checkbox()
   end
   vim.api.nvim_set_current_line(new_line)
 end
-map("n", "<S-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
+map("n", "<M-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
 
 -- Move line/selection up/down (Alt+j/k)
 map("n", "<M-k>", ":m .-2<CR>==", { desc = "Move line up" })
