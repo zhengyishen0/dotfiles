@@ -129,13 +129,21 @@ return {
           end
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
-        vim.keymap.set("n", "l", api.node.open.edit, { buffer = bufnr, desc = "Open/expand" })
+        vim.keymap.set("n", "l", function()
+          local node = api.tree.get_node_under_cursor()
+          if node.type == "directory" then
+            if not node.open then
+              api.node.open.edit()  -- expand
+            end
+            vim.cmd("normal! j")  -- move to first child
+          else
+            api.node.open.edit()  -- open file
+          end
+        end, { buffer = bufnr, desc = "Open/expand + go to child" })
         vim.keymap.set("n", "R", api.tree.reload, { buffer = bufnr, desc = "Refresh" })
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
         vim.keymap.set("n", ",", api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle gitignore" })
-        vim.keymap.set("n", "J", "j", { buffer = bufnr, desc = "Down" })
-        vim.keymap.set("n", "K", "k", { buffer = bufnr, desc = "Up" })
         -- Enter: cd into folder (+ jump to top) or open file
         vim.keymap.set("n", "<CR>", function()
           local node = api.tree.get_node_under_cursor()
