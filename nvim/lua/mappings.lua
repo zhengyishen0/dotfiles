@@ -29,6 +29,72 @@ map({ "n", "t" }, "<M-=>", function()
 end, { desc = "Terminal float" })
 
 -- =============================================================================
+-- Floating tmux terminal (leader-t)
+-- =============================================================================
+
+_G.tmux_state = { buf = nil, win = nil }
+local tmux_state = _G.tmux_state
+
+local function tmux_cleanup()
+  if tmux_state.win and vim.api.nvim_win_is_valid(tmux_state.win) then
+    vim.api.nvim_win_close(tmux_state.win, true)
+  end
+  if tmux_state.buf and vim.api.nvim_buf_is_valid(tmux_state.buf) then
+    vim.api.nvim_buf_delete(tmux_state.buf, { force = true })
+  end
+  tmux_state.win = nil
+  tmux_state.buf = nil
+end
+
+_G.toggle_tmux = function() end
+local function toggle_tmux()
+  -- If open, close it
+  if tmux_state.win and vim.api.nvim_win_is_valid(tmux_state.win) then
+    tmux_cleanup()
+    return
+  end
+
+  tmux_cleanup()
+
+  -- Create centered floating window (90% of screen)
+  local width = math.floor(vim.o.columns * 0.9)
+  local height = math.floor(vim.o.lines * 0.9)
+  local col = math.floor((vim.o.columns - width) / 2)
+  local row = math.floor((vim.o.lines - height) / 3)
+
+  tmux_state.buf = vim.api.nvim_create_buf(false, true)
+  tmux_state.win = vim.api.nvim_open_win(tmux_state.buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = col,
+    row = row,
+    style = "minimal",
+    border = "rounded",
+  })
+
+  vim.fn.termopen("tmux attach || tmux new", {
+    on_exit = function()
+      vim.schedule(tmux_cleanup)
+    end,
+  })
+  vim.cmd("startinsert")
+
+  -- Auto-enter insert mode when entering buffer
+  vim.api.nvim_create_autocmd("BufEnter", {
+    buffer = tmux_state.buf,
+    callback = function()
+      if tmux_state.buf and vim.api.nvim_buf_is_valid(tmux_state.buf) then
+        vim.cmd("startinsert")
+      end
+    end,
+  })
+end
+
+_G.toggle_tmux = toggle_tmux
+map({ "n", "t" }, "<leader>t", toggle_tmux, { desc = "Toggle tmux" })
+
+-- =============================================================================
 -- Markdown: toggle checkbox
 -- =============================================================================
 local function toggle_checkbox()
