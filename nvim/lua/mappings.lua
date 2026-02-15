@@ -13,24 +13,25 @@ map("n", "<C-c>", "<Nop>", { desc = "Disabled" })
 map("i", "<C-b>", "<Nop>", { desc = "Disabled: use Cmd+Left" })
 map("i", "<C-e>", "<Nop>", { desc = "Disabled: use Cmd+Right" })
 
--- Ctrl shortcuts
-map({ "n", "i" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save" })
-map("n", "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+-- Ctrl shortcuts (nvim views)
+map("n", "<C-e>", "<Cmd>NvimTreeFocus<CR>", { desc = "NvimTree" })
+map("n", "<C-o>", "<Cmd>Outline<CR>", { desc = "Outline" })
 map("n", "<C-y>", "<Cmd>Yazi toggle<CR>", { desc = "Toggle Yazi" })
+map("n", "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
 
--- Terminal toggles: Opt + -/\/=
-map({ "n", "t" }, "<M-->", function()
+-- Terminal toggles: Ctrl + -/\/=
+map({ "n", "t" }, "<C-->", function()
   require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
 end, { desc = "Terminal horizontal" })
 
-map({ "n", "t" }, "<M-\\>", function()
+map({ "n", "t" }, "<C-\\>", function()
   require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
 end, { desc = "Terminal vertical" })
 
-map({ "n", "t" }, "<M-=>", function()
+map({ "n", "t" }, "<C-=>", function()
   require("nvchad.term").toggle { pos = "float", id = "floatTerm" }
 end, { desc = "Terminal float" })
 
@@ -325,7 +326,7 @@ local function toggle_lazyjj()
 end
 
 _G.toggle_lazyjj = toggle_lazyjj
-map({ "n", "t" }, "<C-g>", toggle_lazyjj, { desc = "Toggle lazyjj" })
+map({ "n", "t" }, "<C-s>", toggle_lazyjj, { desc = "Toggle lazyjj" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 

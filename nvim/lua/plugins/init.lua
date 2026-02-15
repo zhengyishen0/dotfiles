@@ -204,7 +204,7 @@ return {
     "hedyhli/outline.nvim",
     cmd = "Outline",
     event = "LspAttach",
-    keys = { { "<leader>o", "<cmd>Outline<cr>", desc = "Toggle Outline" } },
+    -- Ctrl+o mapped in mappings.lua
     opts = {
       outline_window = {
         position = "right",
