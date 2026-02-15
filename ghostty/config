@@ -22,14 +22,11 @@ undo-timeout = 1h
 keybind = shift+enter=csi:13;2u
 
 # Cmd keys → send to Neovim (not Ghostty actions)
-keybind = super+w=csi:119;9u
-keybind = super+shift+w=close_surface
-keybind = super+q=csi:113;9u
+# super+w = default Ghostty close (no override)
+keybind = super+shift+w=close_window
+# super+q = default Ghostty quit
 keybind = super+s=csi:115;9u
-keybind = super+e=csi:101;9u
-keybind = super+o=csi:111;9u
-keybind = super+j=csi:106;9u
-keybind = super+f=csi:102;9u
+# super+e/o/j/f = use leader keys in nvim instead
 
 # macOS-style navigation (Cmd+arrow → terminal keys)
 keybind = super+left=text:\x1b[H

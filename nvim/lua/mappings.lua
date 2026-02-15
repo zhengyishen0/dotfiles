@@ -2,18 +2,24 @@ require "nvchad.mappings"
 
 local map = vim.keymap.set
 
--- Override NvChad C-h/j/k/l with tmux-aware navigation
-map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
-map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
-map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
-map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+-- Override NvChad C-h/j/k/l with tmux-aware navigation (all modes)
+map({ "n", "i", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
+map({ "n", "i", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
+map({ "n", "i", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
+map({ "n", "i", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+
+-- Remove NvChad Ctrl defaults (use Cmd instead)
+map("n", "<C-c>", "<Nop>", { desc = "Disabled" })
+map("n", "<C-s>", "<Nop>", { desc = "Disabled: use Cmd+S" })
+map("i", "<C-b>", "<Nop>", { desc = "Disabled: use Cmd+Left" })
+map("i", "<C-e>", "<Nop>", { desc = "Disabled: use Cmd+Right" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 
 map("n", "<leader>s", "<cmd>w<CR>", { desc = "Save file" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
 map("n", "<leader>q", "<cmd>qa<CR>", { desc = "Quit all" })
-map("n", "<leader>y", "<cmd>Yazi<CR>", { desc = "Yazi file manager" })
+map("n", "<leader>y", "<cmd>Yazi toggle<CR>", { desc = "Toggle Yazi" })
 
 -- Terminal toggles: Opt + -/\/=
 map({ "n", "t" }, "<M-->", function()
@@ -199,24 +205,14 @@ map("v", "<D-x>", '"+d', { desc = "Cut to clipboard" })
 map("n", "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
 map({ "i", "v", "s" }, "<D-s>", "<Esc><Cmd>w<CR>", { desc = "Save" })
 
--- Cmd+Q (quit all)
-map({ "n", "i", "v", "s" }, "<D-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
+-- Cmd+Q = default Ghostty quit (no nvim mapping)
 
 -- Cmd+W (close buffer)
 map({ "n", "i", "v", "s" }, "<D-w>", function()
   require("nvchad.tabufline").close_buffer()
 end, { desc = "Close buffer" })
 
--- Cmd+E/O/J (NvimTree, Find files, lazyjj)
-map({ "n", "i", "v", "s" }, "<D-e>", "<Cmd>NvimTreeFocus<CR>", { desc = "NvimTree" })
-map({ "n", "i", "v", "s" }, "<D-o>", "<Cmd>Telescope find_files<CR>", { desc = "Find files" })
-map({ "n", "i", "v", "s", "t" }, "<D-j>", function() _G.toggle_lazyjj() end, { desc = "Toggle lazyjj" })
-
--- Cmd+F (live grep)
-map({ "n", "i", "v", "s" }, "<D-f>", "<Cmd>Telescope live_grep<CR>", { desc = "Live grep" })
-
--- Cmd+P (command history via Telescope - easier to close than q:)
-map({ "n", "i", "v", "s" }, "<D-p>", "<Cmd>Telescope command_history<CR>", { desc = "Command history" })
+-- leader+j already mapped below (lazyjj)
 
 -- Opt+Backspace = delete word backward
 map("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })
@@ -338,7 +334,9 @@ map({ "n", "t" }, "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj (bottom)" 
 -- =============================================================================
 local nop = "<Nop>"
 -- Delete/change commands
-map("n", "x", nop, { desc = "Disabled" })
+map("n", "x", function()
+  require("nvchad.tabufline").close_buffer()
+end, { desc = "Close buffer" })
 map("n", "X", nop, { desc = "Disabled" })
 map("n", "d", nop, { desc = "Disabled" })
 map("n", "D", nop, { desc = "Disabled" })
