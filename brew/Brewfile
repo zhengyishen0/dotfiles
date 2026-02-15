@@ -10,7 +10,7 @@ tap "anthropics/claude"
 # ==============================================================================
 # Zsh Enhancements
 # ==============================================================================
-brew "starship"                      # Prompt
+brew "oh-my-posh"                     # Prompt (transient prompt support)
 brew "zsh-autosuggestions"           # Fish-like suggestions
 brew "zsh-autopair"                  # Auto-close brackets/quotes
 brew "zsh-history-substring-search"  # History search with up/down
