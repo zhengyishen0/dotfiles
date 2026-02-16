@@ -60,6 +60,7 @@ keybind = alt+shift+period=text:\x1b>
 # Cmd+Z/Shift+Z only (keep native copy/paste)
 keybind = super+z=csi:122;9u
 keybind = super+shift+z=csi:122;10u
+keybind = ctrl+shift+z=csi:122;6u
 
 # Shift+Backspace needs explicit binding (terminals don't distinguish it from BS)
 keybind = shift+backspace=csi:127;2u
