@@ -306,6 +306,7 @@ local function toggle_lazyjj()
   -- Always start fresh so lazyjj picks up latest repo state
   lazyjj_cleanup()
   vim.cmd("botright new")
+  vim.cmd("wincmd J")  -- Move to very bottom, spanning full width (over outline)
   vim.cmd("resize 20")
   lazyjj_state.win = vim.api.nvim_get_current_win()
   lazyjj_state.buf = vim.api.nvim_get_current_buf()

@@ -207,8 +207,7 @@ return {
     -- Ctrl+o mapped in mappings.lua
     opts = {
       outline_window = {
-        position = "right",
-        width = 20,
+        split_command = "belowright 35vs",  -- Split relative to editor, not full height (same width as nvimtree)
         auto_resize = false,
         auto_jump = true,
       },
@@ -219,25 +218,12 @@ return {
 
       local function open_outline()
         vim.defer_fn(function()
-          -- Check if lazyjj is open
-          local lazyjj_was_open = _G.lazyjj_state.buf
-            and vim.api.nvim_buf_is_valid(_G.lazyjj_state.buf)
-
           -- Reopen outline
           if outline.is_open() then
             pcall(outline.close)
           end
           pcall(outline.open, { focus_outline = false })
-
-          -- Close and restart lazyjj after outline is back
-          if lazyjj_was_open then
-            _G.toggle_lazyjj()
-            vim.defer_fn(function()
-              _G.toggle_lazyjj()
-              vim.cmd("stopinsert")
-              vim.cmd("wincmd p")
-            end, 50)
-          end
+          -- lazyjj uses wincmd J to stay at full-width bottom, no restart needed
         end, 200)
       end
 
