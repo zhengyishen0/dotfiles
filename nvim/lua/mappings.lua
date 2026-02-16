@@ -121,17 +121,23 @@ local function toggle_checkbox()
   end
   vim.api.nvim_set_current_line(new_line)
 end
-map("n", "<M-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
+map({ "n", "i" }, "<M-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
 
 -- Move line/selection up/down (Alt+j/k)
 map("n", "<M-k>", ":m .-2<CR>==", { desc = "Move line up" })
 map("n", "<M-j>", ":m .+1<CR>==", { desc = "Move line down" })
+map("i", "<M-k>", "<C-o>:m .-2<CR><C-o>==", { desc = "Move line up" })
+map("i", "<M-j>", "<C-o>:m .+1<CR><C-o>==", { desc = "Move line down" })
 map("v", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 map("v", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 
--- Word navigation (Opt+h/l)
-map({ "n", "v" }, "<M-h>", "b", { desc = "Word back" })
-map({ "n", "v" }, "<M-l>", "w", { desc = "Word forward" })
+-- Indent/dedent (Opt+h/l)
+map("n", "<M-h>", "<<", { desc = "Dedent" })
+map("n", "<M-l>", ">>", { desc = "Indent" })
+map("i", "<M-h>", "<C-d>", { desc = "Dedent" })
+map("i", "<M-l>", "<C-t>", { desc = "Indent" })
+map("v", "<M-h>", "<gv", { desc = "Dedent selection" })
+map("v", "<M-l>", ">gv", { desc = "Indent selection" })
 
 -- Line start/end (Shift+h/l)
 map({ "n", "v" }, "H", "^", { desc = "Line start" })
@@ -386,6 +392,11 @@ map("n", "m", "m", { desc = "Set mark" })
 -- =============================================================================
 -- macOS-style editing helpers
 -- =============================================================================
+-- Delete/Backspace (normal mode): delete and enter insert
+map("n", "<BS>", '"_cl', { desc = "Delete letter, insert" })
+map("n", "<S-BS>", '"_cw', { desc = "Delete word, insert" })
+map("n", "<M-BS>", "cc", { desc = "Delete line, insert" })
+
 -- Delete key deletes selection (Select mode)
 map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
 map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
