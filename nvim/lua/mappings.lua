@@ -22,7 +22,13 @@ map("i", "<C-e>", "<Nop>", { desc = "Disabled: use Cmd+Right" })
 
 -- Ctrl shortcuts (all modes including terminal)
 map({ "n", "i", "v", "s", "t" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save" })
-map({ "n", "i", "v", "s", "t" }, "<C-x>", function() require("nvchad.tabufline").close_buffer() end, { desc = "Close buffer" })
+map({ "n", "i", "v", "s", "t" }, "<C-x>", function()
+  if #vim.api.nvim_list_wins() > 1 then
+    vim.cmd("close")  -- close split
+  else
+    require("nvchad.tabufline").close_buffer()  -- just close buffer
+  end
+end, { desc = "Close buffer/split" })
 map({ "n", "i", "v", "s", "t" }, "<C-q>", "<Cmd>qa<CR>", { desc = "Quit all" })
 map({ "n", "v", "s" }, "<C-z>", "u", { desc = "Undo" })
 map("i", "<C-z>", "<C-o>u", { desc = "Undo" })
@@ -37,6 +43,7 @@ map("n", "<C-r>", "<Nop>", { desc = "Disabled: use Ctrl+Shift+z" })
 map("n", "<leader>y", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
+map("n", "gb", "<C-o>", { desc = "Go back (jump list)" })
 map("n", "<leader><Tab>", "<C-w>w", { desc = "Cycle splits" })
 
 -- Terminal toggles: Ctrl + -/\/=
