@@ -392,17 +392,13 @@ map("n", "m", "m", { desc = "Set mark" })
 -- =============================================================================
 -- macOS-style editing helpers
 -- =============================================================================
--- Shift+Enter = new line below and insert (with autolist support for markdown)
-map("n", "<S-CR>", "o", { desc = "New line below, insert" })
-map("i", "<S-CR>", function()
-  if vim.bo.filetype == "markdown" then
-    local autolist_ok, _ = pcall(require, "autolist")
-    if autolist_ok then
-      return "<CR><cmd>AutolistNewBullet<CR>"
-    end
-  end
-  return "<C-o>o"
-end, { expr = true, desc = "New line below (autolist in md)" })
+-- Shift+Enter = go to end of line, new line below (triggers autolist in markdown)
+map("n", "<S-CR>", function()
+  vim.cmd("startinsert!")  -- startinsert! = append at end of line (like A)
+  local cr = vim.api.nvim_replace_termcodes("<CR>", true, true, true)
+  vim.api.nvim_feedkeys(cr, "m", false)
+end, { desc = "EOL + new line below" })
+map("i", "<S-CR>", "<End><CR>", { remap = true, desc = "EOL + new line below" })
 
 -- Delete/Backspace
 map("n", "<BS>", '"_cl', { desc = "Delete letter, insert" })
