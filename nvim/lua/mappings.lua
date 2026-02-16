@@ -3,10 +3,17 @@ require "nvchad.mappings"
 local map = vim.keymap.set
 
 -- Override NvChad C-h/j/k/l with tmux-aware navigation (all modes)
-map({ "n", "i", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
-map({ "n", "i", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
-map({ "n", "i", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
-map({ "n", "i", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+-- Tmux-aware navigation (normal + terminal)
+map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
+map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
+map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
+map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+
+-- Cursor movement in insert mode (like hjkl in normal)
+map("i", "<C-h>", "<Left>", { desc = "Move left" })
+map("i", "<C-j>", "<Down>", { desc = "Move down" })
+map("i", "<C-k>", "<Up>", { desc = "Move up" })
+map("i", "<C-l>", "<Right>", { desc = "Move right" })
 
 -- Remove NvChad Ctrl defaults
 map("n", "<C-c>", "<Nop>", { desc = "Disabled" })
