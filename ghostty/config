@@ -61,6 +61,9 @@ keybind = alt+shift+period=text:\x1b>
 keybind = super+z=csi:122;9u
 keybind = super+shift+z=csi:122;10u
 
+# Shift+Backspace needs explicit binding (terminals don't distinguish it from BS)
+keybind = shift+backspace=csi:127;2u
+
 # Move tabs with Cmd+( and Cmd+)
 keybind = super+shift+nine=move_tab:-1
 keybind = super+shift+zero=move_tab:1

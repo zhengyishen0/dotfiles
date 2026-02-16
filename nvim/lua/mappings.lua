@@ -179,9 +179,9 @@ map("s", "<S-Right>", "<C-o><Right>", { desc = "Extend right" })
 map("s", "<S-Up>", "<C-o><Up>", { desc = "Extend up" })
 map("s", "<S-Down>", "<C-o><Down>", { desc = "Extend down" })
 
--- Shift+Opt+arrow = select by word (explicit CSI sequences from Ghostty)
-map("n", "\x1b[1;4D", "vb<C-g>", { desc = "Select word back" })
-map("n", "\x1b[1;4C", "vw<C-g>", { desc = "Select word forward" })
+-- Shift+Opt+arrow = select by word
+map("n", "\x1b[1;4D", "vb<C-g>", { desc = "Select word back" })   -- Shift+Alt+Left
+map("n", "\x1b[1;4C", "vw<C-g>", { desc = "Select word forward" }) -- Shift+Alt+Right
 map("s", "<M-S-Left>", "<C-o>b", { desc = "Extend word back" })
 map("s", "<M-S-Right>", "<C-o>w", { desc = "Extend word forward" })
 
@@ -392,10 +392,23 @@ map("n", "m", "m", { desc = "Set mark" })
 -- =============================================================================
 -- macOS-style editing helpers
 -- =============================================================================
--- Delete/Backspace (normal mode): delete and enter insert
+-- Shift+Enter = new line below and insert (with autolist support for markdown)
+map("n", "<S-CR>", "o", { desc = "New line below, insert" })
+map("i", "<S-CR>", function()
+  if vim.bo.filetype == "markdown" then
+    local autolist_ok, _ = pcall(require, "autolist")
+    if autolist_ok then
+      return "<CR><cmd>AutolistNewBullet<CR>"
+    end
+  end
+  return "<C-o>o"
+end, { expr = true, desc = "New line below (autolist in md)" })
+
+-- Delete/Backspace
 map("n", "<BS>", '"_cl', { desc = "Delete letter, insert" })
-map("n", "<S-BS>", '"_cw', { desc = "Delete word, insert" })
-map("n", "<M-BS>", "cc", { desc = "Delete line, insert" })
+map("n", "<M-BS>", '"_cw', { desc = "Delete word, insert" })
+map("n", "\x1b[127;2u", "cc", { desc = "Delete line, insert" })           -- Shift+BS (Ghostty: shift+backspace=csi:127;2u)
+map("i", "\x1b[127;2u", "<C-o>cc", { desc = "Delete line, stay insert" }) -- Shift+BS
 
 -- Delete key deletes selection (Select mode)
 map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
