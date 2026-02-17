@@ -207,7 +207,7 @@ return {
     -- Ctrl+o mapped in mappings.lua
     opts = {
       outline_window = {
-        split_command = "botright 35vsp",  -- Vertical split, 35 columns
+        split_command = "belowright 35vs",  -- Split relative to editor, not full height
         auto_resize = false,
         auto_jump = true,
       },
