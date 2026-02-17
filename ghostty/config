@@ -17,6 +17,7 @@ copy-on-select = true
 # Session restore
 window-save-state = always
 undo-timeout = 1h
+keybind = super+shift+r=redo
 
 # Alt+Enter → toggle checkbox in nvim
 keybind = alt+enter=csi:13;3u
