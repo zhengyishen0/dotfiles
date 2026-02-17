@@ -64,3 +64,6 @@ export CLOUDSDK_PYTHON=/opt/homebrew/bin/python3.14
 # Google Cloud SDK
 export PATH="$HOME/google-cloud-sdk/bin:$PATH"
 source "$HOME/google-cloud-sdk/completion.zsh.inc"
+
+# zenix
+source "/Users/zhengyishen/.zenix/env"

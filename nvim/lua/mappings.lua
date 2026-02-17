@@ -297,6 +297,13 @@ end
 
 local function lazyjj_cleanup()
   stop_jj_watch()
+  -- Close companion vertical terminal if open
+  for _, opts in pairs(vim.g.nvchad_terms or {}) do
+    if opts.id == "vtoggleTerm" and opts.win and vim.api.nvim_win_is_valid(opts.win) then
+      vim.api.nvim_win_close(opts.win, true)
+      break
+    end
+  end
   if lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win) then
     vim.api.nvim_win_close(lazyjj_state.win, true)
   end
@@ -354,6 +361,16 @@ local function toggle_lazyjj()
     end
     vim.cmd("wincmd k")
   end, { buffer = lazyjj_state.buf, desc = "Jump to editor" })
+
+  -- Reopen vertical terminal if it was previously used
+  for _, opts in pairs(vim.g.nvchad_terms or {}) do
+    if opts.id == "vtoggleTerm" then
+      require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+      vim.api.nvim_set_current_win(lazyjj_state.win)
+      vim.cmd("startinsert")
+      break
+    end
+  end
 end
 
 _G.toggle_lazyjj = toggle_lazyjj
