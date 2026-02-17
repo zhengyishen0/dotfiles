@@ -207,7 +207,7 @@ return {
     -- Ctrl+o mapped in mappings.lua
     opts = {
       outline_window = {
-        split_command = "belowright 35vs",  -- Split relative to editor, not full height (same width as nvimtree)
+        split_command = "botright 35vsp",  -- Vertical split, 35 columns
         auto_resize = false,
         auto_jump = true,
       },
@@ -223,7 +223,6 @@ return {
             pcall(outline.close)
           end
           pcall(outline.open, { focus_outline = false })
-          -- lazyjj uses wincmd J to stay at full-width bottom, no restart needed
         end, 200)
       end
 
