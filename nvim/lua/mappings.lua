@@ -37,10 +37,18 @@ map("i", "\x1b[122;6u", "<C-o><C-r>", { desc = "Redo" })           -- Ctrl+Shift
 map("n", "<C-r>", "<Nop>", { desc = "Disabled: use Ctrl+Shift+z" })
 
 -- Leader shortcuts (nvim views)
--- Custom: j (lazyjj), k (smart term), u (tmux), y (yazi), Tab (cycle splits)
--- Available: a, i, l, o, q, s, z
+-- Custom: a (agent), j (lazyjj), u (tmux), y (yazi), Tab (cycle splits)
+-- Available: i, k, l, o, q, s, z
 -- NvChad uses: b, c, d, e, f, g, h, m, n, p, r, t, v, w, x
 map("n", "<leader>y", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
+
+-- Agent terminal in tab (appears in tabufline)
+map("n", "<leader>a", function()
+  vim.cmd("enew")
+  vim.fn.termopen("agent")
+  vim.bo.buflisted = true
+  vim.cmd("startinsert")
+end, { desc = "Agent terminal" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "gb", "<C-o>", { desc = "Go back (jump list)" })
@@ -362,15 +370,10 @@ local function toggle_lazyjj()
     vim.cmd("wincmd k")
   end, { buffer = lazyjj_state.buf, desc = "Jump to editor" })
 
-  -- Reopen vertical terminal if it was previously used
-  for _, opts in pairs(vim.g.nvchad_terms or {}) do
-    if opts.id == "vtoggleTerm" then
-      require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
-      vim.api.nvim_set_current_win(lazyjj_state.win)
-      vim.cmd("startinsert")
-      break
-    end
-  end
+  -- Always open vertical terminal alongside lazyjj
+  require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+  vim.api.nvim_set_current_win(lazyjj_state.win)
+  vim.cmd("startinsert")
 end
 
 _G.toggle_lazyjj = toggle_lazyjj
@@ -461,9 +464,9 @@ map("n", "<CR>", function()
   return 'i'
 end, { expr = true, desc = "Smart insert mode" })
 
--- Smart terminal toggle (leader+k)
--- lazyjj → vertical | terminal/nvimtree → float | editor → horizontal
-map({ "n", "t" }, "<leader>k", function()
+-- Smart terminal toggle (Ctrl+Space)
+-- lazyjj → vertical | NvimTree → float | terminal → close it | editor → horizontal
+map({ "n", "i", "t" }, "<C-Space>", function()
   local buf = vim.api.nvim_get_current_buf()
 
   -- In lazyjj → toggle vertical
@@ -472,8 +475,16 @@ map({ "n", "t" }, "<leader>k", function()
     return
   end
 
-  -- In terminal or NvimTree → toggle float
-  if vim.bo[buf].buftype == "terminal" or vim.bo[buf].filetype == "NvimTree" then
+  -- In NvChad terminal → toggle that terminal (close it)
+  for _, opts in pairs(vim.g.nvchad_terms or {}) do
+    if opts.buf == buf then
+      require("nvchad.term").toggle { pos = opts.pos, id = opts.id }
+      return
+    end
+  end
+
+  -- In NvimTree → toggle float
+  if vim.bo[buf].filetype == "NvimTree" then
     require("nvchad.term").toggle { pos = "float", id = "floatTerm" }
     return
   end
