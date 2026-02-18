@@ -204,11 +204,11 @@ map("n", "\x1b[1;4C", "vw<C-g>", { desc = "Select word forward" }) -- Shift+Alt+
 map("s", "<M-S-Left>", "<C-o>b", { desc = "Extend word back" })
 map("s", "<M-S-Right>", "<C-o>w", { desc = "Extend word forward" })
 
--- Shift+Cmd+arrow = select to line start/end
-map("n", "<S-Home>", "v0", { desc = "Select to line start" })
-map("n", "<S-End>", "v$", { desc = "Select to line end" })
-map("v", "<S-Home>", "0", { desc = "Extend to line start" })
-map("v", "<S-End>", "$", { desc = "Extend to line end" })
+-- Shift+Cmd+arrow = select to line start/end (Select mode)
+map("n", "<S-Home>", "gh<C-o>0", { desc = "Select to line start" })
+map("n", "<S-End>", "gh<C-o>$", { desc = "Select to line end" })
+map("s", "<S-Home>", "<C-o>0", { desc = "Extend to line start" })
+map("s", "<S-End>", "<C-o>$", { desc = "Extend to line end" })
 
 -- Shift+Cmd+Up/Down = select to top/bottom
 map("n", "<C-S-Home>", "vgg", { desc = "Select to top" })

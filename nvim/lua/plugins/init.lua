@@ -103,7 +103,7 @@ return {
                 deleted = "x",
                 renamed = "→",
                 unmerged = "‼",
-                ignored = ".",
+                ignored = ",",
               },
             },
           },
