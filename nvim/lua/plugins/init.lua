@@ -79,7 +79,23 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     lazy = false,
-    dependencies = { "b0o/nvim-tree-preview.lua" },
+    dependencies = {
+      {
+        "b0o/nvim-tree-preview.lua",
+        opts = {
+          max_width = 120,
+          max_height = 40,
+          win_position = {
+            row = function()
+              return math.floor((vim.o.lines - 40) / 4)  -- higher
+            end,
+            col = function()
+              return math.floor((vim.o.columns - 100) / 2)
+            end,
+          },
+        },
+      },
+    },
     opts = function()
       local submodule_icon = "@"
       local submodule_color = "#c678dd"  -- teal
@@ -131,6 +147,15 @@ return {
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
         local preview = require("nvim-tree-preview")
+        -- Auto-preview when entering NvimTree
+        vim.api.nvim_create_autocmd("BufEnter", {
+          buffer = bufnr,
+          callback = function()
+            if not preview.is_watching() then
+              preview.watch()
+            end
+          end,
+        })
         vim.keymap.set("n", "l", function()
           local node = api.tree.get_node_under_cursor()
           if not node then return end
