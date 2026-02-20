@@ -79,6 +79,7 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     lazy = false,
+    dependencies = { "b0o/nvim-tree-preview.lua" },
     opts = function()
       local submodule_icon = "@"
       local submodule_color = "#c678dd"  -- teal
@@ -129,17 +130,20 @@ return {
           end
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
+        local preview = require("nvim-tree-preview")
         vim.keymap.set("n", "l", function()
           local node = api.tree.get_node_under_cursor()
+          if not node then return end
           if node.type == "directory" then
             if not node.open then
               api.node.open.edit()  -- expand
             end
             vim.cmd("normal! j")  -- move to first child
           else
-            api.node.open.edit()  -- open file
+            preview.node(node)  -- preview file, cursor stays in tree
           end
-        end, { buffer = bufnr, desc = "Open/expand + go to child" })
+        end, { buffer = bufnr, desc = "Preview/expand + go to child" })
+        vim.keymap.set("n", "<Esc>", preview.unwatch, { buffer = bufnr, desc = "Close preview" })
         vim.keymap.set("n", "R", api.tree.reload, { buffer = bufnr, desc = "Refresh" })
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
