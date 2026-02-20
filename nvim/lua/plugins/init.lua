@@ -103,7 +103,7 @@ return {
       return {
         view = { width = 35 },
         filesystem_watchers = { enable = true },
-        filters = { dotfiles = true },
+        filters = { dotfiles = true, git_ignored = false },
         renderer = {
           highlight_git = "name",
           decorators = {
@@ -147,12 +147,15 @@ return {
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
         local preview = require("nvim-tree-preview")
-        -- Auto-preview when entering NvimTree
-        vim.api.nvim_create_autocmd("BufEnter", {
+        -- Auto-preview files (not folders) on cursor move
+        vim.api.nvim_create_autocmd("CursorMoved", {
           buffer = bufnr,
           callback = function()
-            if not preview.is_watching() then
-              preview.watch()
+            local node = api.tree.get_node_under_cursor()
+            if node and node.type ~= "directory" then
+              preview.node(node)
+            else
+              preview.unwatch()  -- close preview on folders
             end
           end,
         })
@@ -168,7 +171,7 @@ return {
             preview.node(node)  -- preview file, cursor stays in tree
           end
         end, { buffer = bufnr, desc = "Preview/expand + go to child" })
-        vim.keymap.set("n", "<Esc>", preview.unwatch, { buffer = bufnr, desc = "Close preview" })
+        vim.keymap.set("n", "q", preview.unwatch, { buffer = bufnr, desc = "Close preview" })
         vim.keymap.set("n", "R", api.tree.reload, { buffer = bufnr, desc = "Refresh" })
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })

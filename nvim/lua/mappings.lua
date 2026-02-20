@@ -305,6 +305,8 @@ end
 
 local function lazyjj_cleanup()
   stop_jj_watch()
+  -- Stop nvim-tree-preview auto-watch
+  pcall(function() require("nvim-tree-preview").unwatch() end)
   -- Close companion vertical terminal if open
   for _, opts in pairs(vim.g.nvchad_terms or {}) do
     if opts.id == "vtoggleTerm" and opts.win and vim.api.nvim_win_is_valid(opts.win) then
