@@ -260,7 +260,7 @@ map("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })
 -- Bottom terminal lazyjj (simple toggle)
 -- =============================================================================
 
-_G.lazyjj_state = { buf = nil, win = nil }
+_G.lazyjj_state = { buf = nil, win = nil, cwd = nil }
 local lazyjj_state = _G.lazyjj_state
 
 -- File watcher for auto-refresh
@@ -340,12 +340,15 @@ local function toggle_lazyjj()
   lazyjj_state.win = vim.api.nvim_get_current_win()
   lazyjj_state.buf = vim.api.nvim_get_current_buf()
   vim.bo[lazyjj_state.buf].buflisted = false
+  vim.wo[lazyjj_state.win].number = false
+  vim.wo[lazyjj_state.win].relativenumber = false
 
   vim.fn.termopen("lazyjj", {
     on_exit = function()
       vim.schedule(lazyjj_cleanup)
     end,
   })
+  lazyjj_state.cwd = vim.fn.getcwd()
   start_jj_watch()
   vim.cmd("startinsert")
 
@@ -364,7 +367,7 @@ local function toggle_lazyjj()
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       local buf = vim.api.nvim_win_get_buf(win)
       local ft = vim.bo[buf].filetype
-      if ft ~= "Outline" and ft ~= "NvimTree" and ft ~= "" then
+      if ft ~= "aerial" and ft ~= "NvimTree" and ft ~= "" then
         vim.api.nvim_set_current_win(win)
         return
       end
@@ -380,6 +383,25 @@ end
 
 _G.toggle_lazyjj = toggle_lazyjj
 map("n", "<leader>j", toggle_lazyjj, { desc = "Toggle lazyjj" })
+map("n", "<leader>fs", "<cmd>Telescope aerial<CR>", { desc = "Find symbols" })
+
+-- Auto-open/restart lazyjj when cwd changes to a jj repo
+vim.api.nvim_create_autocmd("DirChanged", {
+  callback = function()
+    local new_cwd = vim.fn.getcwd()
+    local is_jj = vim.fn.isdirectory(new_cwd .. "/.jj") == 1
+    local is_open = lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win)
+
+    if is_open and new_cwd ~= lazyjj_state.cwd then
+      toggle_lazyjj() -- close
+      if is_jj then
+        toggle_lazyjj() -- reopen in new repo
+      end
+    elseif not is_open and is_jj then
+      toggle_lazyjj() -- auto-open for jj repo
+    end
+  end,
+})
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 

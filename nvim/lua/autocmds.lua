@@ -1,13 +1,13 @@
 require "nvchad.autocmds"
 
--- Hide special buffers from tabline (Outline, NvimTree, split artifacts)
+-- Hide special buffers from tabline (aerial, NvimTree, split artifacts)
 vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     local ft = vim.bo.filetype
     local bt = vim.bo.buftype
     local name = vim.api.nvim_buf_get_name(0)
-    -- Hide: Outline, NvimTree, nofile buftype, or "vs" split artifact
-    if ft == "Outline" or ft == "NvimTree" or bt == "nofile" or name:match("/vs$") then
+    -- Hide: aerial, NvimTree, nofile buftype, or "vs" split artifact
+    if ft == "aerial" or ft == "NvimTree" or bt == "nofile" or name:match("/vs$") then
       vim.bo.buflisted = false
     end
   end,

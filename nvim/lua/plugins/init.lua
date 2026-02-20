@@ -65,15 +65,26 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
+    config = function()
+      local wanted = {
         "vim", "lua", "vimdoc",
         "html", "css",
         "python",
         "javascript", "typescript", "tsx",
-        "json", "jsonc",
-      },
-    },
+        "json",
+        "bash",
+        "nu",
+      }
+      local installed = require("nvim-treesitter").get_installed()
+      local missing = vim.tbl_filter(function(lang)
+        return not vim.list_contains(installed, lang)
+      end, wanted)
+      if #missing > 0 then
+        require("nvim-treesitter").install(missing)
+      end
+      -- Use bash parser for zsh files
+      vim.treesitter.language.register("bash", "zsh")
+    end,
   },
 
   {
@@ -233,37 +244,37 @@ return {
   },
 
   {
-    "hedyhli/outline.nvim",
-    cmd = "Outline",
-    event = "LspAttach",
-    -- Ctrl+o mapped in mappings.lua
+    "stevearc/aerial.nvim",
+    event = { "LspAttach", "BufReadPost" },
     opts = {
-      outline_window = {
-        split_command = "belowright 35vs",  -- Split relative to editor, not full height
-        auto_resize = false,
-        auto_jump = true,
+      backends = { "treesitter", "lsp", "markdown", "man" },
+      layout = {
+        default_direction = "right",
+        placement = "edge",
+        width = 35,
+        preserve_equality = false,
       },
+      filter_kind = false,
+      show_guides = true,
+      autojump = true,
     },
+    dependencies = { "nvim-telescope/telescope.nvim" },
     config = function(_, opts)
-      local outline = require("outline")
-      outline.setup(opts)
+      require("aerial").setup(opts)
+      require("telescope").load_extension("aerial")
 
-      local function open_outline()
+      local function open_aerial()
         vim.defer_fn(function()
-          -- Reopen outline
-          if outline.is_open() then
-            pcall(outline.close)
+          if not require("aerial").is_open() then
+            pcall(require("aerial").open, { focus = false })
           end
-          pcall(outline.open, { focus_outline = false })
         end, 200)
       end
 
       vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function() open_outline() end,
+        callback = function() open_aerial() end,
       })
-
-      -- Handle the initial LspAttach that triggered plugin load
-      open_outline()
+      open_aerial()
     end,
   },
 }
