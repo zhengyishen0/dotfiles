@@ -94,16 +94,8 @@ return {
       {
         "b0o/nvim-tree-preview.lua",
         opts = {
-          max_width = 120,
-          max_height = 40,
-          win_position = {
-            row = function()
-              return math.floor((vim.o.lines - 40) / 4)  -- higher
-            end,
-            col = function()
-              return math.floor((vim.o.columns - 100) / 2)
-            end,
-          },
+          max_width = math.max(80, math.floor(vim.o.columns * 0.75)),
+          max_height = math.max(20, math.floor(vim.o.lines * 0.75)),
         },
       },
     },
@@ -158,18 +150,47 @@ return {
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
         local preview = require("nvim-tree-preview")
-        -- Auto-preview files (not folders) on cursor move
-        vim.api.nvim_create_autocmd("CursorMoved", {
-          buffer = bufnr,
-          callback = function()
-            local node = api.tree.get_node_under_cursor()
-            if node and node.type ~= "directory" then
-              preview.node(node)
-            else
-              preview.unwatch()  -- close preview on folders
-            end
-          end,
-        })
+        local diff_win = nil
+
+        local function close_diff()
+          if diff_win and vim.api.nvim_win_is_valid(diff_win) then
+            vim.api.nvim_win_close(diff_win, true)
+          end
+          diff_win = nil
+        end
+
+        local function show_diff(path)
+          close_diff()
+          -- Quick check: does this specific file have changes?
+          local check = vim.fn.system("jj diff --git " .. vim.fn.shellescape(path))
+          if vim.v.shell_error ~= 0 or vim.trim(check) == "" then return false end
+          local w = math.floor(vim.o.columns * 0.85)
+          local h = math.floor(vim.o.lines * 0.85)
+          local buf = vim.api.nvim_create_buf(false, true)
+          diff_win = vim.api.nvim_open_win(buf, true, {
+            relative = "editor",
+            width = w, height = h,
+            row = math.floor((vim.o.lines - h) / 2),
+            col = math.floor((vim.o.columns - w) / 2),
+            style = "minimal", border = "rounded",
+            title = " jj diff ", title_pos = "center",
+          })
+          vim.fn.termopen("jj diff " .. vim.fn.shellescape(path), {
+            on_exit = function()
+              vim.schedule(function()
+                if diff_win and vim.api.nvim_win_is_valid(diff_win) then
+                  local b = vim.api.nvim_win_get_buf(diff_win)
+                  vim.keymap.set("n", "q", function() close_diff() end, { buffer = b })
+                  vim.keymap.set("n", "<Esc>", function() close_diff() end, { buffer = b })
+                end
+              end)
+            end,
+          })
+          vim.cmd("startinsert")  -- enter terminal mode so it renders
+          vim.defer_fn(function() vim.cmd("stopinsert") end, 50)  -- back to normal for q/Esc
+          return true
+        end
+
         vim.keymap.set("n", "l", function()
           local node = api.tree.get_node_under_cursor()
           if not node then return end
@@ -179,10 +200,15 @@ return {
             end
             vim.cmd("normal! j")  -- move to first child
           else
-            preview.node(node)  -- preview file, cursor stays in tree
+            if not show_diff(node.absolute_path) then
+              preview.node(node)  -- clean file: normal preview
+            end
           end
-        end, { buffer = bufnr, desc = "Preview/expand + go to child" })
-        vim.keymap.set("n", "q", preview.unwatch, { buffer = bufnr, desc = "Close preview" })
+        end, { buffer = bufnr, desc = "Diff or preview file" })
+        vim.keymap.set("n", "q", function()
+          close_diff()
+          preview.unwatch()
+        end, { buffer = bufnr, desc = "Close preview/diff" })
         vim.keymap.set("n", "R", api.tree.reload, { buffer = bufnr, desc = "Refresh" })
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
