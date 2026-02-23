@@ -399,6 +399,13 @@ vim.api.nvim_create_autocmd("DirChanged", {
       end
     elseif not is_open and is_jj then
       toggle_lazyjj() -- auto-open for jj repo
+      -- Return focus to nvim-tree if it's open
+      vim.defer_fn(function()
+        local tree_win = require("nvim-tree.api").tree.winid()
+        if tree_win and vim.api.nvim_win_is_valid(tree_win) then
+          vim.api.nvim_set_current_win(tree_win)
+        end
+      end, 50)
     end
   end,
 })

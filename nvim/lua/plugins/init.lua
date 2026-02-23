@@ -175,19 +175,27 @@ return {
             style = "minimal", border = "rounded",
             title = " jj diff ", title_pos = "center",
           })
+          local function close_and_return()
+            close_diff()
+            local tree_win = api.tree.winid()
+            if tree_win and vim.api.nvim_win_is_valid(tree_win) then
+              vim.api.nvim_set_current_win(tree_win)
+            end
+          end
+          vim.keymap.set("t", "q", close_and_return, { buffer = buf })
+          vim.keymap.set("t", "<Esc>", close_and_return, { buffer = buf })
           vim.fn.termopen("jj diff " .. vim.fn.shellescape(path), {
             on_exit = function()
               vim.schedule(function()
                 if diff_win and vim.api.nvim_win_is_valid(diff_win) then
                   local b = vim.api.nvim_win_get_buf(diff_win)
-                  vim.keymap.set("n", "q", function() close_diff() end, { buffer = b })
-                  vim.keymap.set("n", "<Esc>", function() close_diff() end, { buffer = b })
+                  vim.keymap.set("n", "q", close_and_return, { buffer = b })
+                  vim.keymap.set("n", "<Esc>", close_and_return, { buffer = b })
                 end
               end)
             end,
           })
-          vim.cmd("startinsert")  -- enter terminal mode so it renders
-          vim.defer_fn(function() vim.cmd("stopinsert") end, 50)  -- back to normal for q/Esc
+          vim.cmd("startinsert")
           return true
         end
 
