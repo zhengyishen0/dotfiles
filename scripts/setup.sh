@@ -104,6 +104,11 @@ ln -sf $DOTFILES/ghostty ~/.config/ghostty
 mkdir -p ~/.config/nvim
 stow -v -t ~/.config/nvim nvim 2>&1 | grep -v "BUG"
 
+# Nushell config
+mkdir -p "$HOME/Library/Application Support/nushell"
+ln -sf $DOTFILES/nu/env.nu "$HOME/Library/Application Support/nushell/env.nu"
+ln -sf $DOTFILES/nu/config.nu "$HOME/Library/Application Support/nushell/config.nu"
+
 # Karabiner config
 if [[ -f $DOTFILES/karabiner/karabiner.json ]]; then
     mkdir -p ~/.config/karabiner/assets/complex_modifications

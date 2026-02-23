@@ -1,5 +1,8 @@
-# ~/env.nu — universal nu env for scripts
-# Loaded via zsh nu() wrapper: nu --env-config ~/env.nu
-# Sets const NU_LIB_DIRS at parse-time so scripts can `use` modules
+# Remove old zenix PATH (inherited from zsh)
+$env.PATH = ($env.PATH | where {|p| not ($p | str contains ".zenix") })
 
-source ~/Codes/zenix/env.nu
+# oh-my-posh prompt
+source ~/.cache/oh-my-posh/init.nu
+
+# zenix
+source ~/zenix/env.nu

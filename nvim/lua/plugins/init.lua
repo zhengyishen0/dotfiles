@@ -90,15 +90,7 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     lazy = false,
-    dependencies = {
-      {
-        "b0o/nvim-tree-preview.lua",
-        opts = {
-          max_width = math.max(80, math.floor(vim.o.columns * 0.75)),
-          max_height = math.max(20, math.floor(vim.o.lines * 0.75)),
-        },
-      },
-    },
+    dependencies = {},
     opts = function()
       local submodule_icon = "@"
       local submodule_color = "#c678dd"  -- teal
@@ -149,46 +141,50 @@ return {
           end
         end, { buffer = bufnr, desc = "Collapse/parent/cd up" })
         vim.keymap.set("n", "-", api.tree.collapse_all, { buffer = bufnr, desc = "Collapse all" })
-        local preview = require("nvim-tree-preview")
-        local diff_win = nil
+        local float_win = nil
 
-        local function close_diff()
-          if diff_win and vim.api.nvim_win_is_valid(diff_win) then
-            vim.api.nvim_win_close(diff_win, true)
+        local function close_float()
+          if float_win and vim.api.nvim_win_is_valid(float_win) then
+            vim.api.nvim_win_close(float_win, true)
           end
-          diff_win = nil
+          float_win = nil
+        end
+
+        local function close_and_return()
+          close_float()
+          local tree_win = api.tree.winid()
+          if tree_win and vim.api.nvim_win_is_valid(tree_win) then
+            vim.api.nvim_set_current_win(tree_win)
+          end
+        end
+
+        local function open_float(opts)
+          close_float()
+          local h = math.floor(vim.o.lines * 0.85)
+          local w = math.floor(vim.o.columns * opts.width_pct)
+          local buf = vim.api.nvim_create_buf(false, true)
+          float_win = vim.api.nvim_open_win(buf, true, {
+            relative = "editor",
+            width = w, height = h,
+            row = math.floor((vim.o.lines - h) / 4),
+            col = math.floor((vim.o.columns - w) / 2),
+            style = "minimal", border = "rounded",
+            title = opts.title, title_pos = "center",
+          })
+          return buf
         end
 
         local function show_diff(path)
-          close_diff()
-          -- Quick check: does this specific file have changes?
           local check = vim.fn.system("jj diff --git " .. vim.fn.shellescape(path))
           if vim.v.shell_error ~= 0 or vim.trim(check) == "" then return false end
-          local w = math.floor(vim.o.columns * 0.85)
-          local h = math.floor(vim.o.lines * 0.85)
-          local buf = vim.api.nvim_create_buf(false, true)
-          diff_win = vim.api.nvim_open_win(buf, true, {
-            relative = "editor",
-            width = w, height = h,
-            row = math.floor((vim.o.lines - h) / 2),
-            col = math.floor((vim.o.columns - w) / 2),
-            style = "minimal", border = "rounded",
-            title = " jj diff ", title_pos = "center",
-          })
-          local function close_and_return()
-            close_diff()
-            local tree_win = api.tree.winid()
-            if tree_win and vim.api.nvim_win_is_valid(tree_win) then
-              vim.api.nvim_set_current_win(tree_win)
-            end
-          end
+          local buf = open_float({ width_pct = 0.85, title = " jj diff " })
           vim.keymap.set("t", "q", close_and_return, { buffer = buf })
           vim.keymap.set("t", "<Esc>", close_and_return, { buffer = buf })
           vim.fn.termopen("jj diff " .. vim.fn.shellescape(path), {
             on_exit = function()
               vim.schedule(function()
-                if diff_win and vim.api.nvim_win_is_valid(diff_win) then
-                  local b = vim.api.nvim_win_get_buf(diff_win)
+                if float_win and vim.api.nvim_win_is_valid(float_win) then
+                  local b = vim.api.nvim_win_get_buf(float_win)
                   vim.keymap.set("n", "q", close_and_return, { buffer = b })
                   vim.keymap.set("n", "<Esc>", close_and_return, { buffer = b })
                 end
@@ -197,6 +193,19 @@ return {
           })
           vim.cmd("startinsert")
           return true
+        end
+
+        local function show_preview(path)
+          local fname = vim.fn.fnamemodify(path, ":t")
+          local buf = open_float({ width_pct = 0.6, title = " " .. fname .. " " })
+          vim.bo[buf].modifiable = true
+          local lines = vim.fn.readfile(path, "", 1000)
+          vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+          vim.bo[buf].modifiable = false
+          local ft = vim.filetype.match({ buf = buf, filename = path })
+          if ft then vim.bo[buf].filetype = ft end
+          vim.keymap.set("n", "q", close_and_return, { buffer = buf })
+          vim.keymap.set("n", "<Esc>", close_and_return, { buffer = buf })
         end
 
         vim.keymap.set("n", "l", function()
@@ -209,14 +218,11 @@ return {
             vim.cmd("normal! j")  -- move to first child
           else
             if not show_diff(node.absolute_path) then
-              preview.node(node)  -- clean file: normal preview
+              show_preview(node.absolute_path)
             end
           end
         end, { buffer = bufnr, desc = "Diff or preview file" })
-        vim.keymap.set("n", "q", function()
-          close_diff()
-          preview.unwatch()
-        end, { buffer = bufnr, desc = "Close preview/diff" })
+        vim.keymap.set("n", "q", close_and_return, { buffer = bufnr, desc = "Close float" })
         vim.keymap.set("n", "R", api.tree.reload, { buffer = bufnr, desc = "Refresh" })
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
