@@ -178,15 +178,17 @@ return {
           local check = vim.fn.system("jj diff --git " .. vim.fn.shellescape(path))
           if vim.v.shell_error ~= 0 or vim.trim(check) == "" then return false end
           local buf = open_float({ width_pct = 0.85, title = " jj diff " })
-          vim.keymap.set("t", "q", close_and_return, { buffer = buf })
-          vim.keymap.set("t", "<Esc>", close_and_return, { buffer = buf })
+          for _, k in ipairs({"q", "<Esc>", "h"}) do
+            vim.keymap.set("t", k, close_and_return, { buffer = buf })
+          end
           vim.fn.termopen("jj diff " .. vim.fn.shellescape(path), {
             on_exit = function()
               vim.schedule(function()
                 if float_win and vim.api.nvim_win_is_valid(float_win) then
                   local b = vim.api.nvim_win_get_buf(float_win)
-                  vim.keymap.set("n", "q", close_and_return, { buffer = b })
-                  vim.keymap.set("n", "<Esc>", close_and_return, { buffer = b })
+                  for _, k in ipairs({"q", "<Esc>", "h"}) do
+                    vim.keymap.set("n", k, close_and_return, { buffer = b })
+                  end
                 end
               end)
             end,
@@ -204,8 +206,9 @@ return {
           vim.bo[buf].modifiable = false
           local ft = vim.filetype.match({ buf = buf, filename = path })
           if ft then vim.bo[buf].filetype = ft end
-          vim.keymap.set("n", "q", close_and_return, { buffer = buf })
-          vim.keymap.set("n", "<Esc>", close_and_return, { buffer = buf })
+          for _, k in ipairs({"q", "<Esc>", "h"}) do
+            vim.keymap.set("n", k, close_and_return, { buffer = buf })
+          end
         end
 
         vim.keymap.set("n", "l", function()
