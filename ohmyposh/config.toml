@@ -30,6 +30,12 @@ final_space = true
     [blocks.segments.properties]
       branch_icon = " <#ff94df><b>\ue0a0 </b></>"
 
+  [[blocks.segments]]
+    type = 'shell'
+    style = 'plain'
+    foreground = '#7aa2f7'
+    template = "<#ffffff>via</> {{ .Name }} "
+
 [[blocks]]
   type = 'prompt'
   alignment = 'left'
