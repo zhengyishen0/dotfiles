@@ -126,7 +126,9 @@ return {
         vim.keymap.set("n", "h", function()
           local node = api.tree.get_node_under_cursor()
           -- If expanded folder, collapse it first
-          if node.type == "directory" and node.open then
+          local is_dir = node.type == "directory"
+            or (node.type == "link" and vim.fn.isdirectory(node.link_to or "") == 1)
+          if is_dir and node.open then
             api.node.open.edit()
           -- If has parent in tree, go to parent
           elseif node.parent and node.parent.name ~= ".." then
@@ -214,7 +216,9 @@ return {
         vim.keymap.set("n", "l", function()
           local node = api.tree.get_node_under_cursor()
           if not node then return end
-          if node.type == "directory" then
+          local is_dir = node.type == "directory"
+            or (node.type == "link" and vim.fn.isdirectory(node.link_to or "") == 1)
+          if is_dir then
             if not node.open then
               api.node.open.edit()  -- expand
             end
@@ -233,7 +237,9 @@ return {
         -- Enter: cd into folder (+ jump to top) or open file
         vim.keymap.set("n", "<CR>", function()
           local node = api.tree.get_node_under_cursor()
-          if node.type == "directory" then
+          local is_dir = node.type == "directory"
+            or (node.type == "link" and vim.fn.isdirectory(node.link_to or "") == 1)
+          if is_dir then
             api.tree.change_root_to_node()
             vim.defer_fn(function()
               if vim.bo.filetype == "NvimTree" then
