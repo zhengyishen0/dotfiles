@@ -42,13 +42,13 @@ map("n", "<C-r>", "<Nop>", { desc = "Disabled: use Ctrl+Shift+z" })
 -- NvChad uses: b, c, d, e, f, g, h, m, n, p, r, t, v, w, x
 map("n", "<leader>y", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
 
--- Agent terminal in tab (appears in tabufline)
+-- Terminal in tab (appears in tabufline)
 map("n", "<leader>a", function()
   vim.cmd("enew")
-  vim.fn.termopen("agent")
+  vim.fn.termopen(vim.o.shell)
   vim.bo.buflisted = true
   vim.cmd("startinsert")
-end, { desc = "Agent terminal" })
+end, { desc = "Tab terminal" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "gb", "<C-o>", { desc = "Go back (jump list)" })
