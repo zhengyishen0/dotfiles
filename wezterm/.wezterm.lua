@@ -62,6 +62,9 @@ config.window_frame = {
   inactive_titlebar_bg = bg,
 }
 
+-- Shell
+config.default_prog = { '/opt/homebrew/bin/nu' }
+
 -- Cursor
 config.default_cursor_style = 'SteadyBar'
 

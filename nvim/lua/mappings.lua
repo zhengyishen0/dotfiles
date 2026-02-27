@@ -383,6 +383,51 @@ vim.api.nvim_create_autocmd("DirChanged", {
   end,
 })
 
+-- Auto-open lazyjj on startup (if in jj repo)
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    local is_jj = vim.fn.isdirectory(vim.fn.getcwd() .. "/.jj") == 1
+    if is_jj then
+      vim.defer_fn(function()
+        toggle_lazyjj()
+        -- Return focus to nvim-tree if it's open
+        local tree_win = require("nvim-tree.api").tree.winid()
+        if tree_win and vim.api.nvim_win_is_valid(tree_win) then
+          vim.api.nvim_set_current_win(tree_win)
+        end
+      end, 100)
+    end
+  end,
+})
+
+-- Auto-show lazyjj when entering nvim-tree, auto-hide when entering editor
+vim.api.nvim_create_autocmd("WinEnter", {
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    local ft = vim.bo[buf].filetype
+    local is_jj = vim.fn.isdirectory(vim.fn.getcwd() .. "/.jj") == 1
+    local is_open = lazyjj_state.win and vim.api.nvim_win_is_valid(lazyjj_state.win)
+
+    -- Entering nvim-tree → show lazyjj (if in jj repo and not already open)
+    if ft == "NvimTree" and is_jj and not is_open then
+      toggle_lazyjj()
+      -- Return focus to nvim-tree after opening
+      vim.defer_fn(function()
+        local tree_win = require("nvim-tree.api").tree.winid()
+        if tree_win and vim.api.nvim_win_is_valid(tree_win) then
+          vim.api.nvim_set_current_win(tree_win)
+        end
+      end, 50)
+    -- Entering editor window (not tree/aerial/lazyjj/terminal) → hide lazyjj
+    elseif ft ~= "NvimTree" and ft ~= "aerial" and ft ~= "" and is_open then
+      local current_win = vim.api.nvim_get_current_win()
+      if current_win ~= lazyjj_state.win then
+        toggle_lazyjj()
+      end
+    end
+  end,
+})
+
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 
 -- =============================================================================
@@ -404,13 +449,12 @@ map("n", "J", "}", { desc = "Next paragraph" })
 map("n", "K", "{", { desc = "Previous paragraph" })
 -- s/S used by flash.nvim
 
--- Insert/append commands (use click or Enter instead)
-map("n", "i", nop, { desc = "Disabled: click or Enter" })
-map("n", "I", nop, { desc = "Disabled: click or Enter" })
-map("n", "a", nop, { desc = "Disabled: click or Enter" })
-map("n", "A", nop, { desc = "Disabled: click or Enter" })
-map("n", "o", nop, { desc = "Disabled: use Enter at EOL" })
-map("n", "O", nop, { desc = "Disabled: use Enter at EOL" })
+-- Insert/append commands disabled (use smart i or click instead)
+map("n", "I", nop, { desc = "Disabled: use i" })
+map("n", "a", nop, { desc = "Disabled: use i" })
+map("n", "A", nop, { desc = "Disabled: use i" })
+map("n", "o", nop, { desc = "Disabled: use Shift+Enter" })
+map("n", "O", nop, { desc = "Disabled: use Shift+Enter" })
 
 -- Paste/yank/undo (use Cmd+V/C/Z instead)
 -- y/p enabled for copy/paste (normal + visual)
@@ -452,8 +496,8 @@ map("i", "\x1b[127;2u", "<C-o>cc", { desc = "Delete line, stay insert" }) -- Shi
 map("s", "<Del>", "<C-o>d", { desc = "Delete selection" })
 map("s", "<BS>", "<C-o>d", { desc = "Delete selection" })
 
--- Enter to insert mode (smart: 'a' at word end, 'i' otherwise)
-map("n", "<CR>", function()
+-- i = smart insert mode ('a' at word end, 'i' otherwise)
+map("n", "i", function()
   local col = vim.fn.col('.')
   local line = vim.fn.getline('.')
 

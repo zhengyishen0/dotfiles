@@ -203,6 +203,7 @@ return {
             vim.keymap.set("t", k, close_and_return, { buffer = buf })
           end
           vim.keymap.set("t", "<CR>", open_this, { buffer = buf })
+          vim.bo[buf].modified = false  -- termopen requires unmodified buffer
           vim.fn.termopen("jj diff " .. vim.fn.shellescape(path), {
             on_exit = function()
               vim.schedule(function()
