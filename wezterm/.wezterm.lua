@@ -3,331 +3,10 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- =============================================================================
--- RESURRECT PLUGIN (layout persistence)
+-- SMART SPLITS (vim-aware Ctrl+hjkl navigation via wezterm plugin)
 -- =============================================================================
 
-local resurrect = wezterm.plugin.require 'https://github.com/MLFlexer/resurrect.wezterm'
-
--- zmx path for restore
-local zmx_path = '/opt/homebrew/bin/zmx'
-
--- Find best matching zmx session for a given cwd
-local function find_zmx_session_for_cwd(target_cwd)
-  local handle = io.popen(zmx_path .. ' list 2>/dev/null')
-  if not handle then return nil end
-  local output = handle:read('*a')
-  handle:close()
-
-  local best_session = nil
-  local best_time = 0
-
-  for line in output:gmatch('[^\n]+') do
-    local session = line:match('session_name=([^%s]+)')
-    local clients = line:match('clients=(%d+)')
-    local started_in = line:match('started_in=([^%s]+)')
-
-    -- Only consider detached sessions (clients=0) that match our cwd
-    if session and clients == '0' and session:match('^wez%-') then
-      if started_in and (started_in == target_cwd or target_cwd:match(started_in)) then
-        -- Extract timestamp to get most recent
-        local num1, num2 = session:match('wez%-(%d+)%-(%d+)')
-        local ts = 0
-        if num1 and num2 then
-          num1, num2 = tonumber(num1), tonumber(num2)
-          if num1 and num1 > 1700000000 then ts = num1
-          elseif num2 and num2 > 1700000000 then ts = num2
-          end
-        end
-        if ts > best_time then
-          best_time = ts
-          best_session = session
-        end
-      end
-    end
-  end
-
-  -- If no match by cwd, just get the most recent detached session
-  if not best_session then
-    for line in output:gmatch('[^\n]+') do
-      local session = line:match('session_name=([^%s]+)')
-      local clients = line:match('clients=(%d+)')
-      if session and clients == '0' and session:match('^wez%-') then
-        local num1, num2 = session:match('wez%-(%d+)%-(%d+)')
-        local ts = 0
-        if num1 and num2 then
-          num1, num2 = tonumber(num1), tonumber(num2)
-          if num1 and num1 > 1700000000 then ts = num1
-          elseif num2 and num2 > 1700000000 then ts = num2
-          end
-        end
-        if ts > best_time then
-          best_time = ts
-          best_session = session
-        end
-      end
-    end
-  end
-
-  return best_session
-end
-
--- Custom pane restore that reconnects to zmx sessions
-local function zmx_on_pane_restore(pane, pane_state)
-  local cwd = pane_state.cwd or wezterm.home_dir
-  local session = find_zmx_session_for_cwd(cwd)
-
-  if session then
-    -- Reconnect to existing zmx session
-    pane:send_text(zmx_path .. ' attach ' .. session .. '\n')
-  else
-    -- No matching session, start a new zmx session
-    local new_session = 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
-    pane:send_text(zmx_path .. ' attach ' .. new_session .. '\n')
-  end
-end
-
--- Enable periodic save (every 1 minute) for ALL workspaces
-resurrect.state_manager.periodic_save {
-  interval_seconds = 60,
-  save_workspaces = true,
-  save_windows = true,
-  save_tabs = true,
-}
-
--- Auto-restore on startup with zmx integration
-wezterm.on('gui-startup', function(cmd)
-  -- Get all saved workspace states
-  local state = resurrect.state_manager.load_state('default', 'workspace')
-  if state then
-    resurrect.workspace_state.restore_workspace(state, {
-      relative = true,
-      restore_text = true,
-      on_pane_restore = zmx_on_pane_restore,
-    })
-  else
-    -- No saved state, just spawn normally with zmx
-    local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
-    local new_session = 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
-    pane:send_text(zmx_path .. ' attach ' .. new_session .. '\n')
-  end
-end)
-
--- =============================================================================
--- ZMX SESSION HELPERS
--- =============================================================================
-
-local zmx_data_dir = wezterm.home_dir .. '/.local/share/zmx-wezterm'
-local zmx_sessions_file = zmx_data_dir .. '/sessions.txt'
-local zmx_pane_map_file = zmx_data_dir .. '/pane_map.txt'
-
--- Ensure data directory exists
-os.execute('mkdir -p ' .. zmx_data_dir)
-
--- Track pane_id → session (in-memory for current WezTerm instance)
-local zmx_pane_sessions = {}
-
--- Save session → tab_id → cwd → title mapping
-local function zmx_save_session(session, tab_id, cwd, title)
-  local f = io.open(zmx_sessions_file, 'a')
-  if f then
-    cwd = cwd or ''
-    title = title or ''
-    f:write(session .. '\t' .. tostring(tab_id) .. '\t' .. cwd .. '\t' .. title .. '\n')
-    f:close()
-  end
-end
-
--- Load session → {tab_id, cwd, title} mapping
-local function zmx_load_sessions()
-  local sessions = {}
-  local f = io.open(zmx_sessions_file, 'r')
-  if f then
-    for line in f:lines() do
-      local session, tab_id, cwd, title = line:match('([^\t]+)\t(%d+)\t?([^\t]*)\t?(.*)')
-      if session and tab_id then
-        sessions[session] = {
-          tab_id = tonumber(tab_id),
-          cwd = cwd or '',
-          title = title or '',
-        }
-      end
-    end
-    f:close()
-  end
-  return sessions
-end
-
--- Generate unique session name
-local function zmx_new_session_name()
-  return 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
-end
-
--- Kill detached wez-* sessions older than 1 hour
-local function zmx_gc()
-  local now = os.time()
-  local handle = io.popen(zmx_path .. ' list 2>/dev/null')
-  if not handle then return end
-  local output = handle:read('*a')
-  handle:close()
-
-  for line in output:gmatch('[^\n]+') do
-    local session, clients = line:match('session_name=([^%s]+).-clients=(%d+)')
-    if session and clients == '0' and session:match('^wez%-') then
-      local ts = tonumber(session:match('wez%-(%d+)%-'))
-      if ts and (now - ts) > 3600 then
-        os.execute(zmx_path .. ' kill ' .. session .. ' 2>/dev/null')
-      end
-    end
-  end
-end
-
--- Spawn new tab with zmx session (tab_id saved via event handler below)
-local function zmx_spawn_tab(window, pane, session)
-  session = session or zmx_new_session_name()
-  zmx_gc()
-  window:perform_action(act.SpawnCommandInNewTab {
-    args = { zmx_path, 'attach', session },
-  }, pane)
-end
-
--- Get pane info for session metadata
-local function zmx_get_pane_info(pane)
-  local cwd = ''
-  local cwd_uri = pane:get_current_working_dir()
-  if cwd_uri then
-    cwd = cwd_uri.file_path or cwd_uri.path or ''
-    -- Shorten home directory
-    cwd = cwd:gsub('^' .. wezterm.home_dir, '~')
-  end
-  local title = pane:get_title() or ''
-  return cwd, title
-end
-
--- Track pending session for next spawned pane
-local zmx_pending_session = nil
-
--- Spawn split with zmx session
-local function zmx_split_horizontal(window, pane, session)
-  session = session or zmx_new_session_name()
-  local tab_id = window:active_tab():tab_id()
-  local cwd, title = zmx_get_pane_info(pane)
-  zmx_pending_session = session
-  window:perform_action(act.SplitHorizontal {
-    args = { zmx_path, 'attach', session },
-  }, pane)
-  zmx_save_session(session, tab_id, cwd, title)
-end
-
-local function zmx_split_vertical(window, pane, session)
-  session = session or zmx_new_session_name()
-  local tab_id = window:active_tab():tab_id()
-  local cwd, title = zmx_get_pane_info(pane)
-  zmx_pending_session = session
-  window:perform_action(act.SplitVertical {
-    args = { zmx_path, 'attach', session },
-  }, pane)
-  zmx_save_session(session, tab_id, cwd, title)
-end
-
--- Get zmx session from pane's process (via ps command)
-local function zmx_get_pane_session(pane)
-  local fg_pid = pane:get_foreground_process_info()
-  if not fg_pid then return nil end
-
-  local pid = fg_pid.pid
-  if not pid then return nil end
-
-  -- Get command line from ps
-  local handle = io.popen('ps -p ' .. pid .. ' -o args= 2>/dev/null')
-  if not handle then return nil end
-  local cmdline = handle:read('*a')
-  handle:close()
-
-  -- Parse session name from "zmx attach session-name"
-  local session = cmdline:match('zmx%s+attach%s+(wez%-[^%s]+)')
-  return session
-end
-
--- Close pane with session update
-local function zmx_close_pane(window, pane)
-  local pane_id = pane:pane_id()
-
-  -- Try tracked session first, then detect from process
-  local session = zmx_pane_sessions[pane_id]
-  if not session then
-    session = zmx_get_pane_session(pane)
-  end
-
-  if session then
-    -- Update session with final cwd/title before closing
-    local tab_id = window:active_tab():tab_id()
-    local cwd, title = zmx_get_pane_info(pane)
-    zmx_save_session(session, tab_id, cwd, title)
-    zmx_pane_sessions[pane_id] = nil
-  end
-
-  window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
-end
-
--- Restore session in original tab if exists, otherwise new tab
-local function zmx_restore_session(window, pane, session)
-  local sessions = zmx_load_sessions()
-  local session_data = sessions[session]
-  local original_tab_id = session_data and session_data.tab_id
-
-  -- Check if original tab still exists
-  local found_tab = nil
-  if original_tab_id then
-    for _, w in ipairs(wezterm.mux.all_windows()) do
-      for _, tab in ipairs(w:tabs()) do
-        if tab:tab_id() == original_tab_id then
-          found_tab = tab
-          break
-        end
-      end
-    end
-  end
-
-  if found_tab then
-    -- Restore as split in original tab
-    local active_pane = found_tab:active_pane()
-    window:perform_action(act.SplitHorizontal {
-      args = { zmx_path, 'attach', session },
-    }, active_pane)
-  else
-    -- Create new tab
-    window:perform_action(act.SpawnCommandInNewTab {
-      args = { zmx_path, 'attach', session },
-    }, pane)
-  end
-end
-
--- Get last closed session (detached, clients=0)
-local function zmx_last_closed()
-  local handle = io.popen(zmx_path .. ' list 2>/dev/null')
-  local output = handle:read('*a')
-  handle:close()
-
-  local best_session = nil
-  local best_time = 0
-
-  for line in output:gmatch('[^\n]+') do
-    local session = line:match('session_name=([^%s]+)')
-    local clients = line:match('clients=(%d+)')
-
-    if session and clients == '0' and session:match('^wez%-') then
-      -- Extract timestamp from session name (wez-TIMESTAMP-RANDOM)
-      local ts = session:match('wez%-(%d+)%-')
-      ts = tonumber(ts) or 0
-      if ts > best_time then
-        best_time = ts
-        best_session = session
-      end
-    end
-  end
-
-  return best_session or ''
-end
+local smart_splits = wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
 
 -- =============================================================================
 -- APPEARANCE
@@ -383,9 +62,6 @@ config.window_frame = {
   inactive_titlebar_bg = bg,
 }
 
--- Shell
-config.default_prog = { '/opt/homebrew/bin/nu' }
-
 -- Cursor
 config.default_cursor_style = 'SteadyBar'
 
@@ -402,15 +78,6 @@ config.adjust_window_size_when_changing_font_size = false
 config.window_close_confirmation = 'NeverPrompt'
 
 -- =============================================================================
--- MUX SERVER (Persistence) - DISABLED, using zmx instead
--- =============================================================================
-
--- config.unix_domains = {
---   { name = 'unix' },
--- }
--- config.default_gui_startup_args = { 'connect', 'unix' }
-
--- =============================================================================
 -- SSH DOMAINS (Remote connections)
 -- =============================================================================
 
@@ -425,99 +92,48 @@ config.ssh_domains = {
 }
 
 -- =============================================================================
--- LEADER KEY (like tmux prefix)
--- =============================================================================
-
--- Leader: Ctrl+Space
-config.leader = { key = 'Space', mods = 'CTRL', timeout_milliseconds = 1000 }
-
--- =============================================================================
 -- KEYBINDINGS
 -- =============================================================================
 
 config.keys = {
   -- =====================
-  -- PANE: Split (with zmx session)
+  -- PANE: Split (Cmd+D / Cmd+Shift+D)
   -- =====================
-  -- Leader + | or \ = split right
-  { key = '|', mods = 'LEADER|SHIFT', action = wezterm.action_callback(function(w, p) zmx_split_horizontal(w, p) end) },
-  { key = '\\', mods = 'LEADER', action = wezterm.action_callback(function(w, p) zmx_split_horizontal(w, p) end) },
-  -- Leader + - = split down
-  { key = '-', mods = 'LEADER', action = wezterm.action_callback(function(w, p) zmx_split_vertical(w, p) end) },
-
-  -- Cmd+D / Cmd+Shift+D (iTerm2 style)
-  { key = 'd', mods = 'CMD', action = wezterm.action_callback(function(w, p) zmx_split_horizontal(w, p) end) },
-  { key = 'd', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(w, p) zmx_split_vertical(w, p) end) },
+  { key = 'd', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
 
   -- =====================
-  -- PANE: Navigate
+  -- PANE: Navigate (Ctrl+hjkl handled by smart-splits plugin)
   -- =====================
-  -- Leader + h/j/k/l (vim style)
-  { key = 'h', mods = 'LEADER', action = act.ActivatePaneDirection 'Left' },
-  { key = 'j', mods = 'LEADER', action = act.ActivatePaneDirection 'Down' },
-  { key = 'k', mods = 'LEADER', action = act.ActivatePaneDirection 'Up' },
-  { key = 'l', mods = 'LEADER', action = act.ActivatePaneDirection 'Right' },
-
-  -- Cmd+Option+Arrow (macOS style)
   { key = 'LeftArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Left' },
   { key = 'RightArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Right' },
   { key = 'UpArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Up' },
   { key = 'DownArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Down' },
-
-  -- Cmd+[ / Cmd+] to cycle panes
   { key = '[', mods = 'CMD', action = act.ActivatePaneDirection 'Prev' },
   { key = ']', mods = 'CMD', action = act.ActivatePaneDirection 'Next' },
 
   -- =====================
-  -- PANE: Resize
+  -- PANE: Resize (Cmd+Opt+Shift+Arrow)
   -- =====================
-  -- Leader + Arrow
-  { key = 'LeftArrow', mods = 'LEADER', action = act.AdjustPaneSize { 'Left', 5 } },
-  { key = 'RightArrow', mods = 'LEADER', action = act.AdjustPaneSize { 'Right', 5 } },
-  { key = 'UpArrow', mods = 'LEADER', action = act.AdjustPaneSize { 'Up', 5 } },
-  { key = 'DownArrow', mods = 'LEADER', action = act.AdjustPaneSize { 'Down', 5 } },
+  { key = 'LeftArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Left', 5 } },
+  { key = 'RightArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Right', 5 } },
+  { key = 'UpArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Up', 5 } },
+  { key = 'DownArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Down', 5 } },
 
   -- =====================
   -- PANE: Other
   -- =====================
-  -- Leader + z or Leader + Space = zoom/maximize pane
-  { key = 'z', mods = 'LEADER', action = act.TogglePaneZoomState },
-  { key = 'Space', mods = 'LEADER', action = act.TogglePaneZoomState },
-  -- Leader + x = close pane
-  { key = 'x', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } },
-  -- Cmd+W = close pane (updates zmx session metadata first)
-  { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(w, p) zmx_close_pane(w, p) end) },
+  { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
+  { key = 'Enter', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
 
   -- =====================
-  -- ZMX: Session Restore
+  -- TAB: Management
   -- =====================
-  -- Cmd+Z = restore last closed session (in original tab if exists)
-  { key = 'z', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
-    local session = zmx_last_closed()
-    if session ~= '' then
-      zmx_restore_session(window, pane, session)
-    else
-      wezterm.log_info('No closed session to restore')
-    end
-  end) },
-
-  -- =====================
-  -- TAB: Management (with zmx session)
-  -- =====================
-  -- Cmd+T = new tab
-  { key = 't', mods = 'CMD', action = wezterm.action_callback(function(w, p) zmx_spawn_tab(w, p) end) },
-  -- Leader + c = new tab (tmux style)
-  { key = 'c', mods = 'LEADER', action = wezterm.action_callback(function(w, p) zmx_spawn_tab(w, p) end) },
-  -- Cmd+Shift+[ / ] = switch tabs
+  { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
   { key = '{', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(-1) },
   { key = '}', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(1) },
-  -- Leader + ] / [ = next/prev tab
-  { key = ']', mods = 'LEADER', action = act.ActivateTabRelative(1) },
-  { key = '[', mods = 'LEADER', action = act.ActivateTabRelative(-1) },
-  -- Cmd+( / Cmd+) = move tab left/right
   { key = '9', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = '0', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
-  -- Cmd+1-9 = go to tab
   { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
   { key = '2', mods = 'CMD', action = act.ActivateTab(1) },
   { key = '3', mods = 'CMD', action = act.ActivateTab(2) },
@@ -526,51 +142,34 @@ config.keys = {
   { key = '6', mods = 'CMD', action = act.ActivateTab(5) },
   { key = '7', mods = 'CMD', action = act.ActivateTab(6) },
   { key = '8', mods = 'CMD', action = act.ActivateTab(7) },
-  { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },  -- Last tab
+  { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },
 
   -- =====================
-  -- COPY MODE
+  -- SCROLL (Cmd+Up/Down)
   -- =====================
-  -- Leader + [ = enter copy mode (tmux style)
-  { key = '[', mods = 'LEADER', action = act.ActivateCopyMode },
-
-  -- =====================
-  -- SCROLL
-  -- =====================
-  { key = 'k', mods = 'OPT', action = act.ScrollByLine(-3) },
-  { key = 'j', mods = 'OPT', action = act.ScrollByLine(3) },
+  { key = 'UpArrow', mods = 'CMD', action = act.ScrollByPage(-0.5) },
+  { key = 'DownArrow', mods = 'CMD', action = act.ScrollByPage(0.5) },
 
   -- =====================
   -- macOS-style LINE EDITING (for shell)
   -- =====================
-  -- Opt+Left/Right = move by word
   { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = 'b', mods = 'ALT' } },
   { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = 'f', mods = 'ALT' } },
-  -- Cmd+Left/Right = start/end of line
   { key = 'LeftArrow', mods = 'CMD', action = act.SendKey { key = 'a', mods = 'CTRL' } },
   { key = 'RightArrow', mods = 'CMD', action = act.SendKey { key = 'e', mods = 'CTRL' } },
-  -- Opt+Backspace = delete word back
   { key = 'Backspace', mods = 'OPT', action = act.SendKey { key = 'w', mods = 'CTRL' } },
-  -- Cmd+Backspace = delete to start of line
   { key = 'Backspace', mods = 'CMD', action = act.SendKey { key = 'u', mods = 'CTRL' } },
-  -- Shift+Enter = insert newline (without executing)
   { key = 'Enter', mods = 'SHIFT', action = act.SendString '\n' },
 
   -- =====================
-  -- SEARCH
+  -- SEARCH & QUICK SELECT
   -- =====================
   { key = 'f', mods = 'CMD', action = act.Search 'CurrentSelectionOrEmptyString' },
+  { key = 'f', mods = 'OPT', action = act.QuickSelect },
 
   -- =====================
-  -- QUICK SELECT (URLs, paths, etc.)
+  -- WORKSPACES & SESSIONS
   -- =====================
-  { key = 'u', mods = 'LEADER', action = act.QuickSelect },
-  { key = 'f', mods = 'OPT', action = act.QuickSelect },  -- Opt+F
-
-  -- =====================
-  -- WINDOWS & SESSIONS
-  -- =====================
-  -- Cmd+n = new session (prompts for name)
   { key = 'n', mods = 'CMD', action = act.PromptInputLine {
     description = 'Enter new session name:',
     action = wezterm.action_callback(function(window, pane, line)
@@ -579,14 +178,10 @@ config.keys = {
       end
     end),
   }},
-  -- Cmd+Shift+N = new window
   { key = 'n', mods = 'CMD|SHIFT', action = act.SpawnWindow },
-  -- Opt+Tab / Opt+Shift+Tab = switch session next/prev
   { key = 'Tab', mods = 'OPT', action = act.SwitchWorkspaceRelative(1) },
   { key = 'Tab', mods = 'OPT|SHIFT', action = act.SwitchWorkspaceRelative(-1) },
-  -- Leader + s = show workspace launcher (backup)
-  { key = 's', mods = 'LEADER', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
-  -- Opt+r = rename tab, Opt+R = rename session
+  { key = 's', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
   { key = 'r', mods = 'OPT', action = act.PromptInputLine {
     description = 'Rename tab:',
     action = wezterm.action_callback(function(window, pane, line)
@@ -605,58 +200,22 @@ config.keys = {
   }},
 
   -- =====================
+  -- PASSTHROUGH (Cmd → Ctrl for apps)
+  -- =====================
+  { key = 'z', mods = 'CMD', action = act.SendKey { key = 'z', mods = 'CTRL' } },
+  { key = 's', mods = 'CMD', action = act.SendKey { key = 's', mods = 'CTRL' } },
+
+  -- =====================
   -- MISC
   -- =====================
-  -- Cmd+, = open config
   { key = ',', mods = 'CMD', action = act.SpawnCommandInNewTab {
     cwd = wezterm.home_dir,
     args = { '/opt/homebrew/bin/nvim', wezterm.config_file },
   }},
-  -- Cmd+Shift+R = reload config
   { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
-  -- Leader + r = reload config
-  { key = 'r', mods = 'LEADER', action = act.ReloadConfiguration },
-  -- Cmd+Enter = toggle fullscreen
   { key = 'Enter', mods = 'CMD', action = act.ToggleFullScreen },
-  -- Leader + d = detach (useful for mux)
-  { key = 'd', mods = 'LEADER', action = act.DetachDomain 'CurrentPaneDomain' },
-
-  -- Clear scrollback
   { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
-
-  -- Command palette (launcher style)
   { key = 'p', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|COMMANDS' } },
-
-  -- =====================
-  -- RESURRECT (layout save/restore)
-  -- =====================
-  -- Cmd+Shift+S = save state
-  { key = 's', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(win, pane)
-    resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
-  end) },
-  -- Cmd+Shift+L = load/restore state (fuzzy finder)
-  { key = 'l', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(win, pane)
-    resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
-      local type = string.match(id, '^([^/]+)')
-      id = string.match(id, '([^/]+)$')
-      id = string.match(id, '(.+)%..+$')
-      local opts = {
-        relative = true,
-        restore_text = true,
-        on_pane_restore = resurrect.tab_state.default_on_pane_restore,
-      }
-      if type == 'workspace' then
-        local state = resurrect.state_manager.load_state(id, 'workspace')
-        resurrect.workspace_state.restore_workspace(state, opts)
-      elseif type == 'window' then
-        local state = resurrect.state_manager.load_state(id, 'window')
-        resurrect.window_state.restore_window(win, state, opts)
-      elseif type == 'tab' then
-        local state = resurrect.state_manager.load_state(id, 'tab')
-        resurrect.tab_state.restore_tab(pane:tab(), state, opts)
-      end
-    end)
-  end) },
 }
 
 -- =============================================================================
@@ -750,5 +309,25 @@ wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
     { Text = RIGHT_END },
   }
 end)
+
+-- Auto-copy selection to clipboard, then clear highlight
+config.mouse_bindings = {
+  {
+    event = { Up = { streak = 1, button = 'Left' } },
+    mods = 'NONE',
+    action = act.Multiple {
+      act.CompleteSelectionOrOpenLinkAtMouseCursor 'Clipboard',
+      act.ClearSelection,
+    },
+  },
+}
+
+-- Apply smart-splits navigation (resize disabled — use Cmd+Opt+Shift+Arrow instead)
+smart_splits.apply_to_config(config, {
+  direction_keys = { 'h', 'j', 'k', 'l' },
+  modifiers = {
+    move = 'CTRL',
+  },
+})
 
 return config

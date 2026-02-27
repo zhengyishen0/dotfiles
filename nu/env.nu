@@ -1,8 +1,8 @@
 # Ensure essential paths are present (when launched directly, not via zsh)
-const EXTRA_PATHS = [
+let EXTRA_PATHS = [
     "/opt/homebrew/bin"
     "/opt/homebrew/sbin"
-    ($nu.home-path | path join ".local/bin")
+    ($nu.home-dir | path join ".local/bin")
 ]
 
 $env.PATH = ($env.PATH

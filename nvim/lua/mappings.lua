@@ -2,12 +2,11 @@ require "nvchad.mappings"
 
 local map = vim.keymap.set
 
--- Override NvChad C-h/j/k/l with tmux-aware navigation (all modes)
--- Tmux-aware navigation (normal + terminal)
-map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
-map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
-map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
-map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+-- Override NvChad C-h/j/k/l with smart-splits (wezterm-aware navigation)
+map("n", "<C-h>", function() require("smart-splits").move_cursor_left() end, { desc = "Navigate left" })
+map("n", "<C-j>", function() require("smart-splits").move_cursor_down() end, { desc = "Navigate down" })
+map("n", "<C-k>", function() require("smart-splits").move_cursor_up() end, { desc = "Navigate up" })
+map("n", "<C-l>", function() require("smart-splits").move_cursor_right() end, { desc = "Navigate right" })
 
 -- Cursor movement in insert mode (like hjkl in normal)
 map("i", "<C-h>", "<Left>", { desc = "Move left" })
@@ -224,29 +223,6 @@ map("s", "<CR>", "<C-o>y", { desc = "Copy selection" })
 
 -- Auto-copy to clipboard on mouse select
 map("s", "<LeftRelease>", '<C-o>"+y', { desc = "Auto-copy on mouse select" })
-
--- Cmd+Z/Shift+Z (undo/redo)
-map("n", "<D-z>", "u", { desc = "Undo" })
-map("i", "<D-z>", "<C-o>u", { desc = "Undo" })
-map({ "n", "v" }, "<D-S-z>", "<C-r>", { desc = "Redo" })
-map("i", "<D-S-z>", "<C-o><C-r>", { desc = "Redo" })
-
--- Cmd+C/X (copy/cut with system clipboard)
-map("v", "<D-c>", '"+y', { desc = "Copy to clipboard" })
-map("v", "<D-x>", '"+d', { desc = "Cut to clipboard" })
-
--- Cmd+S (save and exit to normal mode)
-map("n", "<D-s>", "<Cmd>w<CR>", { desc = "Save" })
-map({ "i", "v", "s" }, "<D-s>", "<Esc><Cmd>w<CR>", { desc = "Save" })
-
--- Cmd+Q = default Ghostty quit (no nvim mapping)
-
--- Cmd+W (close buffer)
-map({ "n", "i", "v", "s" }, "<D-w>", function()
-  require("nvchad.tabufline").close_buffer()
-end, { desc = "Close buffer" })
-
--- leader+j already mapped below (lazyjj)
 
 -- Opt+Backspace = delete word backward
 map("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })

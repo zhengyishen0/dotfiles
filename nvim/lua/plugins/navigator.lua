@@ -1,18 +1,16 @@
 return {
   {
-    "christoomey/vim-tmux-navigator",
+    "mrjones2014/smart-splits.nvim",
     lazy = false,
-    cmd = {
-      "TmuxNavigateLeft",
-      "TmuxNavigateDown",
-      "TmuxNavigateUp",
-      "TmuxNavigateRight",
-    },
+    init = function()
+      vim.g.smart_splits_multiplexer_integration = 'wezterm'
+    end,
+    opts = {},
     keys = {
-      { "<C-h>", "<cmd>TmuxNavigateLeft<CR>", desc = "Navigate left" },
-      { "<C-j>", "<cmd>TmuxNavigateDown<CR>", desc = "Navigate down" },
-      { "<C-k>", "<cmd>TmuxNavigateUp<CR>", desc = "Navigate up" },
-      { "<C-l>", "<cmd>TmuxNavigateRight<CR>", desc = "Navigate right" },
+      { "<C-h>", function() require("smart-splits").move_cursor_left() end, mode = { "n", "t" }, desc = "Navigate left" },
+      { "<C-j>", function() require("smart-splits").move_cursor_down() end, mode = { "n", "t" }, desc = "Navigate down" },
+      { "<C-k>", function() require("smart-splits").move_cursor_up() end, mode = { "n", "t" }, desc = "Navigate up" },
+      { "<C-l>", function() require("smart-splits").move_cursor_right() end, mode = { "n", "t" }, desc = "Navigate right" },
     },
   },
 }
