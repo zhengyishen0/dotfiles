@@ -39,15 +39,6 @@ source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
-# Nu wrapper: auto-load env for scripts (interactive nu loads its own config)
-nu() {
-  if [[ $# -gt 0 ]]; then
-    command nu --env-config ~/env.nu "$@"
-  else
-    command nu "$@"
-  fi
-}
-
 # Aliases
 command -v eza &>/dev/null && alias ls='eza'
 command -v bat &>/dev/null && alias cat='bat --paging=never'
@@ -76,3 +67,8 @@ source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
 # zenix
 source "/Users/zhengyishen/.zenix/env"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"
+# End of LM Studio CLI section
+

@@ -162,9 +162,29 @@ local function zmx_new_session_name()
   return 'wez-' .. tostring(os.time()) .. '-' .. tostring(math.random(1000, 9999))
 end
 
+-- Kill detached wez-* sessions older than 1 hour
+local function zmx_gc()
+  local now = os.time()
+  local handle = io.popen(zmx_path .. ' list 2>/dev/null')
+  if not handle then return end
+  local output = handle:read('*a')
+  handle:close()
+
+  for line in output:gmatch('[^\n]+') do
+    local session, clients = line:match('session_name=([^%s]+).-clients=(%d+)')
+    if session and clients == '0' and session:match('^wez%-') then
+      local ts = tonumber(session:match('wez%-(%d+)%-'))
+      if ts and (now - ts) > 3600 then
+        os.execute(zmx_path .. ' kill ' .. session .. ' 2>/dev/null')
+      end
+    end
+  end
+end
+
 -- Spawn new tab with zmx session (tab_id saved via event handler below)
 local function zmx_spawn_tab(window, pane, session)
   session = session or zmx_new_session_name()
+  zmx_gc()
   window:perform_action(act.SpawnCommandInNewTab {
     args = { zmx_path, 'attach', session },
   }, pane)
@@ -362,6 +382,9 @@ config.window_frame = {
   active_titlebar_bg = bg,
   inactive_titlebar_bg = bg,
 }
+
+-- Shell
+config.default_prog = { '/opt/homebrew/bin/nu' }
 
 -- Cursor
 config.default_cursor_style = 'SteadyBar'
