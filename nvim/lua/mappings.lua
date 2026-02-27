@@ -370,8 +370,10 @@ local function toggle_lazyjj()
     vim.cmd("wincmd k")
   end, { buffer = lazyjj_state.buf, desc = "Jump to editor" })
 
-  -- Always open vertical terminal alongside lazyjj
-  require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+  -- Open vertical terminal alongside lazyjj only when wide enough
+  if vim.o.columns >= 160 then
+    require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+  end
   vim.api.nvim_set_current_win(lazyjj_state.win)
   vim.cmd("startinsert")
 end
