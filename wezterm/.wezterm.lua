@@ -124,7 +124,7 @@ config.keys = {
   -- PANE: Other
   -- =====================
   { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
-  { key = 'Enter', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
+  { key = 'Enter', mods = 'CMD', action = act.TogglePaneZoomState },
 
   -- =====================
   -- TAB: Management
@@ -213,7 +213,7 @@ config.keys = {
     args = { '/opt/homebrew/bin/nvim', wezterm.config_file },
   }},
   { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
-  { key = 'Enter', mods = 'CMD', action = act.ToggleFullScreen },
+  { key = 'Enter', mods = 'CMD|SHIFT', action = act.ToggleFullScreen },
   { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
   { key = 'p', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|COMMANDS' } },
 }
