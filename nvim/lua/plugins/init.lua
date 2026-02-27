@@ -277,6 +277,12 @@ return {
   },
 
   {
+    "danilamihailov/beacon.nvim",
+    event = "VeryLazy",
+    opts = {},
+  },
+
+  {
     "gaoDean/autolist.nvim",
     ft = "markdown",
     opts = {},
@@ -312,18 +318,26 @@ return {
       require("aerial").setup(opts)
       require("telescope").load_extension("aerial")
 
-      local function open_aerial()
+      local aerial_min_cols = 160  -- nvim-tree(35) + editor(~90) + aerial(35)
+
+      local function sync_aerial()
         vim.defer_fn(function()
-          if not require("aerial").is_open() then
-            pcall(require("aerial").open, { focus = false })
+          local aerial = require("aerial")
+          if vim.o.columns >= aerial_min_cols then
+            if not aerial.is_open() then
+              pcall(aerial.open, { focus = false })
+            end
+          else
+            if aerial.is_open() then
+              pcall(aerial.close)
+            end
           end
         end, 200)
       end
 
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function() open_aerial() end,
-      })
-      open_aerial()
+      vim.api.nvim_create_autocmd("LspAttach", { callback = sync_aerial })
+      vim.api.nvim_create_autocmd("VimResized", { callback = sync_aerial })
+      sync_aerial()
     end,
   },
 }

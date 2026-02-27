@@ -37,18 +37,10 @@ map("i", "\x1b[122;6u", "<C-o><C-r>", { desc = "Redo" })           -- Ctrl+Shift
 map("n", "<C-r>", "<Nop>", { desc = "Disabled: use Ctrl+Shift+z" })
 
 -- Leader shortcuts (nvim views)
--- Custom: a (agent), j (lazyjj), u (tmux), y (yazi), Tab (cycle splits)
--- Available: i, k, l, o, q, s, z
+-- Custom: j (lazyjj), u (tmux), y (yazi), Tab (cycle splits)
+-- Available: a, i, k, l, o, q, s, z
 -- NvChad uses: b, c, d, e, f, g, h, m, n, p, r, t, v, w, x
 map("n", "<leader>y", "<Cmd>Yazi<CR>", { desc = "Yazi (q to close)" })
-
--- Terminal in tab (appears in tabufline)
-map("n", "<leader>a", function()
-  vim.cmd("enew")
-  vim.fn.termopen(vim.o.shell)
-  vim.bo.buflisted = true
-  vim.cmd("startinsert")
-end, { desc = "Tab terminal" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "gb", "<C-o>", { desc = "Go back (jump list)" })
@@ -64,7 +56,10 @@ map({ "n", "t" }, "<C-\\>", function()
 end, { desc = "Terminal vertical" })
 
 map({ "n", "t" }, "<C-=>", function()
-  require("nvchad.term").toggle { pos = "float", id = "floatTerm" }
+  require("nvchad.term").toggle {
+    pos = "float", id = "floatTerm",
+    float_opts = { width = 0.6, height = 0.85, row = 0.04, col = 0.2 },
+  }
 end, { desc = "Terminal float" })
 
 -- =============================================================================

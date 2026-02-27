@@ -22,3 +22,20 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
     end
   end,
 })
+
+-- Auto-highlight word under cursor (like * but automatic)
+local hl_group = vim.api.nvim_create_augroup("WordHighlight", {})
+vim.api.nvim_create_autocmd("CursorMoved", {
+  group = hl_group,
+  callback = function()
+    if vim.w.word_hl_id then
+      pcall(vim.fn.matchdelete, vim.w.word_hl_id)
+      vim.w.word_hl_id = nil
+    end
+    if vim.bo.buftype ~= "" then return end
+    local word = vim.fn.expand("<cword>")
+    if word == "" or #word < 2 then return end
+    local escaped = vim.fn.escape(word, "\\/.*$^~[]")
+    vim.w.word_hl_id = vim.fn.matchadd("CursorColumn", "\\V\\<" .. escaped .. "\\>", -1)
+  end,
+})
