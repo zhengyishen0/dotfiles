@@ -176,13 +176,33 @@ return {
           return buf
         end
 
+        local function open_file(path)
+          close_float()
+          local tree_win = api.tree.winid()
+          -- Find an editor window (not nvim-tree, not aerial)
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            if win ~= tree_win then
+              local buf = vim.api.nvim_win_get_buf(win)
+              local ft = vim.bo[buf].filetype
+              if ft ~= "aerial" and ft ~= "NvimTree" then
+                vim.api.nvim_set_current_win(win)
+                vim.cmd("edit " .. vim.fn.fnameescape(path))
+                return
+              end
+            end
+          end
+          vim.cmd("edit " .. vim.fn.fnameescape(path))
+        end
+
         local function show_diff(path)
           local check = vim.fn.system("jj diff --git " .. vim.fn.shellescape(path))
           if vim.v.shell_error ~= 0 or vim.trim(check) == "" then return false end
           local buf = open_float({ width_pct = 0.85, title = " jj diff " })
+          local function open_this() open_file(path) end
           for _, k in ipairs({"q", "<Esc>", "h"}) do
             vim.keymap.set("t", k, close_and_return, { buffer = buf })
           end
+          vim.keymap.set("t", "<CR>", open_this, { buffer = buf })
           vim.fn.termopen("jj diff " .. vim.fn.shellescape(path), {
             on_exit = function()
               vim.schedule(function()
@@ -191,6 +211,7 @@ return {
                   for _, k in ipairs({"q", "<Esc>", "h"}) do
                     vim.keymap.set("n", k, close_and_return, { buffer = b })
                   end
+                  vim.keymap.set("n", "<CR>", open_this, { buffer = b })
                 end
               end)
             end,
@@ -208,9 +229,11 @@ return {
           vim.bo[buf].modifiable = false
           local ft = vim.filetype.match({ buf = buf, filename = path })
           if ft then vim.bo[buf].filetype = ft end
+          local function open_this() open_file(path) end
           for _, k in ipairs({"q", "<Esc>", "h"}) do
             vim.keymap.set("n", k, close_and_return, { buffer = buf })
           end
+          vim.keymap.set("n", "<CR>", open_this, { buffer = buf })
         end
 
         vim.keymap.set("n", "l", function()
@@ -234,8 +257,9 @@ return {
         vim.keymap.set("n", "?", api.tree.toggle_help, { buffer = bufnr, desc = "Help" })
         vim.keymap.set("n", ".", api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle dotfiles" })
         vim.keymap.set("n", ",", api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle gitignore" })
-        -- Enter: cd into folder (+ jump to top) or open file
+        -- Enter: cd into folder (+ jump to top) or open file (closes preview/diff first)
         vim.keymap.set("n", "<CR>", function()
+          close_float()
           local node = api.tree.get_node_under_cursor()
           local is_dir = node.type == "directory"
             or (node.type == "link" and vim.fn.isdirectory(node.link_to or "") == 1)
