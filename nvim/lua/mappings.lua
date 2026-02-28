@@ -144,21 +144,7 @@ local function toggle_checkbox()
 end
 map({ "n", "i" }, "<M-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
 
--- Move line/selection up/down (Alt+j/k)
-map("n", "<M-k>", ":m .-2<CR>==", { desc = "Move line up" })
-map("n", "<M-j>", ":m .+1<CR>==", { desc = "Move line down" })
-map("i", "<M-k>", "<C-o>:m .-2<CR><C-o>==", { desc = "Move line up" })
-map("i", "<M-j>", "<C-o>:m .+1<CR><C-o>==", { desc = "Move line down" })
-map("v", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
-map("v", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-
--- Indent/dedent (Opt+h/l)
-map("n", "<M-h>", "<<", { desc = "Dedent" })
-map("n", "<M-l>", ">>", { desc = "Indent" })
-map("i", "<M-h>", "<C-d>", { desc = "Dedent" })
-map("i", "<M-l>", "<C-t>", { desc = "Indent" })
-map("v", "<M-h>", "<gv", { desc = "Dedent selection" })
-map("v", "<M-l>", ">gv", { desc = "Indent selection" })
+-- Opt+hjkl reserved for wezterm pane resize (via smart-splits)
 
 -- Line start/end (Shift+h/l)
 map({ "n", "v" }, "H", "^", { desc = "Line start" })

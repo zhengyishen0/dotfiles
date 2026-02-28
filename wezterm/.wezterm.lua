@@ -116,15 +116,7 @@ config.keys = {
   { key = ']', mods = 'CMD', action = act.ActivatePaneDirection 'Next' },
 
   -- =====================
-  -- PANE: Resize (Cmd+Opt+Shift+Arrow)
-  -- =====================
-  { key = 'LeftArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Left', 5 } },
-  { key = 'RightArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Right', 5 } },
-  { key = 'UpArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Up', 5 } },
-  { key = 'DownArrow', mods = 'CMD|OPT|SHIFT', action = act.AdjustPaneSize { 'Down', 5 } },
-
-  -- =====================
-  -- PANE: Other
+  -- PANE: Other (resize via Opt+hjkl from smart-splits)
   -- =====================
   { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
   { key = 'Enter', mods = 'CMD', action = act.TogglePaneZoomState },
@@ -148,10 +140,10 @@ config.keys = {
   { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },
 
   -- =====================
-  -- SCROLL (Cmd+Up/Down)
+  -- SCROLL (PageUp/PageDown)
   -- =====================
-  { key = 'UpArrow', mods = 'CMD', action = act.ScrollByPage(-0.5) },
-  { key = 'DownArrow', mods = 'CMD', action = act.ScrollByPage(0.5) },
+  { key = 'PageUp', mods = 'NONE', action = act.ScrollByPage(-1) },
+  { key = 'PageDown', mods = 'NONE', action = act.ScrollByPage(1) },
 
   -- =====================
   -- macOS-style LINE EDITING (for shell)
@@ -325,11 +317,12 @@ config.mouse_bindings = {
   },
 }
 
--- Apply smart-splits navigation (resize disabled — use Cmd+Opt+Shift+Arrow instead)
+-- Apply smart-splits navigation and resize
 smart_splits.apply_to_config(config, {
   direction_keys = { 'h', 'j', 'k', 'l' },
   modifiers = {
     move = 'CTRL',
+    resize = 'META',
   },
 })
 
