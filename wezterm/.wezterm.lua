@@ -79,6 +79,7 @@ config.scrollback_lines = 10000
 config.enable_scroll_bar = false
 config.adjust_window_size_when_changing_font_size = false
 config.window_close_confirmation = 'NeverPrompt'
+config.native_macos_fullscreen_mode = true
 
 -- =============================================================================
 -- SSH DOMAINS (Remote connections)
@@ -104,6 +105,8 @@ config.keys = {
   -- =====================
   { key = 'd', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = '|', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = '_', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
 
   -- =====================
   -- PANE: Navigate (Ctrl+hjkl handled by smart-splits plugin)
@@ -119,7 +122,7 @@ config.keys = {
   -- PANE: Other (resize via Opt+hjkl from smart-splits)
   -- =====================
   { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
-  { key = 'Enter', mods = 'CMD', action = act.TogglePaneZoomState },
+  { key = 'Space', mods = 'CTRL', action = act.TogglePaneZoomState },
 
   -- =====================
   -- TAB: Management
@@ -144,8 +147,8 @@ config.keys = {
   -- =====================
   -- SCROLL (PageUp/PageDown)
   -- =====================
-  { key = 'PageUp', mods = 'NONE', action = act.ScrollByPage(-1) },
-  { key = 'PageDown', mods = 'NONE', action = act.ScrollByPage(1) },
+  { key = 'PageUp', mods = 'NONE', action = act.ScrollByPage(-0.5) },
+  { key = 'PageDown', mods = 'NONE', action = act.ScrollByPage(0.5) },
 
   -- =====================
   -- macOS-style LINE EDITING (for shell)
@@ -214,7 +217,7 @@ config.keys = {
     args = { '/opt/homebrew/bin/nvim', wezterm.config_file },
   }},
   { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
-  { key = 'Enter', mods = 'CMD|SHIFT', action = act.ToggleFullScreen },
+  { key = 'Enter', mods = 'CMD', action = act.ToggleFullScreen },
   { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
   { key = 'p', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|COMMANDS' } },
 }
