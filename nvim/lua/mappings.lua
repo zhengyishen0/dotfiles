@@ -146,6 +146,14 @@ map({ "n", "i" }, "<M-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
 
 -- Opt+hjkl reserved for wezterm pane resize (via smart-splits)
 
+-- Word navigation (Opt+, / Opt+. → wezterm sends Alt+b/f)
+map({ "n", "v", "s" }, "<M-b>", "b", { desc = "Word back" })
+map({ "n", "v", "s" }, "<M-f>", "w", { desc = "Word forward" })
+map("i", "<M-b>", "<C-o>b", { desc = "Word back" })
+map("i", "<M-f>", "<C-o>w", { desc = "Word forward" })
+map("c", "<M-b>", "<S-Left>", { desc = "Word back" })
+map("c", "<M-f>", "<S-Right>", { desc = "Word forward" })
+
 -- Line start/end (Shift+h/l)
 map({ "n", "v" }, "H", "^", { desc = "Line start" })
 map({ "n", "v" }, "L", "$", { desc = "Line end" })
