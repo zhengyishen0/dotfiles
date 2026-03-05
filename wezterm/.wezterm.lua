@@ -132,6 +132,8 @@ config.keys = {
   { key = '}', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(1) },
   { key = ',', mods = 'CTRL', action = act.ActivateTabRelative(-1) },
   { key = '.', mods = 'CTRL', action = act.ActivateTabRelative(1) },
+  { key = 'Home', mods = 'NONE', action = act.ActivateTabRelative(-1) },
+  { key = 'End', mods = 'NONE', action = act.ActivateTabRelative(1) },
   { key = '9', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = '0', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
   { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
@@ -145,10 +147,10 @@ config.keys = {
   { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },
 
   -- =====================
-  -- SCROLL (PageUp/PageDown)
+  -- SCROLL (half-page)
   -- =====================
-  { key = 'PageUp', mods = 'NONE', action = act.ScrollByPage(-0.5) },
-  { key = 'PageDown', mods = 'NONE', action = act.ScrollByPage(0.5) },
+  { key = 'UpArrow', mods = 'OPT', action = act.ScrollByPage(-0.5) },
+  { key = 'DownArrow', mods = 'OPT', action = act.ScrollByPage(0.5) },
 
   -- =====================
   -- macOS-style LINE EDITING (for shell)
@@ -164,6 +166,9 @@ config.keys = {
   { key = 'Backspace', mods = 'OPT', action = act.SendKey { key = 'w', mods = 'CTRL' } },
   { key = 'Backspace', mods = 'CMD', action = act.SendKey { key = 'u', mods = 'CTRL' } },
   { key = 'Enter', mods = 'SHIFT', action = act.SendString '\n' },
+  { key = 'Enter', mods = 'ALT', action = act.SendString '\x1b\r' },  -- ESC + Enter for Alt+Enter
+
+
 
   -- =====================
   -- SEARCH & QUICK SELECT

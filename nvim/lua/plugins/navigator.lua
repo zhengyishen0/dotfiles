@@ -2,10 +2,11 @@ return {
   {
     "mrjones2014/smart-splits.nvim",
     lazy = false,
-    init = function()
-      vim.g.smart_splits_multiplexer_integration = 'wezterm'
-    end,
-    opts = {},
+    build = "./kitty/install-kittens.bash",
+    opts = {
+      at_edge = 'stop',
+      multiplexer_integration = 'kitty',
+    },
     keys = {
       { "<C-h>", function() require("smart-splits").move_cursor_left() end, mode = { "n", "t" }, desc = "Navigate left" },
       { "<C-j>", function() require("smart-splits").move_cursor_down() end, mode = { "n", "t" }, desc = "Navigate down" },

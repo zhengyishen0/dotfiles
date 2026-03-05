@@ -72,3 +72,6 @@ source "/Users/zhengyishen/.zenix/env"
 export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"
 # End of LM Studio CLI section
 
+export PATH="$HOME/.config/emacs/bin:$PATH"
+
+source /Users/zhengyishen/.config/broot/launcher/bash/br

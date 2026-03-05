@@ -144,7 +144,7 @@ local function toggle_checkbox()
 end
 map({ "n", "i" }, "<M-CR>", toggle_checkbox, { desc = "Toggle checkbox" })
 
--- Opt+hjkl reserved for wezterm pane resize (via smart-splits)
+-- Opt+hjkl reserved for kitty pane resize (via smart-splits)
 
 -- Word navigation (Opt+, / Opt+. → wezterm sends Alt+b/f)
 map({ "n", "v", "s" }, "<M-b>", "b", { desc = "Word back" })
