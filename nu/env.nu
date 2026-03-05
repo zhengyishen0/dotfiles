@@ -3,6 +3,7 @@ let EXTRA_PATHS = [
     "/opt/homebrew/bin"
     "/opt/homebrew/sbin"
     ($nu.home-dir | path join ".local/bin")
+    ($nu.home-dir | path join ".cargo/bin")
 ]
 
 $env.PATH = ($env.PATH
@@ -11,7 +12,17 @@ $env.PATH = ($env.PATH
     | uniq)
 
 # oh-my-posh prompt
+$env.POSH_THEME = ($nu.home-dir | path join "dotfiles/ohmyposh/config.toml")
 source ~/.cache/oh-my-posh/init.nu
+
+# zoxide (z)
+source ~/.cache/zoxide/init.nu
+
+# nnn file manager
+source ~/dotfiles/nnn/env.nu
+
+$env.EDITOR = "hx"
+$env.VISUAL = "hx"
 
 # zenix
 source ~/zenix/env.nu

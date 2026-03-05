@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# nnn custom opener
+
+case "$1" in
+    # Text/code files - open in helix
+    *.txt|*.md|*.json|*.yaml|*.yml|*.toml|*.sh|*.bash|*.zsh|*.nu|\
+    *.py|*.js|*.ts|*.jsx|*.tsx|*.rs|*.go|*.c|*.h|*.cpp|*.hpp|\
+    *.html|*.css|*.scss|*.lua|*.vim|*.conf|*.ini|*.cfg|*.env|\
+    *.gitignore|*.dockerfile|Dockerfile|Makefile|*.mk)
+        hx "$1" ;;
+    
+    # Images - preview with macOS
+    *.png|*.jpg|*.jpeg|*.gif|*.webp|*.svg|*.bmp|*.ico|*.tiff)
+        open -a Preview "$1" ;;
+    
+    # PDF - preview with macOS
+    *.pdf)
+        open -a Preview "$1" ;;
+    
+    # Videos/Audio
+    *.mp4|*.mkv|*.avi|*.mov|*.webm|*.mp3|*.wav|*.flac|*.m4a)
+        open "$1" ;;
+    
+    # Archives - list contents
+    *.zip|*.tar|*.tar.gz|*.tgz|*.tar.bz2|*.tar.xz|*.7z|*.rar)
+        open "$1" ;;
+    
+    # Default - use system opener
+    *)
+        open "$1" ;;
+esac

@@ -135,6 +135,16 @@ if [[ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]]; then
 else
     echo "Tailscale not installed, skipping."
 fi
+
+# nnn file manager (compiled with icons)
+if [[ -f $DOTFILES/nnn/bin/nnn ]]; then
+    ln -sf $DOTFILES/nnn/bin/nnn ~/.local/bin/nnn
+    codesign --force --sign - $DOTFILES/nnn/bin/nnn 2>/dev/null
+    xattr -c $DOTFILES/nnn/bin/nnn 2>/dev/null
+    mkdir -p ~/.config/nnn
+    ln -sf $DOTFILES/nnn/opener ~/.config/nnn/opener
+    echo "nnn linked and signed."
+fi
 echo ""
 
 # 7. Manual install reminders
