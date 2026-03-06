@@ -2,7 +2,8 @@
 # Format: name|source
 
 Hex|Manual
-jitouch|https://www.jitouch.com/
+swiped|https://github.com/thunderjr/swiped (build: ./install.sh)
+nnn|https://github.com/jarun/nnn (build with icons: make O_NERD=1)
 Affinity|Manual
 Monocle|Manual
 Countdown|Manual

@@ -1,0 +1,13 @@
+[settings]
+velocity_threshold = 0.3
+cooldown_ms = 250
+
+[[gestures]]
+direction = "right"
+fingers = 3
+command = ["/usr/bin/osascript", "-e", "tell application \"System Events\" to keystroke \"[\" using {command down, shift down}"]
+
+[[gestures]]
+direction = "left"
+fingers = 3
+command = ["/usr/bin/osascript", "-e", "tell application \"System Events\" to keystroke \"]\" using {command down, shift down}"]

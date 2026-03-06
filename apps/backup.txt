@@ -1,4 +1,6 @@
-# Backed up apps (from dotfiles releases) - Uses: gh release download apps
-# Format: name|pattern
+# Backed up apps (from dotfiles releases)
+# Download: gh release download apps -R zhengyishen0/dotfiles
+# Format: name|file|install
 
-rcmd|rcmd.zip
+rcmd|rcmd.zip|unzip && mv rcmd.app /Applications/
+nnn|nnn-5.2-arm64.zip|unzip && mv nnn-5.2-arm64 ~/.local/bin/nnn && chmod +x ~/.local/bin/nnn

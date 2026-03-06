@@ -65,20 +65,23 @@ echo ""
 # 4. Backup Apps (from dotfiles releases)
 echo "[4/6] Backup Apps..."
 if [[ -f $DOTFILES/apps/backup.txt ]]; then
-    while IFS='|' read -r name pattern; do
+    while IFS='|' read -r name file install_cmd; do
         [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-        if [[ ! -e "/Applications/$name.app" ]]; then
-            read -p "Install $name from backup? [y/N] " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                echo "Downloading $name..."
-                gh release download apps --repo zhengyishen0/dotfiles --pattern "$pattern" -D /tmp --clobber
-                unzip -o "/tmp/$pattern" -d /
-                rm "/tmp/$pattern"
-                echo "$name installed!"
-            fi
-        else
+        # Check if already installed (app or binary)
+        if [[ -e "/Applications/$name.app" ]] || command -v "$name" &>/dev/null; then
             echo "$name already installed, skipping."
+            continue
+        fi
+        read -p "Install $name from backup? [y/N] " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "Downloading $name..."
+            gh release download apps --repo zhengyishen0/dotfiles --pattern "$file" -D /tmp --clobber
+            cd /tmp
+            eval "$install_cmd"
+            rm -f "/tmp/$file"
+            echo "$name installed!"
+            cd - > /dev/null
         fi
     done < $DOTFILES/apps/backup.txt
 fi
@@ -136,14 +139,11 @@ else
     echo "Tailscale not installed, skipping."
 fi
 
-# nnn file manager (compiled with icons)
-if [[ -f $DOTFILES/nnn/bin/nnn ]]; then
-    ln -sf $DOTFILES/nnn/bin/nnn ~/.local/bin/nnn
-    codesign --force --sign - $DOTFILES/nnn/bin/nnn 2>/dev/null
-    xattr -c $DOTFILES/nnn/bin/nnn 2>/dev/null
+# nnn config (binary installed from backup in step 4)
+if [[ -f $DOTFILES/nnn/opener ]]; then
     mkdir -p ~/.config/nnn
     ln -sf $DOTFILES/nnn/opener ~/.config/nnn/opener
-    echo "nnn linked and signed."
+    echo "nnn config linked."
 fi
 echo ""
 
