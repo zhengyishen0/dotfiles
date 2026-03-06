@@ -36,6 +36,16 @@ final_space = true
     foreground = '#7aa2f7'
     template = "<#ffffff>via</> {{ .Name }} "
 
+  [[blocks.segments]]
+    type = 'executiontime'
+    style = 'plain'
+    foreground = 'magenta'
+    template = "<#ffffff>took</> {{ .FormattedMs }}"
+
+    [blocks.segments.properties]
+      threshold = 500
+      style = 'roundrock'
+
 [[blocks]]
   type = 'prompt'
   alignment = 'left'

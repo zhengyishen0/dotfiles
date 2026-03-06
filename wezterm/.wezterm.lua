@@ -74,6 +74,10 @@ config.command_palette_rows = 16
 config.command_palette_bg_color = 'rgba(26, 27, 38, 0.95)'
 config.command_palette_fg_color = '#c0caf5'
 
+-- macOS: Treat Option as Alt (send escape sequences, not special chars)
+config.send_composed_key_when_left_alt_is_pressed = false
+config.send_composed_key_when_right_alt_is_pressed = false
+
 -- Misc
 config.scrollback_lines = 10000
 config.enable_scroll_bar = false
@@ -105,21 +109,9 @@ config.keys = {
   -- =====================
   { key = 'd', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
-  { key = '|', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-  { key = '_', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
 
   -- =====================
-  -- PANE: Navigate (Ctrl+hjkl handled by smart-splits plugin)
-  -- =====================
-  { key = 'LeftArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Left' },
-  { key = 'RightArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Right' },
-  { key = 'UpArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Up' },
-  { key = 'DownArrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection 'Down' },
-  { key = '[', mods = 'CMD', action = act.ActivatePaneDirection 'Prev' },
-  { key = ']', mods = 'CMD', action = act.ActivatePaneDirection 'Next' },
-
-  -- =====================
-  -- PANE: Other (resize via Opt+hjkl from smart-splits)
+  -- PANE: Other (Ctrl+hjkl navigation via smart-splits plugin)
   -- =====================
   { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
   { key = 'Space', mods = 'CTRL', action = act.TogglePaneZoomState },
@@ -130,8 +122,7 @@ config.keys = {
   { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
   { key = '{', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(-1) },
   { key = '}', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(1) },
-  { key = ',', mods = 'CTRL', action = act.ActivateTabRelative(-1) },
-  { key = '.', mods = 'CTRL', action = act.ActivateTabRelative(1) },
+
   { key = 'Home', mods = 'NONE', action = act.ActivateTabRelative(-1) },
   { key = 'End', mods = 'NONE', action = act.ActivateTabRelative(1) },
   { key = '9', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
@@ -147,18 +138,11 @@ config.keys = {
   { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },
 
   -- =====================
-  -- SCROLL (half-page)
-  -- =====================
-  { key = 'UpArrow', mods = 'OPT', action = act.ScrollByPage(-0.5) },
-  { key = 'DownArrow', mods = 'OPT', action = act.ScrollByPage(0.5) },
-
-  -- =====================
   -- macOS-style LINE EDITING (for shell)
   -- =====================
   { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = 'b', mods = 'ALT' } },
   { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = 'f', mods = 'ALT' } },
-  { key = ',', mods = 'OPT', action = act.SendKey { key = 'b', mods = 'ALT' } },
-  { key = '.', mods = 'OPT', action = act.SendKey { key = 'f', mods = 'ALT' } },
+
   { key = 'LeftArrow', mods = 'CMD', action = act.SendKey { key = 'a', mods = 'CTRL' } },
   { key = 'RightArrow', mods = 'CMD', action = act.SendKey { key = 'e', mods = 'CTRL' } },
   { key = '<', mods = 'OPT|SHIFT', action = act.SendKey { key = 'Home' } },
@@ -166,7 +150,7 @@ config.keys = {
   { key = 'Backspace', mods = 'OPT', action = act.SendKey { key = 'w', mods = 'CTRL' } },
   { key = 'Backspace', mods = 'CMD', action = act.SendKey { key = 'u', mods = 'CTRL' } },
   { key = 'Enter', mods = 'SHIFT', action = act.SendString '\n' },
-  { key = 'Enter', mods = 'ALT', action = act.SendString '\x1b\r' },  -- ESC + Enter for Alt+Enter
+
 
 
 
@@ -174,7 +158,7 @@ config.keys = {
   -- SEARCH & QUICK SELECT
   -- =====================
   { key = 'f', mods = 'CMD', action = act.Search 'CurrentSelectionOrEmptyString' },
-  { key = 'f', mods = 'OPT', action = act.QuickSelect },
+
 
   -- =====================
   -- WORKSPACES & SESSIONS
@@ -209,19 +193,15 @@ config.keys = {
   }},
 
   -- =====================
-  -- PASSTHROUGH (Cmd → Ctrl for apps)
-  -- =====================
-  { key = 'z', mods = 'CMD', action = act.SendKey { key = 'z', mods = 'CTRL' } },
-  { key = 's', mods = 'CMD', action = act.SendKey { key = 's', mods = 'CTRL' } },
-
-  -- =====================
   -- MISC
   -- =====================
   { key = ',', mods = 'CMD', action = act.SpawnCommandInNewTab {
     cwd = wezterm.home_dir,
-    args = { '/opt/homebrew/bin/nvim', wezterm.config_file },
+    args = { '/opt/homebrew/bin/hx', wezterm.config_file },
   }},
   { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
+  -- Disable Alt+Enter (do nothing)
+  { key = 'Enter', mods = 'ALT', action = act.Nop },
   { key = 'Enter', mods = 'CMD', action = act.ToggleFullScreen },
   { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
   { key = 'p', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|COMMANDS' } },

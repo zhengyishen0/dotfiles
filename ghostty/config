@@ -1,4 +1,4 @@
-command = nu
+command = /opt/homebrew/bin/nu
 font-family = JetBrains Mono
 font-style = Medium
 font-size = 14
