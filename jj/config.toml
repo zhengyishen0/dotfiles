@@ -30,6 +30,7 @@ if(root,
       surround("", " ", bookmarks),
       surround("", " ", working_copies),
       format_timestamp(committer.timestamp()),
+      if(empty && parents.len() > 1, label("merged", " (merged)")),
       if(empty && parents.len() <= 1, label("empty", " (empty)")),
       if(conflict, label("conflict", " conflict")),
       "\n",
@@ -42,3 +43,4 @@ if(root,
 
 [colors]
 "diff modified" = "yellow"
+merged = "magenta"
