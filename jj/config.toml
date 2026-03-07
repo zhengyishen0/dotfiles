@@ -39,3 +39,6 @@ if(root,
   )
 )
 '''
+
+[colors]
+"diff modified" = "yellow"
