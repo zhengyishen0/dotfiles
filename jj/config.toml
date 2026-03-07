@@ -5,10 +5,10 @@ name = "Zhengyi Shen"
 email = "zhengyishen1@gmail.com"
 
 [ui]
-diff-formatter = "delta"
+# diff-formatter = "delta"
 
-[merge-tools.delta]
-diff-args = ["--side-by-side", "$left", "$right", "--width=$width"]
+# [merge-tools.delta]
+# diff-args = ["--side-by-side", "$left", "$right", "--width=$width"]
 
 [templates]
 log = 'builtin_log_compact'
