@@ -1,0 +1,33 @@
+theme = "tokyonight"
+
+[editor]
+line-number = "relative"
+mouse = true
+end-of-line-diagnostics = "hint"
+
+[editor.statusline]
+# left = ["mode", "spinner", "file-name"]
+# right = ["diagnostics", "selections", "position", "file-encoding", "file-type"]
+
+[editor.inline-diagnostics]
+cursor-line = "info"
+# other-lines = "error"
+
+[editor.cursor-shape]
+normal = "block"
+insert = "bar"
+select = "underline"
+
+[keys.normal]
+C-s = ":write"
+C-r = ":reload"
+
+# emacs style navigation
+[keys.insert]
+C-s = [":write", "normal_mode"]
+C-a = "goto_line_start"
+C-e = "goto_line_end"
+C-f = "move_char_right"
+C-b = "move_char_left"
+C-n = "move_line_down"
+C-p = "move_line_up"
