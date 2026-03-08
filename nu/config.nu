@@ -16,6 +16,8 @@
 
 $env.config.show_banner = false
 
+
+
 # nnn with cd on quit (Ctrl+G) and auto-preview
 def --env n [...args] {
     let tmp = $"/tmp/nnn-cd-($nu.pid)"

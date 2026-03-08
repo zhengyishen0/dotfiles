@@ -24,5 +24,10 @@ source ~/dotfiles/nnn/env.nu
 $env.EDITOR = "hx"
 $env.VISUAL = "hx"
 
+# Homebrew - disable verbose output
+$env.HOMEBREW_NO_AUTO_UPDATE = "1"
+$env.HOMEBREW_NO_INSTALL_CLEANUP = "1"
+$env.HOMEBREW_NO_ENV_HINTS = "1"
+
 # zenix
 source ~/zenix/env.nu

@@ -19,12 +19,12 @@ insert = "bar"
 select = "underline"
 
 [keys.normal]
-C-s = ":write"
+# C-s = ":write"
 C-r = ":reload"
 
 # emacs style navigation
 [keys.insert]
-C-s = [":write", "normal_mode"]
+# C-s = [":write", "normal_mode"]
 C-a = "goto_line_start"
 C-e = "goto_line_end"
 C-f = "move_char_right"

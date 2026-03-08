@@ -7,7 +7,10 @@ case "$1" in
     *.txt|*.md|*.json|*.yaml|*.yml|*.toml|*.sh|*.bash|*.zsh|*.nu|\
     *.py|*.js|*.ts|*.jsx|*.tsx|*.rs|*.go|*.c|*.h|*.cpp|*.hpp|\
     *.html|*.css|*.scss|*.lua|*.vim|*.conf|*.ini|*.cfg|*.env|\
-    *.gitignore|*.dockerfile|Dockerfile|Makefile|*.mk)
+    *.gitignore|*.dockerfile|Dockerfile|Makefile|*.mk|\
+    *.java|*.swift|*.ex|*.exs|*.rb|*.php|*.sql|*.graphql|*.xml|\
+    *.nix|*.zig|*.kt|*.scala|*.clj|*.hs|*.ml|*.el|*.lisp|\
+    *.r|*.R|*.jl|*.dart|*.v|*.nim|*.cr|*.groovy|*.gradle)
         hx "$1" ;;
     
     # Images - preview with macOS
