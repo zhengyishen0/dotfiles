@@ -39,6 +39,8 @@ dotfiles/
 │   └── README.md             # Setup instructions
 ├── ghostty/
 │   └── config               # Ghostty terminal config
+├── helix/
+│   └── config.toml          # Helix editor config
 └── README.md
 ```
 

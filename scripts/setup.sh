@@ -112,6 +112,10 @@ mkdir -p "$HOME/Library/Application Support/nushell"
 ln -sf $DOTFILES/nu/env.nu "$HOME/Library/Application Support/nushell/env.nu"
 ln -sf $DOTFILES/nu/config.nu "$HOME/Library/Application Support/nushell/config.nu"
 
+# Helix config
+mkdir -p ~/.config/helix
+ln -sf $DOTFILES/helix/config.toml ~/.config/helix/config.toml
+
 # Karabiner config
 if [[ -f $DOTFILES/karabiner/karabiner.json ]]; then
     mkdir -p ~/.config/karabiner/assets/complex_modifications
