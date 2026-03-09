@@ -66,7 +66,7 @@ export PATH="$HOME/google-cloud-sdk/bin:$PATH"
 source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
 # zenix
-source "/Users/zhengyishen/.zenix/env"
+source "/Users/zhengyishen/Codes/claude-code/env"
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"

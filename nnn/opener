@@ -2,6 +2,15 @@
 
 # nnn custom opener
 
+# Helper: open in hx with preview toggle
+open_in_hx() {
+    # Toggle off preview-tui
+    "$HOME/.config/nnn/plugins/preview-tui" "$1" 2>/dev/null
+    hx "$1"
+    # Toggle preview back on
+    "$HOME/.config/nnn/plugins/preview-tui" "$1" 2>/dev/null
+}
+
 case "$1" in
     # Text/code files - open in helix
     *.txt|*.md|*.json|*.yaml|*.yml|*.toml|*.sh|*.bash|*.zsh|*.nu|\
@@ -11,7 +20,7 @@ case "$1" in
     *.java|*.swift|*.ex|*.exs|*.rb|*.php|*.sql|*.graphql|*.xml|\
     *.nix|*.zig|*.kt|*.scala|*.clj|*.hs|*.ml|*.el|*.lisp|\
     *.r|*.R|*.jl|*.dart|*.v|*.nim|*.cr|*.groovy|*.gradle)
-        hx "$1" ;;
+        open_in_hx "$1" ;;
     
     # Images - preview with macOS
     *.png|*.jpg|*.jpeg|*.gif|*.webp|*.svg|*.bmp|*.ico|*.tiff)

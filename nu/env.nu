@@ -30,4 +30,4 @@ $env.HOMEBREW_NO_INSTALL_CLEANUP = "1"
 $env.HOMEBREW_NO_ENV_HINTS = "1"
 
 # zenix
-source ~/zenix/env.nu
+source ~/Codes/zenix/system/lib/env.nu
