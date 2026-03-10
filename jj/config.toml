@@ -17,7 +17,7 @@ log = 'builtin_log_compact'
 'format_short_signature(signature)' = 'signature.name()'
 'format_timestamp(timestamp)' = 'timestamp.local().format("%Y-%m-%d %H:%M")'
 
-# Custom log_compact: change_id|commit_id bookmark workspace timestamp
+# Custom log_compact: change_id|commit_id bookmark tag workspace timestamp
 'builtin_log_compact' = '''
 if(root,
   format_root_commit(self),
@@ -28,6 +28,7 @@ if(root,
       commit_id.shortest(),
       " ",
       surround("", " ", bookmarks),
+      surround("", " ", tags),
       surround("", " ", working_copies),
       format_timestamp(committer.timestamp()),
       if(empty && parents.len() > 1, label("merged", " (merged)")),
@@ -44,3 +45,4 @@ if(root,
 [colors]
 "diff modified" = "yellow"
 merged = "magenta"
+"log commit tags" = "#ff94df"
