@@ -145,8 +145,9 @@ fi
 
 # nnn config (binary installed from backup in step 4)
 if [[ -f $DOTFILES/nnn/opener ]]; then
-    mkdir -p ~/.config/nnn
+    mkdir -p ~/.config/nnn/plugins
     ln -sf $DOTFILES/nnn/opener ~/.config/nnn/opener
+    ln -sf $DOTFILES/nnn/preview-tui ~/.config/nnn/plugins/preview-tui
     echo "nnn config linked."
 fi
 echo ""
