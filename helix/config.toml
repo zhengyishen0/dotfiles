@@ -21,6 +21,9 @@ select = "underline"
 [keys.normal]
 # C-s = ":write"
 C-r = ":reload"
+";" = "command_mode"
+"\\" = "collapse_selection"
+"q" = ":quit"
 
 # emacs style navigation
 [keys.insert]

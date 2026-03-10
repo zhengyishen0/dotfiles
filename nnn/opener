@@ -4,11 +4,21 @@
 
 # Helper: open in hx with preview toggle
 open_in_hx() {
-    # Toggle off preview-tui
-    "$HOME/.config/nnn/plugins/preview-tui" "$1" 2>/dev/null
+    nnn_parent="${NNN_FIFO#*.}"
+    fifopid="${TMPDIR:-/tmp}nnn-preview-tui-fifopid.$nnn_parent"
+    # Only toggle off if preview is actually running
+    if [ -f "$fifopid" ]; then
+        preview_was_running=1
+        saved_split="$(cat "${TMPDIR:-/tmp}nnn-preview-tui-split.$nnn_parent" 2>/dev/null)"
+        "$HOME/.config/nnn/plugins/preview-tui" "$1" 2>/dev/null
+    else
+        preview_was_running=0
+    fi
     hx "$1"
-    # Toggle preview back on
-    "$HOME/.config/nnn/plugins/preview-tui" "$1" 2>/dev/null
+    # Only toggle back on if preview was running before
+    if [ "$preview_was_running" = "1" ]; then
+        "$HOME/.config/nnn/plugins/preview-tui" "$1" 2>/dev/null
+    fi
 }
 
 case "$1" in
