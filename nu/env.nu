@@ -4,6 +4,7 @@ let EXTRA_PATHS = [
     "/opt/homebrew/sbin"
     ($nu.home-dir | path join ".local/bin")
     ($nu.home-dir | path join ".cargo/bin")
+    ($nu.home-dir | path join "go/bin")
 ]
 
 $env.PATH = ($env.PATH

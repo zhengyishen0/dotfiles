@@ -98,6 +98,12 @@ brew "create-dmg"         # Create DMG files
 brew "sevenzip"           # 7z compression
 
 # ==============================================================================
+# Presentation Tools
+# ==============================================================================
+brew "slides"             # Terminal-based presentation tool
+# npm install -g reveal-md # reveal.js CLI (managed via npm)
+
+# ==============================================================================
 # Utilities
 # ==============================================================================
 brew "tree"               # Directory tree

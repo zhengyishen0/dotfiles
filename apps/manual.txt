@@ -10,3 +10,5 @@ Countdown|Manual
 Handy|Manual
 FreeGecko|Manual
 Grab2Text|Mac App Store
+reveal-md|npm install -g reveal-md
+draw|go install github.com/maaslalani/draw@latest
