@@ -1,0 +1,101 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/mouse.h>
+#include <dt-bindings/zmk/pointing.h>
+
+#define QWERTY 0
+#define NUMBER 1
+#define SYMBOL 2
+#define ARROW  3
+
+/ {
+    behaviors {
+        td_shift_caps: tap_dance_shift_caps {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&kp LSHIFT>, <&caps_word>;
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        // ╔═══════════════════════════════════════════════════════════╗
+        // ║  LAYER 0 - QWERTY                                         ║
+        // ╚═══════════════════════════════════════════════════════════╝
+        qwerty_layer {
+            display-name = "QWERTY";
+            bindings = <
+// ┌─────────────┬─────┬─────┬─────┬─────┬─────┐                 ┌─────┬─────┬─────┬─────┬─────┬──────────────┐
+   &kp ESC        &kp Q &kp W &kp E &kp R &kp T                   &kp Y &kp U &kp I &kp O &kp P &kp BSPC
+// ├─────────────┼─────┼─────┼─────┼─────┼─────┤                 ├─────┼─────┼─────┼─────┼─────┼──────────────┤
+   &mt LCTRL TAB  &kp A &kp S &kp D &kp F &kp G                   &kp H &kp J &kp K &kp L &kp SEMI &mt RGUI RET
+// ├─────────────┼─────┼─────┼─────┼─────┼─────┤                 ├─────┼─────┼─────┼─────┼─────┼──────────────┤
+   &td_shift_caps &kp LCTRL &kp Z &kp X &kp C &kp V               &kp N &kp M &kp COMMA &kp DOT &kp FSLH &mt LSHIFT SQT
+// └─────────────┴─────┴─────┴──┬──┴──┬──┴──┬──┘                 └──┬──┴──┬──┴──┬──┴─────┴─────┴──────────────┘
+                                &kp LGUI &lt NUMBER SPACE &lt ARROW B   &lt ARROW B &lt SYMBOL SPACE &kp RALT
+//                              └────────┴─────────────┴──────────┘   └──────────┴─────────────┴────────┘
+            >;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+        };
+
+        // ╔═══════════════════════════════════════════════════════════╗
+        // ║  LAYER 1 - NUMBER                                         ║
+        // ╚═══════════════════════════════════════════════════════════╝
+        number_layer {
+            display-name = "NUMBER";
+            bindings = <
+// ┌──────┬─────┬──────┬───────┬───────┬─────┐                 ┌──────┬──────┬──────┬──────┬─────┬─────┐
+   &kp GRAVE &kp N1 &kp N2 &kp N3 &kp N4 &kp N5               &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &trans
+// ├──────┼─────┼──────┼───────┼───────┼─────┤                 ├──────┼──────┼──────┼──────┼─────┼─────┤
+   &trans &kp DOT &kp HOME &kp PG_DN &kp PG_UP &kp END          &kp LEFT &kp DOWN &kp UP &kp RIGHT &kp LG(LS(LBKT)) &kp LG(LS(RBKT))
+// ├──────┼─────┼──────┼───────┼───────┼─────┤                 ├──────┼──────┼──────┼──────┼─────┼─────┤
+   &trans &trans &trans &trans &trans &trans                     &trans &trans &trans &trans &trans &trans
+// └──────┴─────┴──────┴───┬───┴───┬───┴──┬──┘                 └──┬───┴──┬───┴──┬───┴──────┴─────┴─────┘
+                           &trans  &trans  &trans                  &trans  &trans  &trans
+//                         └───────┴───────┴──────┘               └───────┴───────┴───────┘
+            >;
+            sensor-bindings = <&inc_dec_mmv MOVE_UP MOVE_DOWN>;
+        };
+
+        // ╔═══════════════════════════════════════════════════════════╗
+        // ║  LAYER 2 - SYMBOL                                         ║
+        // ╚═══════════════════════════════════════════════════════════╝
+        symbol_layer {
+            display-name = "SYMBOL";
+            bindings = <
+// ┌──────┬─────┬─────┬─────┬─────┬─────┐                 ┌─────┬─────┬─────┬─────┬─────┬─────┐
+   &kp TILDE &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS &kp STAR &kp LPAR &kp RPAR &trans
+// ├──────┼─────┼─────┼─────┼─────┼─────┤                 ├─────┼─────┼─────┼─────┼─────┼─────┤
+   &trans &kp COMMA &kp SQT &kp C_BRI_DN &kp C_BRI_UP &kp DOT   &kp MINUS &kp EQUAL &kp LBKT &kp RBKT &kp BSLH &trans
+// ├──────┼─────┼─────┼─────┼─────┼─────┤                 ├─────┼─────┼─────┼─────┼─────┼─────┤
+   &trans &kp LT &kp DQT &trans &trans &kp GT               &kp UNDER &kp PLUS &kp LBRC &kp RBRC &kp PIPE &trans
+// └──────┴─────┴─────┴──┬──┴──┬──┴──┬──┘                 └──┬──┴──┬──┴──┬──┴─────┴─────┴─────┘
+                         &trans &trans &trans                  &trans &trans &trans
+//                       └──────┴──────┴──────┘               └──────┴──────┴──────┘
+            >;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+        };
+
+        // ╔═══════════════════════════════════════════════════════════╗
+        // ║  LAYER 3 - ARROW                                          ║
+        // ╚═══════════════════════════════════════════════════════════╝
+        arrow_layer {
+            display-name = "ARROW";
+            bindings = <
+// ┌──────┬─────┬─────┬─────┬─────┬─────┐                 ┌──────┬──────┬──────┬───────┬─────┬─────┐
+   &trans &kp N1 &kp N2 &kp N3 &kp N4 &kp N5               &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &trans
+// ├──────┼─────┼─────┼─────┼─────┼─────┤                 ├──────┼──────┼──────┼───────┼─────┼─────┤
+   &trans &kp LEFT &kp DOWN &kp UP &kp RIGHT &trans          &kp LEFT &kp DOWN &kp UP &kp RIGHT &kp LG(LS(LBKT)) &kp LG(LS(RBKT))
+// ├──────┼─────┼─────┼─────┼─────┼─────┤                 ├──────┼──────┼──────┼───────┼─────┼─────┤
+   &trans &trans &trans &trans &trans &kp B                  &trans &trans &kp LBRC &kp RBRC &trans &kp RET
+// └──────┴─────┴─────┴──┬──┴──┬──┴──┬──┘                 └──┬───┴──┬───┴──┬───┴───────┴─────┴─────┘
+                         &trans &trans &trans                  &trans &trans &trans
+//                       └──────┴──────┴──────┘               └───────┴──────┴──────┘
+            >;
+            sensor-bindings = <&inc_dec_kp UP DOWN>;
+        };
+    };
+};

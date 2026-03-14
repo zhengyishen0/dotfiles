@@ -9,7 +9,7 @@ echo ""
 
 # 1. Install Homebrew if not present
 if ! command -v brew &>/dev/null; then
-    echo "[1/6] Installing Homebrew..."
+    echo "[1/8] Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
     if [[ -f /opt/homebrew/bin/brew ]]; then
@@ -19,11 +19,11 @@ if ! command -v brew &>/dev/null; then
     fi
     echo ""
 else
-    echo "[1/6] Homebrew already installed."
+    echo "[1/8] Homebrew already installed."
 fi
 
 # 2. Install Homebrew packages
-echo "[2/6] Installing Homebrew packages..."
+echo "[2/8] Installing Homebrew packages..."
 if [[ -f $DOTFILES/brew/Brewfile ]]; then
     brew bundle install --file=$DOTFILES/brew/Brewfile
 else
@@ -32,8 +32,34 @@ else
 fi
 echo ""
 
-# 3. GitHub Releases Apps (latest versions)
-echo "[3/6] GitHub Releases Apps..."
+# 3. Install Cargo packages
+echo "[3/8] Installing Cargo packages..."
+if command -v cargo &>/dev/null; then
+    if [[ -f $DOTFILES/cargo/packages.txt ]]; then
+        while IFS='#' read -r pkg comment; do
+            pkg=$(echo "$pkg" | xargs)  # trim whitespace
+            [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
+            
+            if cargo install --list | grep -q "^$pkg "; then
+                echo "$pkg already installed, skipping."
+            else
+                read -p "Install $pkg? [y/N] " -n 1 -r
+                echo ""
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    cargo install "$pkg"
+                fi
+            fi
+        done < $DOTFILES/cargo/packages.txt
+    else
+        echo "No cargo packages file found at $DOTFILES/cargo/packages.txt"
+    fi
+else
+    echo "Cargo not installed. Install Rust from https://rustup.rs/"
+fi
+echo ""
+
+# 4. GitHub Releases Apps (latest versions)
+echo "[4/8] GitHub Releases Apps..."
 if [[ -f $DOTFILES/apps/releases.txt ]]; then
     while IFS='|' read -r name app_path repo pattern; do
         [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
@@ -62,8 +88,8 @@ if [[ -f $DOTFILES/apps/releases.txt ]]; then
 fi
 echo ""
 
-# 4. Backup Apps (from dotfiles releases)
-echo "[4/6] Backup Apps..."
+# 5. Backup Apps (from dotfiles releases)
+echo "[5/8] Backup Apps..."
 if [[ -f $DOTFILES/apps/backup.txt ]]; then
     while IFS='|' read -r name file install_cmd; do
         [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
@@ -87,8 +113,8 @@ if [[ -f $DOTFILES/apps/backup.txt ]]; then
 fi
 echo ""
 
-# 5. Stow dotfiles
-echo "[5/6] Stowing dotfiles..."
+# 6. Stow dotfiles
+echo "[6/8] Stowing dotfiles..."
 cd $DOTFILES
 for dir in */; do
     pkg="${dir%/}"
@@ -130,10 +156,31 @@ if [[ -f $DOTFILES/karabiner/karabiner.json ]]; then
     done
     echo "Karabiner config linked."
 fi
+
+# Paneru config
+if [[ -f $DOTFILES/paneru/paneru ]]; then
+    if [[ -f ~/.paneru && ! -L ~/.paneru ]]; then
+        echo "Paneru config exists, backing up..."
+        cp ~/.paneru ~/.paneru.bak
+    fi
+    ln -sf $DOTFILES/paneru/paneru ~/.paneru
+    echo "Paneru config linked."
+fi
+
+# Kanata config
+if [[ -f $DOTFILES/kanata/kanata.kbd ]]; then
+    mkdir -p ~/.config/kanata
+    if [[ -f ~/.config/kanata/kanata.kbd && ! -L ~/.config/kanata/kanata.kbd ]]; then
+        echo "Kanata config exists, backing up..."
+        cp ~/.config/kanata/kanata.kbd ~/.config/kanata/kanata.kbd.bak
+    fi
+    ln -sf $DOTFILES/kanata/kanata.kbd ~/.config/kanata/kanata.kbd
+    echo "Kanata config linked."
+fi
 echo ""
 
-# 6. macOS app CLIs (wrapper scripts needed due to bundle restrictions)
-echo "[6/7] Setting up macOS app CLIs..."
+# 7. macOS app CLIs (wrapper scripts needed due to bundle restrictions)
+echo "[7/8] Setting up macOS app CLIs..."
 mkdir -p ~/.local/bin
 if [[ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]]; then
     printf '#!/bin/bash\n/Applications/Tailscale.app/Contents/MacOS/Tailscale "$@"\n' > ~/.local/bin/tailscale
@@ -152,8 +199,8 @@ if [[ -f $DOTFILES/nnn/opener ]]; then
 fi
 echo ""
 
-# 7. Manual install reminders
-echo "[7/7] Manual Install Required:"
+# 8. Manual install reminders
+echo "[8/8] Manual Install Required:"
 echo ""
 if [[ -f $DOTFILES/apps/manual.txt ]]; then
     while IFS='|' read -r name source; do

@@ -1,0 +1,9 @@
+# Cargo packages to install
+# Format: package_name [# comment]
+# Install all: while read pkg; do [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue; cargo install ${pkg%% *}; done < packages.txt
+
+# File Manager
+felix              # TUI file manager (ls/tree alternative with vim-like keybindings)
+
+# Window Management
+paneru             # Sliding tiling window manager for macOS

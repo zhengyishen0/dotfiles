@@ -30,5 +30,6 @@ $env.HOMEBREW_NO_AUTO_UPDATE = "1"
 $env.HOMEBREW_NO_INSTALL_CLEANUP = "1"
 $env.HOMEBREW_NO_ENV_HINTS = "1"
 
-# zenix
-source ~/Codes/zenix/system/lib/env.nu
+# Zenix
+source ~/zenix_lib/env.nu
+source ~/dotfiles/nu/completions-jj.nu

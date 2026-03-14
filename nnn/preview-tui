@@ -319,8 +319,10 @@ handle_ext() {
         epub) generate_preview "$cols" "$lines" "$1" "epub" ;;
         pdf) generate_preview "$cols" "$lines" "$1" "pdf" ;;
         gz|bz2) fifo_pager tar -tvf "$1" ;;
+        xlsx) fifo_pager pager "$1" ;;
+        docx|pptx) fifo_pager pager "$1" ;;
         md) if exists glow; then
-                fifo_pager glow -s dark "$1"
+                CLICOLOR_FORCE=1 fifo_pager glow -s dark -w "$cols" "$1"
             elif exists lowdown; then
                 fifo_pager lowdown -Tterm --term-width="$cols" --term-column="$cols" "$1"
             else
@@ -362,6 +364,12 @@ preview_file() {
     # Trying to use pistol if it's available.
     if [ "$NNN_PISTOL" -ne 0 ] && exists pistol; then
         fifo_pager pistol "$1"
+        return
+    fi
+
+    # Trying to use scope.sh if it's available.
+    if [ "$NNN_SCOPE" -ne 0 ] && exists scope.sh; then
+        fifo_pager scope.sh "$1" "$cols" "$lines" "$(mktemp -d)" "True"
         return
     fi
 
@@ -450,9 +458,11 @@ generate_preview() {
                    else
                        image_preview "$1" "$2" "$3" && return
                    fi ;;
-            office) libreoffice --convert-to jpg "$3" --outdir "$NNN_PREVIEWDIR/${3%/*}"
-                    filename="$(printf "%s" "${3##*/}" | cut -d. -f1)"
-                    mv -- "$NNN_PREVIEWDIR/${3%/*}/$filename.jpg" "$NNN_PREVIEWDIR/$3.jpg" ;;
+            office) if exists pandoc; then
+                        pandoc -t plain "$3" -o "$NNN_PREVIEWDIR/$3.txt"
+                        fifo_pager pager "$NNN_PREVIEWDIR/$3.txt"
+                        return
+                    fi ;;
             pdf) pdftoppm -jpeg -f 1 -singlefile "$3" "$NNN_PREVIEWDIR/$3" ;;
             djvu) ddjvu -format=ppm -page=1 "$3" "$NNN_PREVIEWDIR/$3.jpg" ;;
             video) video_preview "$1" "$2" "$3" && return ;;

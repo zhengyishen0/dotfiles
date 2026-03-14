@@ -65,9 +65,6 @@ export CLOUDSDK_PYTHON=/opt/homebrew/bin/python3.14
 export PATH="$HOME/google-cloud-sdk/bin:$PATH"
 source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
-# zenix
-source "/Users/zhengyishen/Codes/claude-code/env"
-
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"
 # End of LM Studio CLI section

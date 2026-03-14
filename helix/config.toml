@@ -4,6 +4,7 @@ theme = "tokyonight"
 line-number = "relative"
 mouse = true
 end-of-line-diagnostics = "hint"
+soft-wrap.enable = true
 
 [editor.statusline]
 # left = ["mode", "spinner", "file-name"]
@@ -25,12 +26,5 @@ C-r = ":reload"
 "\\" = "collapse_selection"
 "q" = ":quit"
 
-# emacs style navigation
 [keys.insert]
 # C-s = [":write", "normal_mode"]
-C-a = "goto_line_start"
-C-e = "goto_line_end"
-C-f = "move_char_right"
-C-b = "move_char_left"
-C-n = "move_line_down"
-C-p = "move_line_up"

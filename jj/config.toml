@@ -5,6 +5,7 @@ name = "Zhengyi Shen"
 email = "zhengyishen1@gmail.com"
 
 [ui]
+editor = "hx"
 # diff-formatter = "delta"
 
 # [merge-tools.delta]

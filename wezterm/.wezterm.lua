@@ -155,9 +155,10 @@ config.keys = {
 
 
   -- =====================
-  -- SEARCH & QUICK SELECT
+  -- SEARCH & COPY MODE
   -- =====================
-  { key = 'f', mods = 'CMD', action = act.Search 'CurrentSelectionOrEmptyString' },
+  { key = 'F', mods = 'CMD|SHIFT', action = act.QuickSelect },
+  { key = ';', mods = 'CMD', action = act.ActivateCopyMode },
 
 
   -- =====================

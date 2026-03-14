@@ -139,9 +139,17 @@ cask "jordanbaird-ice"    # Menu bar management
 cask "homerow"            # Keyboard navigation
 cask "swish"              # Trackpad gestures
 cask "karabiner-elements" # Keyboard customization
+brew "kanata"             # Advanced keyboard remapper (tap-hold, layers, chords)
 cask "clop"               # Image/video optimizer
 cask "music-decoy"        # Prevent Music.app auto-launch
 cask "pronotes"           # Notes
+
+# ==============================================================================
+# Window Management
+# ==============================================================================
+# paneru - Sliding tiling window manager (config: ~/.paneru -> ~/dotfiles/paneru/paneru)
+# Install: cargo install paneru
+# Setup:   paneru install && paneru start
 
 # ==============================================================================
 # Casks - Communication

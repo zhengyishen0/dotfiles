@@ -16,7 +16,8 @@
 
 $env.config.show_banner = false
 
-
+# Services management (Kanata, Paneru, Karabiner)
+use ~/dotfiles/nu/services.nu *
 
 # nnn with cd on quit (Ctrl+G) and auto-preview
 def --env n [...args] {
