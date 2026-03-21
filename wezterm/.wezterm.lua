@@ -3,6 +3,12 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- =============================================================================
+-- LEADER KEY
+-- =============================================================================
+
+config.leader = { key = 'Space', mods = 'CTRL', timeout_milliseconds = 1000 }
+
+-- =============================================================================
 -- SMART SPLITS (vim-aware Ctrl+hjkl navigation via wezterm plugin)
 -- =============================================================================
 
@@ -63,7 +69,7 @@ config.window_frame = {
 }
 
 -- Shell
-config.default_prog = { '/opt/homebrew/bin/nu' }
+config.default_prog = { '/opt/homebrew/bin/fish' }
 
 -- Cursor
 config.default_cursor_style = 'SteadyBar'
@@ -114,69 +120,17 @@ config.keys = {
   -- PANE: Other (Ctrl+hjkl navigation via smart-splits plugin)
   -- =====================
   { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
-  { key = 'Space', mods = 'CTRL', action = act.TogglePaneZoomState },
-
-  -- =====================
-  -- TAB: Management
-  -- =====================
-  { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
-  { key = '{', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(-1) },
-  { key = '}', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(1) },
-
-  { key = 'Home', mods = 'NONE', action = act.ActivateTabRelative(-1) },
-  { key = 'End', mods = 'NONE', action = act.ActivateTabRelative(1) },
-  { key = '9', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
-  { key = '0', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
-  { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
-  { key = '2', mods = 'CMD', action = act.ActivateTab(1) },
-  { key = '3', mods = 'CMD', action = act.ActivateTab(2) },
-  { key = '4', mods = 'CMD', action = act.ActivateTab(3) },
-  { key = '5', mods = 'CMD', action = act.ActivateTab(4) },
-  { key = '6', mods = 'CMD', action = act.ActivateTab(5) },
-  { key = '7', mods = 'CMD', action = act.ActivateTab(6) },
-  { key = '8', mods = 'CMD', action = act.ActivateTab(7) },
-  { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },
-
-  -- =====================
-  -- macOS-style LINE EDITING (for shell)
-  -- =====================
-  { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = 'b', mods = 'ALT' } },
-  { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = 'f', mods = 'ALT' } },
-
-  { key = 'LeftArrow', mods = 'CMD', action = act.SendKey { key = 'a', mods = 'CTRL' } },
-  { key = 'RightArrow', mods = 'CMD', action = act.SendKey { key = 'e', mods = 'CTRL' } },
-  { key = '<', mods = 'OPT|SHIFT', action = act.SendKey { key = 'Home' } },
-  { key = '>', mods = 'OPT|SHIFT', action = act.SendKey { key = 'End' } },
-  { key = 'Backspace', mods = 'OPT', action = act.SendKey { key = 'w', mods = 'CTRL' } },
-  { key = 'Backspace', mods = 'CMD', action = act.SendKey { key = 'u', mods = 'CTRL' } },
-  { key = 'Enter', mods = 'SHIFT', action = act.SendString '\n' },
-
+  { key = 'Enter', mods = 'CTRL', action = act.TogglePaneZoomState },
 
 
 
   -- =====================
-  -- SEARCH & COPY MODE
+  -- TAB (Cmd)
   -- =====================
-  { key = 'F', mods = 'CMD|SHIFT', action = act.QuickSelect },
-  { key = ';', mods = 'CMD', action = act.ActivateCopyMode },
 
-
-  -- =====================
-  -- WORKSPACES & SESSIONS
-  -- =====================
-  { key = 'n', mods = 'CMD', action = act.PromptInputLine {
-    description = 'Enter new session name:',
-    action = wezterm.action_callback(function(window, pane, line)
-      if line then
-        window:perform_action(act.SwitchToWorkspace { name = line }, pane)
-      end
-    end),
-  }},
-  { key = 'n', mods = 'CMD|SHIFT', action = act.SpawnWindow },
-  { key = 'Tab', mods = 'OPT', action = act.SwitchWorkspaceRelative(1) },
-  { key = 'Tab', mods = 'OPT|SHIFT', action = act.SwitchWorkspaceRelative(-1) },
-  { key = 's', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
-  { key = 'r', mods = 'OPT', action = act.PromptInputLine {
+  { key = '9', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },  -- Cmd-(
+  { key = '0', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },   -- Cmd-)
+  { key = 'r', mods = 'CMD', action = act.PromptInputLine {
     description = 'Rename tab:',
     action = wezterm.action_callback(function(window, pane, line)
       if line then
@@ -184,14 +138,63 @@ config.keys = {
       end
     end),
   }},
-  { key = 'r', mods = 'OPT|SHIFT', action = act.PromptInputLine {
-    description = 'Rename session:',
+
+  -- =====================
+  -- macOS-style LINE EDITING (for shell)
+  -- =====================
+  -- Word navigation (Opt+Arrow)
+  { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = 'b', mods = 'ALT' } },
+  { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = 'f', mods = 'ALT' } },
+  -- Word extend (Shift+Opt+Arrow)
+  { key = 'LeftArrow', mods = 'OPT|SHIFT', action = act.SendKey { key = 'B', mods = 'ALT' } },
+  { key = 'RightArrow', mods = 'OPT|SHIFT', action = act.SendKey { key = 'F', mods = 'ALT' } },
+
+  -- Line start/end (Cmd+Arrow)
+  { key = 'LeftArrow', mods = 'CMD', action = act.SendKey { key = 'a', mods = 'CTRL' } },
+  { key = 'RightArrow', mods = 'CMD', action = act.SendKey { key = 'e', mods = 'CTRL' } },
+  -- Line extend (Cmd+Shift+Arrow)
+  { key = 'LeftArrow', mods = 'CMD|SHIFT', action = act.SendKey { key = 'A', mods = 'CTRL' } },
+  { key = 'RightArrow', mods = 'CMD|SHIFT', action = act.SendKey { key = 'E', mods = 'CTRL' } },
+  -- Half page scroll (Cmd+Up/Down)
+  { key = 'UpArrow', mods = 'CMD', action = act.SendKey { key = 'u', mods = 'CTRL' } },
+  { key = 'DownArrow', mods = 'CMD', action = act.SendKey { key = 'd', mods = 'CTRL' } },
+  { key = '<', mods = 'OPT|SHIFT', action = act.SendKey { key = 'Home' } },
+  { key = '>', mods = 'OPT|SHIFT', action = act.SendKey { key = 'End' } },
+  { key = 'Backspace', mods = 'OPT', action = act.SendKey { key = 'w', mods = 'CTRL' } },
+  { key = 'Backspace', mods = 'CMD', action = act.SendKey { key = 'u', mods = 'CTRL' } },
+  { key = 'Enter', mods = 'SHIFT', action = act.SendString '\n' },
+
+  -- =====================
+  -- SEARCH & COPY MODE (Leader)
+  -- =====================
+  { key = 'f', mods = 'LEADER', action = act.QuickSelect },
+  { key = 'x', mods = 'LEADER', action = act.ActivateCopyMode },
+
+
+  -- =====================
+  -- WORKSPACES (Leader)
+  -- =====================
+  { key = 'Tab', mods = 'LEADER', action = act.SwitchWorkspaceRelative(1) },
+  { key = 'Tab', mods = 'LEADER|SHIFT', action = act.SwitchWorkspaceRelative(-1) },
+  { key = 'n', mods = 'LEADER', action = act.PromptInputLine {
+    description = 'Enter new workspace name:',
+    action = wezterm.action_callback(function(window, pane, line)
+      if line then
+        window:perform_action(act.SwitchToWorkspace { name = line }, pane)
+      end
+    end),
+  }},
+  { key = 's', mods = 'LEADER', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
+  { key = 'r', mods = 'LEADER', action = act.PromptInputLine {
+    description = 'Rename workspace:',
     action = wezterm.action_callback(function(window, pane, line)
       if line then
         wezterm.mux.rename_workspace(window:active_workspace(), line)
       end
     end),
   }},
+
+
 
   -- =====================
   -- MISC
@@ -200,12 +203,8 @@ config.keys = {
     cwd = wezterm.home_dir,
     args = { '/opt/homebrew/bin/hx', wezterm.config_file },
   }},
-  { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
-  -- Disable Alt+Enter (do nothing)
-  { key = 'Enter', mods = 'ALT', action = act.Nop },
-  { key = 'Enter', mods = 'CMD', action = act.ToggleFullScreen },
-  { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
-  { key = 'p', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|COMMANDS' } },
+
+  { key = 'Enter', mods = 'ALT', action = act.Nop },  -- Disable Alt+Enter
 }
 
 -- =============================================================================
@@ -317,7 +316,7 @@ smart_splits.apply_to_config(config, {
   direction_keys = { 'h', 'j', 'k', 'l' },
   modifiers = {
     move = 'CTRL',
-    resize = 'META',
+    resize = 'META',  -- Opt-hjkl
   },
 })
 
