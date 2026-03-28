@@ -13,7 +13,8 @@ if test -x /opt/homebrew/bin/brew
     set -gx HOMEBREW_NO_AUTO_UPDATE 1
     set -gx PATH /opt/homebrew/bin /opt/homebrew/sbin $PATH
 end
-set -gx PATH $HOME/.local/bin $PATH $HOME/google-cloud-sdk/bin $HOME/.config/emacs/bin /Users/zhengyishen/.lmstudio/bin
+set -gx PATH $HOME/.bun/bin $HOME/.local/bin $PATH $HOME/google-cloud-sdk/bin $HOME/.config/emacs/bin /Users/zhengyishen/.lmstudio/bin
+set -gx EDITOR hx
 
 # Prompt & Shell Tools
 # --------------------

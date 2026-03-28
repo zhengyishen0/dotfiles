@@ -18,7 +18,7 @@
 )
 
 (defcfg
-  process-unmapped-keys yes
+  process-unmapped-keys no
 )
 
 (defsrc
@@ -29,42 +29,41 @@
 )
 
 (deflayer base
-  ;; Caps Lock: tap=Escape, hold=Control
-  (tap-hold-press $mod-tap-timeout $mod-hold-timeout esc lctl)
+  ;; Caps Lock: tap=Caps, hold=Control
+  (tap-hold $mod-tap-timeout $mod-hold-timeout caps lctl)
   
   ;; Top row: tap=letter, hold=symbol
-  (tap-hold-release $tap-timeout $hold-timeout q S-1)  ;; Q → !
-  (tap-hold-release $tap-timeout $hold-timeout w S-2)  ;; W → @
-  (tap-hold-release $tap-timeout $hold-timeout e S-3)  ;; E → #
-  (tap-hold-release $tap-timeout $hold-timeout r S-4)  ;; R → $
-  (tap-hold-release $tap-timeout $hold-timeout t S-5)  ;; T → %
-  (tap-hold-release $tap-timeout $hold-timeout y S-6)  ;; Y → ^
-  (tap-hold-release $tap-timeout $hold-timeout u S-7)  ;; U → &
-  (tap-hold-release $tap-timeout $hold-timeout i S-8)  ;; I → *
-  (tap-hold-release $tap-timeout $hold-timeout o S-9)  ;; O → (
-  (tap-hold-release $tap-timeout $hold-timeout p S-0)  ;; P → )
-  (tap-hold-press $mod-tap-timeout $mod-hold-timeout ' rmet)   ;; ' → Right Command
+  (tap-hold $tap-timeout $hold-timeout q S-1)  ;; Q → !
+  (tap-hold $tap-timeout $hold-timeout w S-2)  ;; W → @
+  (tap-hold $tap-timeout $hold-timeout e S-3)  ;; E → #
+  (tap-hold $tap-timeout $hold-timeout r S-4)  ;; R → $
+  (tap-hold $tap-timeout $hold-timeout t S-5)  ;; T → %
+  (tap-hold $tap-timeout $hold-timeout y S-6)  ;; Y → ^
+  (tap-hold $tap-timeout $hold-timeout u S-7)  ;; U → &
+  (tap-hold $tap-timeout $hold-timeout i S-8)  ;; I → *
+  (tap-hold $tap-timeout $hold-timeout o S-9)  ;; O → (
+  (tap-hold $tap-timeout $hold-timeout p S-0)  ;; P → )
+  (tap-hold $tap-timeout $hold-timeout ' rmet)   ;; ' → Right Command
   
   ;; Home row: tap=letter, hold=number
-  (tap-hold-release $tap-timeout $hold-timeout a 1)
-  (tap-hold-release $tap-timeout $hold-timeout s 2)
-  (tap-hold-release $tap-timeout $hold-timeout d 3)
-  (tap-hold-release $tap-timeout $hold-timeout f 4)
-  (tap-hold-release $tap-timeout $hold-timeout g 5)
-  (tap-hold-release $tap-timeout $hold-timeout h 6)
-  (tap-hold-release $tap-timeout $hold-timeout j 7)
-  (tap-hold-release $tap-timeout $hold-timeout k 8)
-  (tap-hold-release $tap-timeout $hold-timeout l 9)
-  (tap-hold-release $tap-timeout $hold-timeout ; 0)
+  (tap-hold $tap-timeout $hold-timeout a 1)
+  (tap-hold $tap-timeout $hold-timeout s 2)
+  (tap-hold $tap-timeout $hold-timeout d 3)
+  (tap-hold $tap-timeout $hold-timeout f 4)
+  (tap-hold $tap-timeout $hold-timeout g 5)
+  (tap-hold $tap-timeout $hold-timeout h 6)
+  (tap-hold $tap-timeout $hold-timeout j 7)
+  (tap-hold $tap-timeout $hold-timeout k 8)
+  (tap-hold $tap-timeout $hold-timeout l 9)
+  (tap-hold $tap-timeout $hold-timeout ; 0)
   
-  ;; Bottom row: Z=Control, C=Option, N/M=minus/equal, comma/period/slash=brackets/backslash
-  (tap-hold-press $mod-tap-timeout $mod-hold-timeout z lctl)  ;; Z: tap=z, hold=Control
-  x
-  (tap-hold-press $mod-tap-timeout $mod-hold-timeout c lalt)  ;; C: tap=c, hold=Left Option
-  v b
-  (tap-hold-release $tap-timeout $hold-timeout n -)   ;; N → -
-  (tap-hold-release $tap-timeout $hold-timeout m =)   ;; M → =
-  (tap-hold-release $tap-timeout $hold-timeout , [)   ;; , → [
-  (tap-hold-release $tap-timeout $hold-timeout . ])   ;; . → ]
-  (tap-hold-release $tap-timeout $hold-timeout / \)   ;; / → \
+  ;; Bottom row: Z=Control, X=Option, N/M=minus/equal, comma/period/slash=brackets/backslash
+  (tap-hold $tap-timeout $hold-timeout z lctl)  ;; Z: tap=z, hold=Control
+  (tap-hold $tap-timeout $hold-timeout x lalt)  ;; X: tap=x, hold=Left Option
+  c v b
+  (tap-hold $tap-timeout $hold-timeout n -)   ;; N → -
+  (tap-hold $tap-timeout $hold-timeout m =)   ;; M → =
+  (tap-hold $tap-timeout $hold-timeout , [)   ;; , → [
+  (tap-hold $tap-timeout $hold-timeout . ])   ;; . → ]
+  (tap-hold $tap-timeout $hold-timeout / \)   ;; / → \
 )

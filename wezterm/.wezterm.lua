@@ -205,6 +205,28 @@ config.keys = {
   }},
 
   { key = 'Enter', mods = 'ALT', action = act.Nop },  -- Disable Alt+Enter
+
+  -- =====================
+  -- FILE PICKERS (for Helix integration)
+  -- =====================
+  -- Cmd+E: yazi picker horizontal (closes after selection)
+  { key = 'e', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
+    local current_pane_id = pane:pane_id()
+    pane:split {
+      direction = 'Bottom',
+      size = 0.4,
+      args = { '/Users/zhengyishen/.local/bin/yazi-wezterm-pick', tostring(current_pane_id) },
+    }
+  end)},
+  -- Cmd+Shift+E: yazi sidebar on left (single column, stays open)
+  { key = 'e', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
+    local current_pane_id = pane:pane_id()
+    pane:split {
+      direction = 'Left',
+      size = 0.2,
+      args = { '/Users/zhengyishen/.local/bin/yazi-sidebar', tostring(current_pane_id) },
+    }
+  end)},
 }
 
 -- =============================================================================

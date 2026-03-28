@@ -13,23 +13,23 @@ window_focus_north = "cmd - k"
 window_focus_south = "cmd - j"
 
 # Swap windows
-window_swap_west = "alt - h"
-window_swap_east = "alt - l"
-window_swap_north = "alt - k"
-window_swap_south = "alt - j"
+window_swap_west = "cmd + shift - h"
+window_swap_east = "cmd + shift - l"
+window_swap_north = "cmd + shift - k"
+window_swap_south = "cmd + shift - j"
 
 # Jump to edges
-window_focus_first = "cmd + shift - h"
-window_focus_last = "cmd + shift - l"
-window_swap_first = "alt + shift - h"
-window_swap_last = "alt + shift - l"
+# window_focus_first = "cmd + shift - h"
+# window_focus_last = "cmd + shift - l"
+# window_swap_first = "alt + shift - h"
+# window_swap_last = "alt + shift - l"
 
 # Window actions
-window_center = "alt - c"
+# window_center = "cmd + shift - c"
 window_resize = "alt - r"
-window_fullwidth = "alt - f"
+# window_fullwidth = "cmd + shift - f"
 window_manage = "alt - t"
-window_stack = "alt - ]"
+window_stack = "alt + ]"
 window_unstack = "alt + shift - ]"
 
 # Quit/Toggle

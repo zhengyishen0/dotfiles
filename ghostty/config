@@ -1,4 +1,4 @@
-command = /opt/homebrew/bin/nu
+command = /bin/zsh
 font-family = JetBrains Mono
 font-style = Medium
 font-size = 14

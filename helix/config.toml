@@ -5,26 +5,136 @@ line-number = "relative"
 mouse = true
 end-of-line-diagnostics = "hint"
 soft-wrap.enable = true
-
-[editor.statusline]
-# left = ["mode", "spinner", "file-name"]
-# right = ["diagnostics", "selections", "position", "file-encoding", "file-type"]
+bufferline = "multiple"
 
 [editor.inline-diagnostics]
 cursor-line = "info"
-# other-lines = "error"
 
 [editor.cursor-shape]
 normal = "block"
 insert = "bar"
 select = "underline"
 
+
+
+
+[keys.normal.space.w]
+# space = ":write"
+r = ":reload"
+# R = ":config-reload"
+
+[keys.normal.space]
+x = ":buffer-close"
+q = ":quit"
+space = ["collapse_selection", "insert_mode"]
+# yazi picker
+o = [":new", ":insert-output yazi-pick", "select_all", "split_selection_on_newline", "goto_file", "goto_last_modified_file", ":buffer-close!"]
+
 [keys.normal]
-# C-s = ":write"
-C-r = ":reload"
-";" = "command_mode"
-"\\" = "collapse_selection"
-"q" = ":quit"
+# Edit mode
+backspace = "change_selection" # better use d + i
+ret = "open_below"  # better use o + i
+esc = ["collapse_selection", "keep_primary_selection"]
+S-tab = ":buffer-previous"
+tab = ":buffer-next"
+
+# File operations
+"?" = "command_palette"
+"{" = "goto_prev_paragraph"
+"}" = "goto_next_paragraph"
+
+# Use system clipboard
+# p = "paste_clipboard_before"
+# P = "paste_before"
+# d = ["yank_to_clipboard", "delete_selection"]
+# y = "yank_to_clipboard"
+
+# Enhance function on same key
+# i = ["collapse_selection", "insert_mode"]
+o = ["open_below", "normal_mode"]
+O = ["open_above", "normal_mode"]
+c = "copy_selection_on_next_line"
+C = "copy_selection_on_prev_line"
+X = "extend_line_above"
+# s = "select_regex"
+# S = ["select_all", "select_regex"]
+
+
+C-y = [
+  ':sh rm -f /tmp/unique-file',
+  ':insert-output yazi "%{buffer_name}" --chooser-file=/tmp/unique-file',
+  ':sh printf "\x1b[?1049h\x1b[?2004h" > /dev/tty',
+  ':open %sh{cat /tmp/unique-file}',
+  ':redraw',
+]
+# Search navigation
+# ret = "search_next"
+# S-ret = "search_prev"
+
+# # Extend selection (Shift = extend)
+# H = "extend_char_left"
+# J = "extend_line_down"
+# K = "extend_line_up"
+# L = "extend_char_right"
+# B = "extend_prev_word_start"
+# E = "extend_next_word_end"
+
+# macOS Cmd keys (Cmd+key → Ctrl+Alt+key from Wezterm)
+# # C-A-a = "select_all"
+# C-A-c = "yank_to_clipboard"
+# C-A-v = "paste_clipboard_before"
+# C-A-x = ["yank_to_clipboard", "delete_selection"]
+# C-A-z = "undo"
+# C-A-Z = "redo"
+
+# # macOS style navigation
+# A-b = "move_prev_word_start"
+# A-f = "move_next_word_end"
+# A-B = "extend_prev_word_start"
+# A-F = "extend_next_word_end"
+# C-a = "goto_line_start"
+# C-e = "goto_line_end"
+# C-A = "extend_to_line_start"
+# C-E = "extend_to_line_end"
+# S-left = "extend_char_left"
+# S-right = "extend_char_right"
+# S-up = "extend_line_up"
+# S-down = "extend_line_down"
+
 
 [keys.insert]
-# C-s = [":write", "normal_mode"]
+# C-u = "scrll_up"
+# C-d = "scroll_down"
+# C-r = [":reload", "normal_mode"]
+# tab = ":buffer-next"
+# S-tab = ":buffer-previous"
+
+
+# # macOS Cmd keys (Cmd+key → Ctrl+Alt+key from Wezterm)
+# C-A-a = "select_all"
+# C-A-c = "yank_to_clipboard"
+# C-A-v = "paste_clipboard_after"
+# C-A-x = ["yank_to_clipboard", "delete_selection"]
+# C-A-z = "undo"
+# C-A-Z = "redo"
+ 
+# macOS style navigation
+C-b = "move_char_left"
+C-f = "move_char_right"
+# A-b = "move_prev_word_start"
+# A-f = "move_next_word_end"
+# A-B = "extend_prev_word_start"
+# A-F = "extend_next_word_end"
+# A-backspace = "delete_word_backward"
+# C-a = "goto_line_start"
+# C-e = "goto_line_end"
+# C-A = "extend_to_line_start"
+# C-E = "extend_to_line_end"
+# S-left = "extend_char_left"
+# S-right = "extend_char_right"
+# S-up = "extend_line_up"
+# S-down = "extend_line_down"
+
+[keys.select]
+# esc = ["collapse_selection", "keep_primary_selection", "normal_mode"]
+backspace = "change_selection"

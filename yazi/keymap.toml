@@ -1,0 +1,11 @@
+# Yazi keymap customization
+
+[mgr]
+prepend_keymap = [
+  { on = "d", run = "yank --cut", desc = "Cut (move)" },
+  { on = "x", run = "remove", desc = "Trash" },
+  { on = "X", run = "remove --permanently", desc = "Permanent delete" },
+  { on = "?", run = "help", desc = "Help" },
+  { on = "z", run = "plugin zoxide", desc = "Jump via zoxide" },
+  { on = "Z", run = "plugin fzf", desc = "Jump via fzf" },
+]

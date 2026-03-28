@@ -1,0 +1,3 @@
+[mgr]
+# Single column layout for sidebar use
+ratio = [0, 1, 0]

@@ -1,5 +1,8 @@
-# Path
-export PATH="$PATH:$HOME/.local/bin"
+# Path initialization
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+export PATH="$HOME/.local/bin:$PATH"
 
 # macOS app CLIs (wrapper scripts in ~/.local/bin, created by setup script)
 if [[ ! -x ~/.local/bin/tailscale ]] && [[ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]]; then
@@ -72,3 +75,6 @@ export PATH="$PATH:/Users/zhengyishen/.lmstudio/bin"
 export PATH="$HOME/.config/emacs/bin:$PATH"
 
 source /Users/zhengyishen/.config/broot/launcher/bash/br
+export BASH_ENV="$HOME/.bashrc"
+test_function() { echo 'loaded'; }
+export PATH="$HOME/.local/bin:$PATH"
