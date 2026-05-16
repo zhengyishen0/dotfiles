@@ -69,7 +69,7 @@ config.window_frame = {
 }
 
 -- Shell
-config.default_prog = { '/opt/homebrew/bin/fish' }
+config.default_prog = { '/bin/zsh' }
 
 -- Cursor
 config.default_cursor_style = 'SteadyBar'
