@@ -42,6 +42,7 @@ if [[ ! -f "$_zoxide_cache" ]]; then
     zoxide init zsh --no-cmd > "$_zoxide_cache"
 fi
 source "$_zoxide_cache"
+alias z='__zoxide_z'
 alias zi='__zoxide_zi'
 
 # fzf (cached)
