@@ -11,8 +11,8 @@ keybinds clear-defaults=true {
         bind "down" { MoveFocus "down"; }
         bind "up" { MoveFocus "up"; }
         bind "right" { MoveFocus "right"; }
-        bind "c" { SwitchToMode "renamepane"; PaneNameInput 0; }
-        bind "d" { NewPane "down"; SwitchToMode "normal"; }
+        // v = vertical split (right) · s = horizontal split (down) · S = stacked
+        bind "v" { NewPane "right"; SwitchToMode "normal"; }
         bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "normal"; }
         bind "f" { ToggleFocusFullscreen; SwitchToMode "normal"; }
         bind "h" { MoveFocus "left"; }
@@ -23,8 +23,9 @@ keybinds clear-defaults=true {
         bind "n" { NewPane; SwitchToMode "normal"; }
         bind "p" { SwitchFocus; }
         bind "Ctrl p" { SwitchToMode "normal"; }
-        bind "r" { NewPane "right"; SwitchToMode "normal"; }
-        bind "s" { NewPane "stacked"; SwitchToMode "normal"; }
+        bind "r" { SwitchToMode "renamepane"; PaneNameInput 0; }
+        bind "s" { NewPane "down"; SwitchToMode "normal"; }
+        bind "S" { NewPane "stacked"; SwitchToMode "normal"; }
         bind "w" { ToggleFloatingPanes; SwitchToMode "normal"; }
         bind "z" { TogglePaneFrames; SwitchToMode "normal"; }
     }
@@ -156,8 +157,7 @@ keybinds clear-defaults=true {
         // Alt i/o/n/p left free for Helix (tree-sitter select)
         bind "Alt Shift [" { MoveTab "left"; }
         bind "Alt Shift ]" { MoveTab "right"; }
-        bind "Alt d" { NewPane "right"; }
-        bind "Alt Shift d" { NewPane "down"; }
+        bind "Alt space" { NewPane; }
         bind "Alt x" { CloseFocus; }
         bind "Alt t" {
             LaunchOrFocusPlugin "https://github.com/AlexZasorin/zellij-newtab-plus/releases/download/v0.5.0/zellij-newtab-plus.wasm" {
@@ -420,13 +420,13 @@ default_shell "zsh"
 // otherwise this will error if such a session exists.
 // Default: <RANDOM>
 // 
-// session_name "My singleton session"
+session_name "main"
  
 // When `session_name` is provided, attaches to that session
 // if it is already running or creates it otherwise.
 // Default: false
 // 
-// attach_to_session true
+attach_to_session true
  
 // Toggle between having Zellij lay out panes according to a predefined set of layouts whenever possible
 // Options:
