@@ -12,6 +12,10 @@ export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
 export HOMEBREW_CLEANUP_MAX_AGE_DAYS=0
 FPATH="$HOMEBREW_PREFIX/share/zsh/site-functions:${FPATH}"
 
+# Default editor: Helix (used by zellij Strider/scrollback/edit, git, etc.)
+export EDITOR=hx
+export VISUAL=hx
+
 # ==============================================================================
 # COMPLETIONS (cached, rebuilds daily)
 # ==============================================================================
@@ -101,12 +105,3 @@ bindkey '\e[122;9u' undo          # Cmd+Z
 # ==============================================================================
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 alias yp='ssh -t youpu /home/ubuntu/.local/bin/zellij attach -c main'
-
-# ==============================================================================
-# ZELLIJ AUTOSTART — open a terminal → attach (or create) the "main" session.
-# Guards: skip if already multiplexed (zellij/tmux) or non-interactive / no tty,
-# so it never fires inside panes, scripts, pipes, or tooling.
-# ==============================================================================
-if [[ -z "$ZELLIJ" && -z "$TMUX" && -o interactive && -t 1 ]]; then
-    zellij attach --create main
-fi

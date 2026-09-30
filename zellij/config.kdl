@@ -11,6 +11,11 @@ keybinds {
         unbind "Alt p"
         bind "Alt Space" { NewPane; }
         bind "Alt x" { CloseFocus; }
+        bind "Alt e" {
+            LaunchOrFocusPlugin "zellij:strider" {
+                floating true
+            }
+        }
     }
 }
 
