@@ -9,13 +9,16 @@ keybinds {
         unbind "Alt o"
         unbind "Alt n"
         unbind "Alt p"
-        bind "Alt Space" { NewPane; }
         bind "Alt x" { CloseFocus; }
         bind "Alt e" {
             LaunchOrFocusPlugin "zellij:strider" {
                 floating true
             }
         }
+    }
+    // Alt-Space = global new pane, but NOT in pane mode (so Ctrl-p's ribbon shows "n")
+    shared_except "locked" "pane" {
+        bind "Alt Space" { NewPane; }
     }
 }
 
