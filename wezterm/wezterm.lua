@@ -225,14 +225,14 @@ wezterm.on('update-status', function(window, pane)
 end)
 
 config.keys = {
-  -- Closing: Cmd+W window (session keeps running), Cmd+X pane, Cmd+Shift+X session
-  { key = 'w', mods = 'CMD', action = act.QuitApplication },
-  { key = 'x', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
+  -- Closing: Cmd+W pane, Cmd+Shift+W window, Cmd+Shift+X session.
+  -- Only Cmd+Shift+X (or `exit`) ends a session; closing a window just detaches.
+  { key = 'w', mods = 'CMD|SHIFT', action = act.QuitApplication },
+  { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
       if #session_panes() <= 1 then  -- last pane: just close the window
         return window:perform_action(act.QuitApplication, pane)
       end
-      -- asks first if something other than a shell is running
-      window:perform_action(act.CloseCurrentPane { confirm = true }, pane)
+      window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
   end) },
   { key = '(', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = ')', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
