@@ -311,8 +311,8 @@ if wezterm.gui then
 end
 
 config.keys = {
-  -- Closing: Cmd+W pane, Cmd+Shift+W window, Cmd+Shift+X session.
-  -- Only Cmd+Shift+X (or `exit`) ends a session; closing a window just detaches.
+  -- Closing: Cmd+W pane, Cmd+Shift+W window, Cmd+Shift+K session.
+  -- Only Cmd+Shift+K (or `exit`) ends a session; closing a window just detaches.
   { key = 'w', mods = 'CMD|SHIFT', action = act.QuitApplication },
   { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
       if #session_panes() <= 1 then  -- last pane: just close the window
@@ -372,7 +372,7 @@ config.keys = {
   } },
   { key = 'q', mods = 'CMD|SHIFT', action = act.DetachDomain { DomainName = 'unix' } },
   -- Kill the current session (all its panes) and close its window
-  { key = 'x', mods = 'CMD|SHIFT', action = act.PromptInputLine {
+  { key = 'k', mods = 'CMD|SHIFT', action = act.PromptInputLine {
       description = 'Kill current session? (y/N)',
       action = wezterm.action_callback(function(window, pane, line)
         if not line or line:lower() ~= 'y' then return end
