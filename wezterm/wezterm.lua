@@ -182,16 +182,28 @@ local function session_panes()
   return ids
 end
 
--- End the whole session without flashing another one: quit this window first,
--- then a detached helper kills the panes once we're gone.
+-- `wezterm cli` against the mux server. Children inherit WEZTERM_UNIX_SOCKET
+-- pointing at this GUI's own socket, which uses GUI-local pane ids.
+local function mux_cli(args)
+  return string.format("WEZTERM_UNIX_SOCKET='%s' '%s' cli %s", mux_socket, wezterm_bin, args)
+end
+
+-- End the whole session without flashing another one: look up the session's
+-- server-side pane ids, quit this window, then a detached helper kills them.
 local function end_session(window, pane)
+  local name = window:active_workspace()
+  local ok, out = wezterm.run_child_process { '/bin/sh', '-c', mux_cli 'list --format json' }
   local cmds = {}
-  for _, id in ipairs(session_panes()) do
-    table.insert(cmds, string.format("'%s' cli kill-pane --pane-id %s", wezterm_bin, id))
+  if ok then
+    for _, p in ipairs(wezterm.json_parse(out)) do
+      if p.workspace == name then
+        table.insert(cmds, mux_cli('kill-pane --pane-id ' .. p.pane_id))
+      end
+    end
   end
-  -- WEZTERM_UNIX_SOCKET would otherwise point at this (about to quit) GUI's socket
-  wezterm.background_child_process { '/bin/sh', '-c',
-    string.format("export WEZTERM_UNIX_SOCKET='%s'; sleep 0.3; ", mux_socket) .. table.concat(cmds, '; ') }
+  if #cmds > 0 then
+    wezterm.background_child_process { '/bin/sh', '-c', 'sleep 0.3; ' .. table.concat(cmds, '; ') }
+  end
   window:perform_action(act.QuitApplication, pane)
 end
 
