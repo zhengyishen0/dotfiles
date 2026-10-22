@@ -131,7 +131,8 @@ config.mouse_bindings = {
 -- All shells live in a background `wezterm-mux-server`. The GUI is just a client:
 -- Cmd+Q detaches, reopening WezTerm reattaches with every process still running.
 -- Workspaces are the "sessions" (Cmd+Shift+S to switch / create).
-config.unix_domains = { { name = 'unix' } }
+local mux_socket = wezterm.home_dir .. '/.local/share/wezterm/sock'
+config.unix_domains = { { name = 'unix', socket_path = mux_socket } }
 config.default_gui_startup_args = { 'connect', 'unix' }
 
 -- Each session gets its own window: a separate GUI client attached to the same
@@ -186,9 +187,11 @@ end
 local function end_session(window, pane)
   local cmds = {}
   for _, id in ipairs(session_panes()) do
-    table.insert(cmds, string.format("'%s' cli --prefer-mux kill-pane --pane-id %s", wezterm_bin, id))
+    table.insert(cmds, string.format("'%s' cli kill-pane --pane-id %s", wezterm_bin, id))
   end
-  wezterm.background_child_process { '/bin/sh', '-c', 'sleep 0.3; ' .. table.concat(cmds, '; ') }
+  -- WEZTERM_UNIX_SOCKET would otherwise point at this (about to quit) GUI's socket
+  wezterm.background_child_process { '/bin/sh', '-c',
+    string.format("export WEZTERM_UNIX_SOCKET='%s'; sleep 0.3; ", mux_socket) .. table.concat(cmds, '; ') }
   window:perform_action(act.QuitApplication, pane)
 end
 
