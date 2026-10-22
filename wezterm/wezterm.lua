@@ -158,6 +158,8 @@ end
 
 wezterm.on('gui-attached', function()
   wezterm.GLOBAL.session_name = wezterm.mux.get_active_workspace()
+  -- Cmd+N sessions (s1, s2, ...) get renamed after the folder you're in
+  wezterm.GLOBAL.session_auto = wezterm.GLOBAL.session_name:match '^s%d+$' ~= nil
   if wezterm.GLOBAL.session_watch then return end
   wezterm.GLOBAL.session_watch = true
   local function check()
@@ -184,11 +186,28 @@ end
 local function end_session(window, pane)
   local cmds = {}
   for _, id in ipairs(session_panes()) do
-    table.insert(cmds, string.format("'%s' cli kill-pane --pane-id %s", wezterm_bin, id))
+    table.insert(cmds, string.format("'%s' cli --prefer-mux kill-pane --pane-id %s", wezterm_bin, id))
   end
   wezterm.background_child_process { '/bin/sh', '-c', 'sleep 0.3; ' .. table.concat(cmds, '; ') }
   window:perform_action(act.QuitApplication, pane)
 end
+
+-- Auto-name: rename an auto-named session after its active pane's folder
+wezterm.on('update-status', function(window, pane)
+  if not wezterm.GLOBAL.session_auto then return end
+  local cwd = pane:get_current_working_dir()
+  if not cwd then return end
+  local path = (cwd.file_path or tostring(cwd)):gsub('/$', '')
+  local base = path == wezterm.home_dir and '~' or (path:match '([^/]+)$' or '~')
+  local current = window:active_workspace()
+  if current == base or current:match('^' .. base:gsub('%p', '%%%0') .. '%-%d+$') then return end
+  local taken = {}
+  for _, name in ipairs(wezterm.mux.get_workspace_names()) do taken[name] = true end
+  local name, i = base, 2
+  while taken[name] do name = base .. '-' .. i; i = i + 1 end
+  wezterm.mux.rename_workspace(current, name)
+  wezterm.GLOBAL.session_name = name
+end)
 
 config.keys = {
   { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
@@ -240,6 +259,7 @@ config.keys = {
         if line and #line > 0 then
           wezterm.mux.rename_workspace(wezterm.mux.get_active_workspace(), line)
           wezterm.GLOBAL.session_name = line
+          wezterm.GLOBAL.session_auto = false
         end
       end),
   } },
