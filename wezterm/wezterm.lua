@@ -134,6 +134,13 @@ config.mouse_bindings = {
 config.unix_domains = { { name = 'unix' } }
 config.default_gui_startup_args = { 'connect', 'unix' }
 
+-- Each session gets its own window: a separate GUI client attached to the same
+-- mux server (one GUI process can only show one workspace at a time).
+local wezterm_bin = wezterm.executable_dir .. '/wezterm'
+local function open_session_window(name)
+  wezterm.background_child_process { wezterm_bin, 'connect', 'unix', '--workspace', name }
+end
+
 local act = wezterm.action
 config.keys = {
   { key = 'w', mods = 'CMD',       action = act.CloseCurrentPane { confirm = false } },
@@ -145,14 +152,26 @@ config.keys = {
   { key = 'Enter', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
   { key = 'l', mods = 'CMD|SHIFT', action = act.ShowLauncher },
   { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
-  -- Sessions (workspaces): pick an existing one, or type a new name to create it
-  { key = 's', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
+  -- Sessions (workspaces) — each opens in its own window, nothing switches in place
+  { key = 's', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
+      local current = wezterm.mux.get_active_workspace()
+      local choices = {}
+      for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+        if name ~= current then table.insert(choices, { id = name, label = name }) end
+      end
+      window:perform_action(act.InputSelector {
+        title = 'Open session in new window',
+        fuzzy = true,
+        choices = choices,
+        action = wezterm.action_callback(function(_, _, id)
+          if id then open_session_window(id) end
+        end),
+      }, pane)
+  end) },
   { key = 'n', mods = 'CMD|SHIFT', action = act.PromptInputLine {
       description = 'New session name:',
-      action = wezterm.action_callback(function(window, pane, line)
-        if line and #line > 0 then
-          window:perform_action(act.SwitchToWorkspace { name = line }, pane)
-        end
+      action = wezterm.action_callback(function(_, _, line)
+        if line and #line > 0 then open_session_window(line) end
       end),
   } },
   { key = 'r', mods = 'CMD|SHIFT', action = act.PromptInputLine {
@@ -164,31 +183,22 @@ config.keys = {
       end),
   } },
   { key = 'q', mods = 'CMD|SHIFT', action = act.DetachDomain { DomainName = 'unix' } },
-  -- Kill the current session: hop to another one, then kill every pane in it
+  -- Kill the current session (all its panes) and close its window
   { key = 'k', mods = 'CMD|SHIFT', action = act.PromptInputLine {
       description = 'Kill current session? (y/N)',
       action = wezterm.action_callback(function(window, pane, line)
         if not line or line:lower() ~= 'y' then return end
-        local mux = wezterm.mux
-        local name = mux.get_active_workspace()
-        local ids = {}
-        for _, w in ipairs(mux.all_windows()) do
+        local name = wezterm.mux.get_active_workspace()
+        for _, w in ipairs(wezterm.mux.all_windows()) do
           if w:get_workspace() == name then
             for _, t in ipairs(w:tabs()) do
-              for _, p in ipairs(t:panes()) do table.insert(ids, p:pane_id()) end
+              for _, p in ipairs(t:panes()) do
+                wezterm.run_child_process { wezterm_bin, 'cli', 'kill-pane', '--pane-id', tostring(p:pane_id()) }
+              end
             end
           end
         end
-        for _, other in ipairs(mux.get_workspace_names()) do
-          if other ~= name then
-            window:perform_action(act.SwitchToWorkspace { name = other }, pane)
-            break
-          end
-        end
-        local cli = wezterm.executable_dir .. '/wezterm'
-        for _, id in ipairs(ids) do
-          wezterm.background_child_process { cli, 'cli', 'kill-pane', '--pane-id', tostring(id) }
-        end
+        window:perform_action(act.QuitApplication, pane)
       end),
   } },
   -- macOS-style line editing (zsh binds these in .zshrc)
