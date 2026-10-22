@@ -143,6 +143,8 @@ config.keys = {
   { key = 'd', mods = 'CMD',       action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
   { key = 'Enter', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
+  { key = 'l', mods = 'CMD|SHIFT', action = act.ShowLauncher },
+  { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
   -- Sessions (workspaces): pick an existing one, or type a new name to create it
   { key = 's', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
   { key = 'n', mods = 'CMD|SHIFT', action = act.PromptInputLine {
