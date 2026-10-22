@@ -89,6 +89,7 @@ command -v dust &>/dev/null && alias du='dust'
 command -v duf &>/dev/null && alias df='duf'
 command -v procs &>/dev/null && alias ps='procs'
 alias cc="claude --dangerously-skip-permissions"
+alias zz="zellij attach -c main"
 sync-tmux() { ~/dotfiles/scripts/sync-tmux.sh "$@"; }
 
 # ==============================================================================

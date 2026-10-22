@@ -1,7 +1,7 @@
-// Zellij — near-default config.
-// Only changes vs stock: free Alt i/o/n/p for Helix (tree-sitter select),
-// Alt-Space = new pane, Alt-x = close pane. Everything else is default, so the on-screen
-// keybinding ribbon stays accurate.
+// Zellij — near-default. Only changes:
+//   1. free Alt i/o/n/p for Helix (tree-sitter select)
+//   2. catppuccin theme
+// Everything else is stock defaults, so the on-screen keybinding ribbon stays honest.
 
 keybinds {
     shared_except "locked" {
@@ -9,16 +9,6 @@ keybinds {
         unbind "Alt o"
         unbind "Alt n"
         unbind "Alt p"
-        bind "Alt x" { CloseFocus; }
-        bind "Alt e" {
-            LaunchOrFocusPlugin "zellij:strider" {
-                floating true
-            }
-        }
-    }
-    // Alt-Space = global new pane, but NOT in pane mode (so Ctrl-p's ribbon shows "n")
-    shared_except "locked" "pane" {
-        bind "Alt Space" { NewPane; }
     }
 }
 

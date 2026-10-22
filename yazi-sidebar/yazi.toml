@@ -4,7 +4,7 @@ ratio = [0, 1, 0]
 
 [opener]
 edit = [
-    { run = 'yazi-helix-open "$@"', block = false, desc = "Open in Helix" },
+    { run = 'yazi-tmux-open "$@"', block = false, desc = "Open in Helix (tmux)" },
 ]
 
 [open]
