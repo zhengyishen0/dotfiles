@@ -164,6 +164,13 @@ config.keys = {
       end),
   } },
   { key = 'q', mods = 'CMD|SHIFT', action = act.DetachDomain { DomainName = 'unix' } },
+  -- macOS-style line editing (zsh binds these in .zshrc)
+  { key = 'LeftArrow',  mods = 'CMD', action = act.SendString '\x1b[H' },     -- line start
+  { key = 'RightArrow', mods = 'CMD', action = act.SendString '\x1b[F' },     -- line end
+  { key = 'Backspace',  mods = 'CMD', action = act.SendString '\x15' },       -- delete to line start
+  { key = 'LeftArrow',  mods = 'OPT', action = act.SendString '\x1b[1;3D' },  -- word back
+  { key = 'RightArrow', mods = 'OPT', action = act.SendString '\x1b[1;3C' },  -- word forward
+  { key = 'Backspace',  mods = 'OPT', action = act.SendString '\x1b\x7f' },   -- delete word
   { key = 'Enter', mods = 'ALT',   action = act.SendString '\x1b[13;3u' },  -- nvim checkbox toggle
 }
 

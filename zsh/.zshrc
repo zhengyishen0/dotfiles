@@ -99,6 +99,7 @@ bindkey '\e[1;3D' backward-word   # Opt+Left
 bindkey '\e[1;3C' forward-word    # Opt+Right
 bindkey '\e[H' beginning-of-line  # Cmd+Left (Home)
 bindkey '\e[F' end-of-line        # Cmd+Right (End)
+bindkey '^U' backward-kill-line    # Cmd+Backspace (delete to line start)
 bindkey '\e[122;9u' undo          # Cmd+Z
 
 # ==============================================================================
