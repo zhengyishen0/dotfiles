@@ -136,6 +136,7 @@ config.default_gui_startup_args = { 'connect', 'unix' }
 
 -- Each session gets its own window: a separate GUI client attached to the same
 -- mux server (one GUI process can only show one workspace at a time).
+local act = wezterm.action
 local wezterm_bin = wezterm.executable_dir .. '/wezterm'
 local wezterm_app = wezterm.executable_dir:gsub('/Contents/MacOS$', '')
 local function open_session_window(name)
@@ -189,23 +190,25 @@ local function end_session(window, pane)
   window:perform_action(act.QuitApplication, pane)
 end
 
-local function session_tab_count()
-  local name, n = wezterm.mux.get_active_workspace(), 0
-  for _, w in ipairs(wezterm.mux.all_windows()) do
-    if w:get_workspace() == name then n = n + #w:tabs() end
-  end
-  return n
-end
-
-local act = wezterm.action
 config.keys = {
   { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
       if #session_panes() <= 1 then return end_session(window, pane) end
       window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
   end) },
+  -- Close this window; the session keeps running (Cmd+Shift+K kills a session)
   { key = 'w', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
-      if session_tab_count() <= 1 then return end_session(window, pane) end
-      window:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+      local name, windows = wezterm.mux.get_active_workspace(), 0
+      for _, w in ipairs(wezterm.mux.all_windows()) do
+        if w:get_workspace() == name then windows = windows + 1 end
+      end
+      if windows <= 1 then  -- last window: detach, like Cmd+Q
+        return window:perform_action(act.QuitApplication, pane)
+      end
+      for _, t in ipairs(window:mux_window():tabs()) do
+        for _, p in ipairs(t:panes()) do
+          wezterm.run_child_process { wezterm_bin, 'cli', 'kill-pane', '--pane-id', tostring(p:pane_id()) }
+        end
+      end
   end) },
   { key = '(', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = ')', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
