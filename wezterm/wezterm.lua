@@ -146,26 +146,67 @@ local function open_session_window(name)
 end
 
 -- A session window exits once its session is gone (last tab closed, `exit`,
--- killed elsewhere). Its own mux client would otherwise linger windowless.
+-- killed elsewhere). Without this, the GUI would flip to another session.
+local function session_gone(window)
+  if window and window:active_workspace() ~= wezterm.GLOBAL.session_name then return true end
+  for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+    if name == wezterm.GLOBAL.session_name then return false end
+  end
+  return true
+end
+
 wezterm.on('gui-attached', function()
   wezterm.GLOBAL.session_name = wezterm.mux.get_active_workspace()
   if wezterm.GLOBAL.session_watch then return end
   wezterm.GLOBAL.session_watch = true
   local function check()
-    local alive = false
-    for _, name in ipairs(wezterm.mux.get_workspace_names()) do
-      if name == wezterm.GLOBAL.session_name then alive = true break end
-    end
-    if not alive then os.exit(0) end
-    wezterm.time.call_after(1, check)
+    if session_gone() then os.exit(0) end
+    wezterm.time.call_after(0.1, check)
   end
-  wezterm.time.call_after(1, check)
+  wezterm.time.call_after(0.1, check)
 end)
+
+local function session_panes()
+  local name, ids = wezterm.mux.get_active_workspace(), {}
+  for _, w in ipairs(wezterm.mux.all_windows()) do
+    if w:get_workspace() == name then
+      for _, t in ipairs(w:tabs()) do
+        for _, p in ipairs(t:panes()) do table.insert(ids, tostring(p:pane_id())) end
+      end
+    end
+  end
+  return ids
+end
+
+-- End the whole session without flashing another one: quit this window first,
+-- then a detached helper kills the panes once we're gone.
+local function end_session(window, pane)
+  local cmds = {}
+  for _, id in ipairs(session_panes()) do
+    table.insert(cmds, string.format("'%s' cli kill-pane --pane-id %s", wezterm_bin, id))
+  end
+  wezterm.background_child_process { '/bin/sh', '-c', 'sleep 0.3; ' .. table.concat(cmds, '; ') }
+  window:perform_action(act.QuitApplication, pane)
+end
+
+local function session_tab_count()
+  local name, n = wezterm.mux.get_active_workspace(), 0
+  for _, w in ipairs(wezterm.mux.all_windows()) do
+    if w:get_workspace() == name then n = n + #w:tabs() end
+  end
+  return n
+end
 
 local act = wezterm.action
 config.keys = {
-  { key = 'w', mods = 'CMD',       action = act.CloseCurrentPane { confirm = false } },
-  { key = 'w', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
+  { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
+      if #session_panes() <= 1 then return end_session(window, pane) end
+      window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
+  end) },
+  { key = 'w', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
+      if session_tab_count() <= 1 then return end_session(window, pane) end
+      window:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+  end) },
   { key = '(', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = ')', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
   { key = 'd', mods = 'CMD',       action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
@@ -210,17 +251,7 @@ config.keys = {
       description = 'Kill current session? (y/N)',
       action = wezterm.action_callback(function(window, pane, line)
         if not line or line:lower() ~= 'y' then return end
-        local name = wezterm.mux.get_active_workspace()
-        for _, w in ipairs(wezterm.mux.all_windows()) do
-          if w:get_workspace() == name then
-            for _, t in ipairs(w:tabs()) do
-              for _, p in ipairs(t:panes()) do
-                wezterm.run_child_process { wezterm_bin, 'cli', 'kill-pane', '--pane-id', tostring(p:pane_id()) }
-              end
-            end
-          end
-        end
-        window:perform_action(act.QuitApplication, pane)
+        end_session(window, pane)
       end),
   } },
   -- macOS-style line editing (zsh binds these in .zshrc)
