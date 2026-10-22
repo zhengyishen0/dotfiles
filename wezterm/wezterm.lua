@@ -225,12 +225,15 @@ wezterm.on('update-status', function(window, pane)
 end)
 
 config.keys = {
-  { key = 'w', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
-      if #session_panes() <= 1 then return end_session(window, pane) end
-      window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
+  -- Closing: Cmd+W window (session keeps running), Cmd+X pane, Cmd+Shift+X session
+  { key = 'w', mods = 'CMD', action = act.QuitApplication },
+  { key = 'x', mods = 'CMD', action = wezterm.action_callback(function(window, pane)
+      if #session_panes() <= 1 then  -- last pane: just close the window
+        return window:perform_action(act.QuitApplication, pane)
+      end
+      -- asks first if something other than a shell is running
+      window:perform_action(act.CloseCurrentPane { confirm = true }, pane)
   end) },
-  -- Close the window; its session keeps running (Cmd+Shift+K kills a session)
-  { key = 'w', mods = 'CMD|SHIFT', action = act.QuitApplication },
   { key = '(', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = ')', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
   { key = 'd', mods = 'CMD',       action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
@@ -280,7 +283,7 @@ config.keys = {
   } },
   { key = 'q', mods = 'CMD|SHIFT', action = act.DetachDomain { DomainName = 'unix' } },
   -- Kill the current session (all its panes) and close its window
-  { key = 'k', mods = 'CMD|SHIFT', action = act.PromptInputLine {
+  { key = 'x', mods = 'CMD|SHIFT', action = act.PromptInputLine {
       description = 'Kill current session? (y/N)',
       action = wezterm.action_callback(function(window, pane, line)
         if not line or line:lower() ~= 'y' then return end
