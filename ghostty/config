@@ -1,4 +1,3 @@
-command = /bin/zsh
 font-family = JetBrains Mono
 font-style = Medium
 font-size = 14
@@ -20,54 +19,13 @@ window-save-state = always
 undo-timeout = 1h
 keybind = super+shift+r=redo
 
-# Alt+Enter → toggle checkbox in nvim
-keybind = alt+enter=csi:13;3u
-
-# Cmd keys → send to Neovim (not Ghostty actions)
-# super+w = default Ghostty close (no override)
+# Ghostty tab / window management
 keybind = super+shift+w=close_window
-# super+q = default Ghostty quit
-keybind = super+s=csi:115;9u
-# super+e/o/j/f = use leader keys in nvim instead
-
-# macOS-style navigation (Cmd+arrow → terminal keys)
-keybind = super+left=text:\x1b[H
-keybind = super+right=text:\x1b[F
-keybind = super+up=text:\x1b[1;5H
-keybind = super+down=text:\x1b[1;5F
-
-# macOS-style selection (Cmd+Shift+arrow)
-keybind = super+shift+left=text:\x1b[1;2H
-keybind = super+shift+right=text:\x1b[1;2F
-keybind = super+shift+up=text:\x1b[1;6H
-keybind = super+shift+down=text:\x1b[1;6F
-
-# Fix Opt+arrow (macos-option-as-alt breaks CSI sequences for arrows)
-keybind = alt+left=text:\x1b[1;3D
-keybind = alt+right=text:\x1b[1;3C
-keybind = alt+shift+left=text:\x1b[1;4D
-keybind = alt+shift+right=text:\x1b[1;4C
-
-# Scroll with Opt+Up/Down
-keybind = alt+up=scroll_page_lines:-5
-keybind = alt+down=scroll_page_lines:5
-
-# Fix Opt+Shift combos (macos-option-as-alt doesn't cover shifted keys)
-keybind = alt+shift+d=text:\x1bD
-keybind = alt+shift+w=text:\x1bW
-keybind = alt+shift+r=text:\x1bR
-keybind = alt+shift+comma=text:\x1b<
-keybind = alt+shift+period=text:\x1b>
-
-# Cmd+Z/Shift+Z only (keep native copy/paste)
-keybind = super+z=csi:122;9u
-keybind = super+shift+z=csi:122;10u
-keybind = ctrl+shift+z=csi:122;6u
-
-# Shift+Backspace needs explicit binding (terminals don't distinguish it from BS)
-keybind = shift+backspace=csi:127;2u
-
-# Move tabs with Cmd+( and Cmd+)
 keybind = super+shift+nine=move_tab:-1
 keybind = super+shift+zero=move_tab:1
 
+# Alt+arrow → word-jump in zsh / pane focus in Zellij
+keybind = alt+left=text:\x1b[1;3D
+keybind = alt+right=text:\x1b[1;3C
+
+initial-command = /opt/homebrew/bin/zellij attach --create main
