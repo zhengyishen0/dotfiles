@@ -144,14 +144,22 @@ local wezterm_app = wezterm.executable_dir:gsub('/Contents/MacOS$', '')
 -- Size of a fresh window in points (initial_cols/rows + font + padding);
 -- used to open new session windows centered on the active screen.
 local WINDOW_PT = { w = 1204, h = 858 }
+-- NOTE: only call wezterm.gui.screens() from event/key handlers. Calling it
+-- while the config is being evaluated hangs the GUI (no window ever appears).
+local function centered_position()  -- '--position' value, in pixels relative to the screen
+  local ok, sc = pcall(function() return wezterm.gui.screens().active end)
+  if not ok or not sc then return nil end
+  local x = math.max(0, math.floor((sc.width - WINDOW_PT.w * sc.scale) / 2))
+  local y = math.max(0, math.floor((sc.height - WINDOW_PT.h * sc.scale) / 2))
+  return string.format('active:%d,%d', x, y)
+end
+
 local function open_session_window(name)
   local args = { '/usr/bin/open', '-n', '-a', wezterm_app, '--args', 'connect', 'unix', '--workspace', name }
-  local sc = wezterm.gui and wezterm.gui.screens().active
-  if sc then  -- --position takes pixels relative to the screen
-    local x = math.max(0, math.floor((sc.width - WINDOW_PT.w * sc.scale) / 2))
-    local y = math.max(0, math.floor((sc.height - WINDOW_PT.h * sc.scale) / 2))
+  local pos = centered_position()
+  if pos then
     table.insert(args, '--position')
-    table.insert(args, string.format('active:%d,%d', x, y))
+    table.insert(args, pos)
   end
   -- `open -n` starts a new instance via LaunchServices, so macOS focuses it
   wezterm.background_child_process(args)
@@ -187,6 +195,13 @@ end)
 
 wezterm.on('gui-attached', function()
   wezterm.GLOBAL.session_name = wezterm.mux.get_active_workspace()
+  -- center the first window (Dock launches get no --position; others are already centered)
+  local win = wezterm.gui.gui_windows()[1]
+  local ok, sc = pcall(function() return wezterm.gui.screens().active end)
+  if win and ok and sc then
+    win:set_position(sc.x + math.max(0, (sc.width - WINDOW_PT.w * sc.scale) / 2),
+                     sc.y + math.max(0, (sc.height - WINDOW_PT.h * sc.scale) / 2))
+  end
   -- Cmd+N sessions (s1, s2, ...) get renamed after the folder you're in
   wezterm.GLOBAL.session_auto = wezterm.GLOBAL.session_name:match '^s%d+$' ~= nil
 end)
