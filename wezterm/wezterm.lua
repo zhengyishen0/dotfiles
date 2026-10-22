@@ -164,6 +164,33 @@ config.keys = {
       end),
   } },
   { key = 'q', mods = 'CMD|SHIFT', action = act.DetachDomain { DomainName = 'unix' } },
+  -- Kill the current session: hop to another one, then kill every pane in it
+  { key = 'k', mods = 'CMD|SHIFT', action = act.PromptInputLine {
+      description = 'Kill current session? (y/N)',
+      action = wezterm.action_callback(function(window, pane, line)
+        if not line or line:lower() ~= 'y' then return end
+        local mux = wezterm.mux
+        local name = mux.get_active_workspace()
+        local ids = {}
+        for _, w in ipairs(mux.all_windows()) do
+          if w:get_workspace() == name then
+            for _, t in ipairs(w:tabs()) do
+              for _, p in ipairs(t:panes()) do table.insert(ids, p:pane_id()) end
+            end
+          end
+        end
+        for _, other in ipairs(mux.get_workspace_names()) do
+          if other ~= name then
+            window:perform_action(act.SwitchToWorkspace { name = other }, pane)
+            break
+          end
+        end
+        local cli = wezterm.executable_dir .. '/wezterm'
+        for _, id in ipairs(ids) do
+          wezterm.background_child_process { cli, 'cli', 'kill-pane', '--pane-id', tostring(id) }
+        end
+      end),
+  } },
   -- macOS-style line editing (zsh binds these in .zshrc)
   { key = 'LeftArrow',  mods = 'CMD', action = act.SendString '\x1b[H' },     -- line start
   { key = 'RightArrow', mods = 'CMD', action = act.SendString '\x1b[F' },     -- line end
