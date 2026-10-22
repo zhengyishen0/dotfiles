@@ -137,9 +137,30 @@ config.default_gui_startup_args = { 'connect', 'unix' }
 -- Each session gets its own window: a separate GUI client attached to the same
 -- mux server (one GUI process can only show one workspace at a time).
 local wezterm_bin = wezterm.executable_dir .. '/wezterm'
+local wezterm_app = wezterm.executable_dir:gsub('/Contents/MacOS$', '')
 local function open_session_window(name)
-  wezterm.background_child_process { wezterm_bin, 'connect', 'unix', '--workspace', name }
+  -- `open -n` starts a new instance via LaunchServices, so macOS focuses it
+  wezterm.background_child_process {
+    '/usr/bin/open', '-n', '-a', wezterm_app, '--args', 'connect', 'unix', '--workspace', name,
+  }
 end
+
+-- A session window exits once its session is gone (last tab closed, `exit`,
+-- killed elsewhere). Its own mux client would otherwise linger windowless.
+wezterm.on('gui-attached', function()
+  wezterm.GLOBAL.session_name = wezterm.mux.get_active_workspace()
+  if wezterm.GLOBAL.session_watch then return end
+  wezterm.GLOBAL.session_watch = true
+  local function check()
+    local alive = false
+    for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+      if name == wezterm.GLOBAL.session_name then alive = true break end
+    end
+    if not alive then os.exit(0) end
+    wezterm.time.call_after(1, check)
+  end
+  wezterm.time.call_after(1, check)
+end)
 
 local act = wezterm.action
 config.keys = {
@@ -179,6 +200,7 @@ config.keys = {
       action = wezterm.action_callback(function(_, _, line)
         if line and #line > 0 then
           wezterm.mux.rename_workspace(wezterm.mux.get_active_workspace(), line)
+          wezterm.GLOBAL.session_name = line
         end
       end),
   } },
