@@ -112,6 +112,7 @@ end)
 config.send_composed_key_when_left_alt_is_pressed = false  -- Option acts as Alt
 config.send_composed_key_when_right_alt_is_pressed = true
 config.scrollback_lines = 20000
+config.enable_kitty_graphics = true  -- image previews (yazi, nvim, icat)
 config.audible_bell = 'Disabled'
 config.visual_bell = {
   fade_in_duration_ms = 75, fade_out_duration_ms = 150,
@@ -140,11 +141,20 @@ config.default_gui_startup_args = { 'connect', 'unix' }
 local act = wezterm.action
 local wezterm_bin = wezterm.executable_dir .. '/wezterm'
 local wezterm_app = wezterm.executable_dir:gsub('/Contents/MacOS$', '')
+-- Size of a fresh window in points (initial_cols/rows + font + padding);
+-- used to open new session windows centered on the active screen.
+local WINDOW_PT = { w = 1204, h = 858 }
 local function open_session_window(name)
+  local args = { '/usr/bin/open', '-n', '-a', wezterm_app, '--args', 'connect', 'unix', '--workspace', name }
+  local sc = wezterm.gui and wezterm.gui.screens().active
+  if sc then  -- --position takes pixels relative to the screen
+    local x = math.max(0, math.floor((sc.width - WINDOW_PT.w * sc.scale) / 2))
+    local y = math.max(0, math.floor((sc.height - WINDOW_PT.h * sc.scale) / 2))
+    table.insert(args, '--position')
+    table.insert(args, string.format('active:%d,%d', x, y))
+  end
   -- `open -n` starts a new instance via LaunchServices, so macOS focuses it
-  wezterm.background_child_process {
-    '/usr/bin/open', '-n', '-a', wezterm_app, '--args', 'connect', 'unix', '--workspace', name,
-  }
+  wezterm.background_child_process(args)
 end
 
 -- A session window exits once its session is gone (last tab closed, `exit`,
@@ -157,18 +167,33 @@ local function session_gone(window)
   return true
 end
 
+-- Background loops. Timers made while (re)loading the config never run, so
+-- loops are started lazily from update-status, which fires in the live Lua
+-- state; after a reload the newest state takes over and older loops stop.
+local loops, state_id = {}, tostring {} .. os.time()
+local function every(seconds, fn) table.insert(loops, { seconds = seconds, fn = fn }) end
+wezterm.on('update-status', function()
+  if wezterm.GLOBAL.loop_owner == state_id or not wezterm.GLOBAL.session_name then return end
+  wezterm.GLOBAL.loop_owner = state_id
+  for _, l in ipairs(loops) do
+    local function tick()
+      if wezterm.GLOBAL.loop_owner ~= state_id then return end
+      l.fn()
+      wezterm.time.call_after(l.seconds, tick)
+    end
+    wezterm.time.call_after(l.seconds, tick)
+  end
+end)
+
 wezterm.on('gui-attached', function()
   wezterm.GLOBAL.session_name = wezterm.mux.get_active_workspace()
   -- Cmd+N sessions (s1, s2, ...) get renamed after the folder you're in
   wezterm.GLOBAL.session_auto = wezterm.GLOBAL.session_name:match '^s%d+$' ~= nil
-  if wezterm.GLOBAL.session_watch then return end
-  wezterm.GLOBAL.session_watch = true
-  local function check()
-    if session_gone() then os.exit(0) end
-    wezterm.time.call_after(0.1, check)
-  end
-  wezterm.time.call_after(0.1, check)
 end)
+
+if wezterm.gui then
+  every(0.1, function() if session_gone() then os.exit(0) end end)
+end
 
 local function session_panes()
   local name, ids = wezterm.mux.get_active_workspace(), {}
@@ -224,6 +249,67 @@ wezterm.on('update-status', function(window, pane)
   wezterm.GLOBAL.session_name = name
 end)
 
+-- Undo close: Cmd+W parks a pane in the hidden `__trash` session (still running)
+-- instead of killing it; Cmd+Shift+T brings the latest one back as a new tab.
+-- Parked panes are killed after a minute (tab title holds the park time).
+local TRASH, TRASH_TTL = '__trash', 60
+
+local function park_pane(pane)
+  -- Moving a tab's only pane out leaves a ghost tab in this GUI. So add a
+  -- 20ms throwaway split first (exiting instantly is too soon); it exits on its own right after the move, which
+  -- closes the tab the normal way.
+  if #pane:tab():panes() == 1 then
+    pane:split { args = { '/bin/sleep', '0.02' } }
+  end
+  pane:move_to_new_window(TRASH)
+  -- stamp the park time on the server side (client tab titles don't sync back)
+  wezterm.time.call_after(0.5, function()
+    local ok, out = wezterm.run_child_process { '/bin/sh', '-c', mux_cli 'list --format json' }
+    if not ok then return end
+    for _, p in ipairs(wezterm.json_parse(out)) do
+      if p.workspace == TRASH and not tonumber(p.tab_title) then
+        wezterm.run_child_process { '/bin/sh', '-c',
+          mux_cli(string.format('set-tab-title --pane-id %d %d', p.pane_id, os.time())) }
+      end
+    end
+  end)
+  wezterm.GLOBAL.trash_stack = (wezterm.GLOBAL.trash_stack or '') .. pane:pane_id() .. ','
+end
+
+local function restore_pane(window)
+  local parked = {}
+  for _, w in ipairs(wezterm.mux.all_windows()) do
+    if w:get_workspace() == TRASH then
+      for _, t in ipairs(w:tabs()) do
+        for _, p in ipairs(t:panes()) do parked[p:pane_id()] = true end
+      end
+    end
+  end
+  local id
+  for sid in (wezterm.GLOBAL.trash_stack or ''):gmatch '(%d+),' do  -- latest closed here wins
+    if parked[tonumber(sid)] then id = tonumber(sid) end
+  end
+  if not id then for pid in pairs(parked) do if not id or pid > id then id = pid end end end
+  if not id then return window:toast_notification('WezTerm', 'Nothing to restore', nil, 1500) end
+  -- inherited WEZTERM_UNIX_SOCKET = this GUI's socket, which speaks local pane ids
+  wezterm.run_child_process { wezterm_bin, 'cli', 'move-pane-to-new-tab',
+    '--pane-id', tostring(id), '--window-id', tostring(window:mux_window():window_id()) }
+end
+
+if wezterm.gui then
+  every(10, function()
+    local ok, out = wezterm.run_child_process { '/bin/sh', '-c', mux_cli 'list --format json' }
+    if ok then
+      for _, p in ipairs(wezterm.json_parse(out)) do
+        local parked_at = tonumber(p.tab_title)
+        if p.workspace == TRASH and parked_at and os.time() - parked_at > TRASH_TTL then
+          wezterm.run_child_process { '/bin/sh', '-c', mux_cli('kill-pane --pane-id ' .. p.pane_id) }
+        end
+      end
+    end
+  end)
+end
+
 config.keys = {
   -- Closing: Cmd+W pane, Cmd+Shift+W window, Cmd+Shift+X session.
   -- Only Cmd+Shift+X (or `exit`) ends a session; closing a window just detaches.
@@ -232,7 +318,10 @@ config.keys = {
       if #session_panes() <= 1 then  -- last pane: just close the window
         return window:perform_action(act.QuitApplication, pane)
       end
-      window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
+      park_pane(pane)
+  end) },
+  { key = 't', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window)
+      restore_pane(window)
   end) },
   { key = '(', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = ')', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
@@ -246,7 +335,7 @@ config.keys = {
       local current = wezterm.mux.get_active_workspace()
       local choices = {}
       for _, name in ipairs(wezterm.mux.get_workspace_names()) do
-        if name ~= current then table.insert(choices, { id = name, label = name }) end
+        if name ~= current and name ~= TRASH then table.insert(choices, { id = name, label = name }) end
       end
       window:perform_action(act.InputSelector {
         title = 'Open session in new window',
