@@ -28,4 +28,4 @@ keybind = super+shift+zero=move_tab:1
 keybind = alt+left=text:\x1b[1;3D
 keybind = alt+right=text:\x1b[1;3C
 
-initial-command = /opt/homebrew/bin/zellij attach --create main
+# initial-command = /opt/homebrew/bin/zellij attach --create main

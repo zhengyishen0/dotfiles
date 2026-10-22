@@ -195,21 +195,8 @@ config.keys = {
       if #session_panes() <= 1 then return end_session(window, pane) end
       window:perform_action(act.CloseCurrentPane { confirm = false }, pane)
   end) },
-  -- Close this window; the session keeps running (Cmd+Shift+K kills a session)
-  { key = 'w', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
-      local name, windows = wezterm.mux.get_active_workspace(), 0
-      for _, w in ipairs(wezterm.mux.all_windows()) do
-        if w:get_workspace() == name then windows = windows + 1 end
-      end
-      if windows <= 1 then  -- last window: detach, like Cmd+Q
-        return window:perform_action(act.QuitApplication, pane)
-      end
-      for _, t in ipairs(window:mux_window():tabs()) do
-        for _, p in ipairs(t:panes()) do
-          wezterm.run_child_process { wezterm_bin, 'cli', 'kill-pane', '--pane-id', tostring(p:pane_id()) }
-        end
-      end
-  end) },
+  -- Close the window; its session keeps running (Cmd+Shift+K kills a session)
+  { key = 'w', mods = 'CMD|SHIFT', action = act.QuitApplication },
   { key = '(', mods = 'CMD|SHIFT', action = act.MoveTabRelative(-1) },
   { key = ')', mods = 'CMD|SHIFT', action = act.MoveTabRelative(1) },
   { key = 'd', mods = 'CMD',       action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
@@ -217,7 +204,7 @@ config.keys = {
   { key = 'Enter', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
   { key = 'l', mods = 'CMD|SHIFT', action = act.ShowLauncher },
   { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
-  -- Sessions (workspaces) — each opens in its own window, nothing switches in place
+  -- Sessions (workspaces) — one window per session, nothing switches in place
   { key = 's', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
       local current = wezterm.mux.get_active_workspace()
       local choices = {}
@@ -232,6 +219,14 @@ config.keys = {
           if id then open_session_window(id) end
         end),
       }, pane)
+  end) },
+  -- One session per window: Cmd+N opens a new auto-named session (rename: Cmd+Shift+R)
+  { key = 'n', mods = 'CMD', action = wezterm.action_callback(function()
+      local taken = {}
+      for _, name in ipairs(wezterm.mux.get_workspace_names()) do taken[name] = true end
+      local i = 1
+      while taken['s' .. i] do i = i + 1 end
+      open_session_window('s' .. i)
   end) },
   { key = 'n', mods = 'CMD|SHIFT', action = act.PromptInputLine {
       description = 'New session name:',
